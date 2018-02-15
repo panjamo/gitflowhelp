@@ -1,0 +1,47 @@
+# add follwing line(s) in C:\Users\<user>\.gitconfig
+#
+# [include]
+# 	path = d:/Development/gitflowhelper/githelper/.gitconfigalias
+#
+[alias]
+	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" --all
+	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
+	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
+	co=checkout
+	ci=commit
+	st = status
+	br = branch
+	hide = update-index --assume-unchanged
+	unhide = update-index --no-assume-unchanged
+	hidden = ! git ls-files -v | grep "^h"
+	unhideall = ! git ls-files -v | grep "^h" | awk  '{ print $2 }' | xargs git unhide
+	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
+	unstage = reset HEAD --
+	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'
+	rl = reflog
+	subget=submodule update --init --recursive
+
+
+# some commands from: https://gist.github.com/igal/53855
+	ba = branch -a
+	d = diff
+	dc = diff --cached
+	fp = format-patch
+	g = !git gui &
+	gr = log --graph
+	go = log --graph --pretty=oneline --abbrev-commit
+	k = !gitk &
+	ka = !gitk --all &
+	lc = log ORIG_HEAD.. --stat --no-merges
+	lp = log --patch-with-stat
+	mnf = merge --no-ff
+	mnff = merge --no-ff
+	mt = mergetool
+	p = format-patch -1
+	serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
+	sra = svn rebase --all
+	sh = !git-sh
+	stm = status --untracked=no
+	stfu = status --untracked=no
+	pullsrb = !git stash save && git pull --rebase && git stash pop && echo 'Success!'
+	

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<ArrayOfCustomAction xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <CustomAction>
+    <Caption>git stage diff </Caption>
+    <Target>git</Target>
+    <Parameters>stagediff</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git flow bugfix start</Caption>
+    <Target>C:\bin\gitflowbugfixStart.cmd</Target>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>false</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git flow bugfix finish </Caption>
+    <Target>C:\bin\gitflowbugfixFinish.cmd</Target>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>false</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git hide</Caption>
+    <Target>git</Target>
+    <Parameters>hide $FILE</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git unhideall</Caption>
+    <Target>git</Target>
+    <Parameters>unhideall</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git flow init</Caption>
+    <Target>C:\bin\gitflowinit.cmd</Target>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>false</IsSilent>
+  </CustomAction>
+</ArrayOfCustomAction>
