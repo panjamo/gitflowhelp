@@ -45,4 +45,12 @@
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>false</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>cmder</Caption>
+    <Target>cmd</Target>
+    <Parameters>/c start c:\bin\Cmder.exe</Parameters>
+    <OpenInSeparateWindow>true</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>false</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>

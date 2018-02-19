@@ -11,6 +11,7 @@
 	ci=commit
 	st = status
 	br = branch
+	cob = ! git checkout -b $1 origin/$1  && echo 
 	hide = update-index --assume-unchanged
 	unhide = update-index --no-assume-unchanged
 	hidden = ! git ls-files -v | grep "^h"
