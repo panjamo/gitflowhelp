@@ -18,6 +18,7 @@
 	unhideall = ! git ls-files -v | grep "^h" | awk  '{ print $2 }' | xargs git unhide
 	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
 	unstage = reset HEAD --
+	resetfdx = ! git reset --hard && git clean -fdx && git st
 	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'
 	rl = reflog
 	subget=submodule update --init --recursive
