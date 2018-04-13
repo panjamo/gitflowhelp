@@ -22,6 +22,8 @@ git flow init -d -f
 git config "gitflow.prefix.versiontag"  Rel-
 @REM git checkout "%CURRENTBRANCH%"
 git stash apply
+pushd .git\info
+popd
 echo *.rc diff=RC >> .git\info\attributes
 echo *.rc2 diff=RC >> .git\info\attributes
 echo *.man diff=MAN >> .git\info\attributes
