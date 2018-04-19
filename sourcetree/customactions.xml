@@ -10,14 +10,14 @@
   </CustomAction>
   <CustomAction>
     <Caption>git flow bugfix start</Caption>
-    <Target>C:\bin\gitflowbugfixStart.cmd</Target>
+    <Target>gitflowbugfixStart.cmd</Target>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>false</IsSilent>
   </CustomAction>
   <CustomAction>
     <Caption>git flow bugfix finish </Caption>
-    <Target>C:\bin\gitflowbugfixFinish.cmd</Target>
+    <Target>gitflowbugfixFinish.cmd</Target>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>false</IsSilent>
@@ -40,16 +40,8 @@
   </CustomAction>
   <CustomAction>
     <Caption>git flow init</Caption>
-    <Target>C:\bin\gitflowinit.cmd</Target>
+    <Target>gitflowinit.cmd</Target>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
-    <ShowFullOutput>false</ShowFullOutput>
-    <IsSilent>false</IsSilent>
-  </CustomAction>
-  <CustomAction>
-    <Caption>cmder</Caption>
-    <Target>cmd</Target>
-    <Parameters>/c start c:\bin\Cmder.exe</Parameters>
-    <OpenInSeparateWindow>true</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>false</IsSilent>
   </CustomAction>
