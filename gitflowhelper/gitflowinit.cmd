@@ -37,7 +37,3 @@ git config diff.RC.textconv "sed 's/^\s*\(FILEVERSION\|PRODUCTVERSION\|VALUE \"F
 git config diff.ASSEMBLYINFO.textconv "sed 's/\(.*assembly:\s*\(AssemblyInformationalVersionAttribute\|AssemblyFileVersionAttribute\|AssemblyVersionAttribute\).*\)\|( internal test release[^)]*)//i'"
 
 git ls-remote
-
-@exit 0
-
-

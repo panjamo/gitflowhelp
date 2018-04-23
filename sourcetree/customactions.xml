@@ -45,4 +45,12 @@
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>false</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>Branches containing this commit</Caption>
+    <Target>git</Target>
+    <Parameters>branch -r --contains $SHA</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>true</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>
