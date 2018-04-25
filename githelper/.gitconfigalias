@@ -23,6 +23,7 @@
 	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'
 	rl = reflog
 	subget=submodule update --init --recursive
+	deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
 
 
 # some commands from: https://gist.github.com/igal/53855
