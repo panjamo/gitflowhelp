@@ -9,7 +9,7 @@
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	co=checkout
 	ci=commit
-	st = status
+	st = status --short
 	br = branch
 	cob = ! git checkout -b $1 origin/$1  && echo 
 	hide = update-index --assume-unchanged
