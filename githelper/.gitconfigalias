@@ -4,7 +4,7 @@
 # 	path = d:/Development/gitflowhelper/githelper/.gitconfigalias
 #
 [alias]
-	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" --all
+	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	co=checkout
@@ -18,6 +18,7 @@
 	hidden = ! git ls-files -v | grep "^h"
 	unhideall = ! git ls-files -v | grep "^h" | awk  '{ print $2 }' | xargs git unhide
 	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
+	reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
 	stdiff = ! git diff -G"." --name-only
 	unstage = reset HEAD --
 	resetfdx = ! git reset --hard && git clean -fdx && git st
