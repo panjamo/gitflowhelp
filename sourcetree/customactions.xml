@@ -53,4 +53,12 @@
     <ShowFullOutput>true</ShowFullOutput>
     <IsSilent>true</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>Show complete diff for this commit</Caption>
+    <Target>git</Target>
+    <Parameters>difftool -d $SHA^ $SHA</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>
