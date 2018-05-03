@@ -31,6 +31,14 @@
     <IsSilent>true</IsSilent>
   </CustomAction>
   <CustomAction>
+    <Caption>git hidechanged</Caption>
+    <Target>git</Target>
+    <Parameters>hidechanged</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
     <Caption>git unhideall</Caption>
     <Target>git</Target>
     <Parameters>unhideall</Parameters>
@@ -62,9 +70,9 @@
     <IsSilent>true</IsSilent>
   </CustomAction>
   <CustomAction>
-    <Caption>git hidechanged</Caption>
+    <Caption>Show complete diff against working directory</Caption>
     <Target>git</Target>
-    <Parameters>hidechanged</Parameters>
+    <Parameters>difftool -d $SHA^</Parameters>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>
