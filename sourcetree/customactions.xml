@@ -61,4 +61,12 @@
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>git hidechanged</Caption>
+    <Target>git</Target>
+    <Parameters>hidechanged</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>
