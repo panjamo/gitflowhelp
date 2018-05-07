@@ -35,6 +35,8 @@
 
 	alias = ! git config --get-regexp alias
 
+	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
+
 
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
