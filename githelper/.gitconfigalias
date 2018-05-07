@@ -33,6 +33,8 @@
 
 	uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
 
+	alias = ! git config -l | grep -i ^alias
+
 
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
