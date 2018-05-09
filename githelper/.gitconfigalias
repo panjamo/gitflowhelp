@@ -26,7 +26,11 @@
 	stdiff = ! git diff -G"." --name-only
 	unstage = reset HEAD --
 	resetfdx = ! git reset --hard && git clean -fdx && git st
-	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads | sed -e 's-refs/heads/--'
+	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
+
+	# show diffeneces between branch and origin/branch
+	udiff = diff @{u}
+
 	rl = reflog
 	subget=submodule update --init --recursive
 	deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
