@@ -31,6 +31,10 @@
 	# show diffeneces between branch and origin/branch
 	udiff = diff @{u}
 
+	# comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
+	branchdiff = ! echo $1 --not $2 && git rev-list $1 --not $2 --oneline && echo $2 --not $1 && git rev-list $2 --not $1 --oneline && echo [end] git branchdiff 
+
+
 	rl = reflog
 	subget=submodule update --init --recursive
 	deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
