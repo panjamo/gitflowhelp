@@ -5,6 +5,7 @@
 #
 [alias]
 	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
+	lfn = ! git logfull -n 20
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	co=checkout
@@ -32,8 +33,10 @@
 	udiff = diff @{u}
 
 	# comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
-	branchdiff = ! echo $1 --not $2 && git rev-list $1 --not $2 --oneline && echo $2 --not $1 && git rev-list $2 --not $1 --oneline && echo [end] git branchdiff 
+	branchdiff = ! echo \"\t\t$1 --not $2\" && git rev-list $1 --not $2 --oneline && echo \"\t\t$2 --not $1\" && git rev-list $2 --not $1 --oneline && echo [end] git branchdiff 
 
+	# commits with a "fixup! ...." commit message from HEAD
+	fixup=commit --fixup head
 
 	rl = reflog
 	subget=submodule update --init --recursive
@@ -45,6 +48,14 @@
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
+	lg = !"git lg1"
+    lg1 = !"git lg1-specific --all"
+    lg2 = !"git lg2-specific --all"
+    lg3 = !"git lg3-specific --all"
+
+    lg1-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+    lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+    lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
 
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
