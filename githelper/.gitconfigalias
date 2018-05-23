@@ -33,10 +33,13 @@
 	udiff = diff @{u}
 
 	# comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
-	branchdiff = ! echo \"\t\t$1 --not $2\" && git rev-list $1 --not $2 --oneline && echo \"\t\t$2 --not $1\" && git rev-list $2 --not $1 --oneline && echo [end] git branchdiff 
+	branchdiff = ! echo \"******** $1 --not $2\" && git rev-list $1 --not $2 --oneline && echo \"\" && echo \"******** $2 --not $1\" && git rev-list $2 --not $1 --oneline && echo \"******** [end] git branchdiff\"
 
 	# commits with a "fixup! ...." commit message from HEAD
 	fixup=commit --fixup head
+
+	# missing pushes to origin
+	mp=push --all origin --dry-run
 
 	rl = reflog
 	subget=submodule update --init --recursive
