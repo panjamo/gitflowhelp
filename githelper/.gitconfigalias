@@ -55,6 +55,9 @@
 
 	find = ! echo \"Overview...\" && git log --oneline --all | grep -i $1 && echo \"\nDetails...\" && git log --oneline --all | grep -i $1 | awk  '{ print $1 }' | xargs -r -L 1 git contains && echo [finished git find]
 
+
+	unreleasedCommits = ! echo `git describe --tags --abbrev=0` && git log `git describe --tags --abbrev=0`..HEAD --oneline
+
 	lg = !"git lg1"
     lg1 = !"git lg1-specific --all"
     lg2 = !"git lg2-specific --all"
