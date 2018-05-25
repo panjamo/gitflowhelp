@@ -51,9 +51,9 @@
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
-	contains = ! echo \"\" && git branch --contains $1 && git log --oneline -n 5 
+	contains = ! echo \"\" && git branch --contains $1 && git log --oneline -n 5 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
 
-	find = ! git log --oneline --all | grep -i $1 | awk  '{ print $1 }' | xargs -r -L 1 git contains && echo [finished git find]
+	find = ! echo \"Overview...\" && git log --oneline --all | grep -i $1 && echo \"\nDetails...\" && git log --oneline --all | grep -i $1 | awk  '{ print $1 }' | xargs -r -L 1 git contains && echo [finished git find]
 
 	lg = !"git lg1"
     lg1 = !"git lg1-specific --all"
