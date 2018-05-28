@@ -33,7 +33,13 @@
 	udiff = diff @{u}
 
 	# comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
-	branchdiff = ! echo \"******** $1 --not $2\" && git rev-list $1 --not $2 --oneline && echo \"\" && echo \"******** $2 --not $1\" && git rev-list $2 --not $1 --oneline && echo \"******** [end] git branchdiff\"
+	branchdiff = ! \
+		echo \"******** $1 --not $2\" && \
+		git rev-list $1 --not $2 --oneline && \
+		echo \"\" && \
+		echo \"******** $2 --not $1\" && \
+		git rev-list $2 --not $1 --oneline && \
+		echo \"******** [end] git branchdiff\"
 
 	# commits with a "fixup! ...." commit message from HEAD
 	fixup=commit --fixup head
@@ -51,9 +57,21 @@
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
-	contains = ! echo \"\" && git branch -a --contains $1 && git tag  --contains $1 && git log --oneline -n 5 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
+	contains = ! \
+		echo \"\" && \
+		git branch -a --contains $1 && \
+		git tag  --contains $1 && \
+		git log --oneline -n 5 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
 
-	find = ! echo \"Overview...\" && git log --oneline --all | grep -i \"$1\" && echo \"\nDetails...\" && git log --oneline --all | grep -i \"$1\"  | awk  '{ print $1 }' | xargs -L 1 git contains && echo [finished git find]
+	find = ! \
+		echo \"Overview...\" && \
+		git log --oneline --all | grep -i \"$1\" && \
+		echo \"\nDetails...\" && \
+		git log --oneline --all | \
+			grep -i \"$1\"  | \
+			awk  '{ print $1 }' | \
+			xargs -L 1 git contains && \
+		echo [finished git find]
 
 	unreleasedCommits = !  git log `git describe --tags --abbrev=0`..HEAD --oneline && echo commits since `git describe --tags --abbrev=0`
 
