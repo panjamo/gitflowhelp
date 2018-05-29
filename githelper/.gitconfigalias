@@ -5,7 +5,7 @@
 #
 [alias]
 	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
-	lfn = ! git logfull -n 20
+	l = ! git logfull -n 20
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	co=checkout
@@ -56,6 +56,8 @@
 	alias = ! git config --get-regexp alias
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
+
+	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	contains = ! \
 		echo \"\" && \

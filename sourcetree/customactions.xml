@@ -77,4 +77,12 @@
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>Clean workspace (unknown, modified and ignored) and staging area !!!</Caption>
+    <Target>git</Target>
+    <Parameters>resetfdx</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>
