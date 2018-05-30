@@ -8,6 +8,10 @@
 	l = ! git logfull -n 20
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
+
+	# search in git diffs
+	diffs = ! git rev-list --all | xargs git grep
+	
 	co=checkout
 	ci=commit
 	st = status --short
