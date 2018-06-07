@@ -7,7 +7,7 @@
 * delete _c:\Users\<user>\AppData\Local\Atlassian\SourceTree\customactions.xml_
 * run following command with administrative rights
 ```
-mklink c:\Users\<user>\AppData\Local\Atlassian\SourceTree\customactions.xml customactions.xml
+mklink c:\Users\<user>\AppData\Local\Atlassian\SourceTree\customactions.xml <rootpath>\customactions.xml
 ```
 ## Additional git commands
 
