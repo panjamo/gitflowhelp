@@ -9,6 +9,10 @@
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 
+	# git log with submodules
+	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
+
+
 	# search in git diffs
 	diffs = ! git rev-list --all | xargs git grep
 	
@@ -50,6 +54,8 @@
 
 	# missing pushes to origin
 	mp=push --all origin --dry-run
+
+	dt = ! git difftool -d \"$1^\"
 
 	rl = reflog
 	subget=submodule update --init --recursive
