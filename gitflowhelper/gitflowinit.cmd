@@ -27,13 +27,17 @@ popd
 echo *.rc diff=RC >> .git\info\attributes
 echo *.rc2 diff=RC >> .git\info\attributes
 echo *.man diff=MAN >> .git\info\attributes
+echo *.nuspec diff=NUSPEC >> .git\info\attributes
 echo pom*.xml diff=POM >> .git\info\attributes
 echo AssemblyInfo.cs diff=ASSEMBLYINFO >> .git\info\attributes
 echo AssemblyInfo.cpp diff=ASSEMBLYINFO >> .git\info\attributes
 
+git config diff.NUSPEC.textconv "sed 's/<\(version\|copyright\)>.*<\/\(version\|copyright\)>//i'"
 git config diff.POM.textconv "sed 's/<version>.*<\/version>//i'"
 git config diff.MAN.textconv "sed 's/version\s*=\s*.[0123456789.]*.//i'"
 git config diff.RC.textconv "sed 's/^\s*\(FILEVERSION\|PRODUCTVERSION\|VALUE \"FileDescription\",\|VALUE \"CompanyName\",\|VALUE \"LegalCopyright\",\|VALUE \"ProductVersion\",\|VALUE \"FileVersion\",\).*//i'"
-git config diff.ASSEMBLYINFO.textconv "sed 's/\(.*assembly:\s*\(AssemblyInformationalVersionAttribute\|AssemblyFileVersionAttribute\|AssemblyVersionAttribute\).*\)\|( internal test release[^)]*)//i'"
+git config diff.ASSEMBLYINFO.textconv "sed 's/\(.*assembly:\s*\(AssemblyCopyright\|AssemblyInformationalVersion\|AssemblyFileVersion\|AssemblyVersion\|AssemblyCompany\|AssemblyInformationalVersionAttribute\|AssemblyFileVersionAttribute\|AssemblyVersionAttribute\).*\)\|( internal test release[^)]*)//i'"
 
 git ls-remote
+
+
