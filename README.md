@@ -4,10 +4,10 @@
 
 ### Create a hardlink to the sourcetree customs commands file
 * navigate to *sourcetree* folder of this repo on your disk after cloning
-* delete _c:\Users\<user>\AppData\Local\Atlassian\SourceTree\customactions.xml_
+* delete _%USERPROFILE%\AppData\Local\Atlassian\SourceTree_
 * run following command with administrative rights
 ```
-mklink c:\Users\<user>\AppData\Local\Atlassian\SourceTree\customactions.xml <rootpath>\customactions.xml
+mklink %USERPROFILE%\AppData\Local\Atlassian\SourceTree  <rootpath>\customactions.xml
 ```
 ## Additional git commands
 
