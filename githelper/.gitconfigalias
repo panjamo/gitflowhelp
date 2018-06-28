@@ -37,6 +37,10 @@
 	resetfdx = ! git reset --hard && git clean -fdx && git st
 	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
 
+	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
+	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> nul
+
+
 	# show diffeneces between branch and origin/branch
 	udiff = diff @{u}
 
@@ -66,7 +70,7 @@
 	alias = ! git config --get-regexp alias
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
-
+	
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	contains = ! \
