@@ -102,7 +102,7 @@
     lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
     lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
 
-	showUnreadedCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
+	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
 
@@ -128,5 +128,4 @@
 	sh = !git-sh
 	stm = status --untracked=no
 	stfu = status --untracked=no
-	pullsrb = !git stash save && git pull --rebase && git stash pop && echo 'Success!'
 	
