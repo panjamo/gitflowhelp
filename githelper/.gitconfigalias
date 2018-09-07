@@ -41,7 +41,7 @@
 	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> nul
 
 	# track all remote branches
-	trackAll = ! git branch -r | grep  -oh '\\(release\\|support\\|feature\\)/.*$' | xargs -I branchName git branch -f --track branchName origin/branchName	
+	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch -f --track branchName origin/branchName	
 
 	# show diffeneces between branch and origin/branch
 	udiff = diff @{u}
