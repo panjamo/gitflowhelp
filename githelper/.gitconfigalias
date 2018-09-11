@@ -40,13 +40,12 @@
 	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
 	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> nul
 
-	# track all remote branches
-
 	
 	# checkout and pull all branches
 	ffall = ! git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
 	pullOne = ! git checkout --force $1 &&git pull --ff-only && echo working on 
 
+	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
 
 	
