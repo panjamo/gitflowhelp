@@ -29,6 +29,7 @@
 	hidden = ! git ls-files -v | grep \"^h\"
 	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f 
 	unhideall = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git unhide
+	hideModified = ! git ls-files --modified | xargs git hide
 	
 	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
 	reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
@@ -115,7 +116,7 @@
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
 
-
+	
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
 	d = diff
