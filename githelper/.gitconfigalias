@@ -21,7 +21,6 @@
 	st = status --short
 	staged = diff --name-only --cached
 	br = branch
-	cob = ! git checkout -b $1 origin/$1  && echo 
 
 	hide = update-index --assume-unchanged
 	unhide = update-index --no-assume-unchanged
@@ -82,6 +81,25 @@
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 	
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
+
+	mergedevelop = ! \
+		git co  develop && \
+		git pull -v && \
+		git status && \
+		git merge -v --ff-only $1 && \
+		git co $1 && \
+		git pull -v && \
+		git status && \
+		git merge -v --ff-only develop && \
+		git branch --verbose --color --list develop 
+
+	mergepushdevelop = ! \
+		git mergedevelop $1 && \
+		git push && \
+		git co develop && \
+		git push && \
+		git branch --verbose --color --list develop 
+
 
 	contains = ! \
 		echo \"\" && \
