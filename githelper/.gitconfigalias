@@ -84,22 +84,18 @@
 
 	mergedevelop = ! \
 		git co $1 && \
-		git pull  && \
+		git pull && \
 		git co develop && \
-		git pull  && \
-		git status && \
+		git pull && \
 		git merge -v --ff-only $1 && \
 		git co $1 && \
-		git status && \
 		git merge -v --ff-only develop && \
-		git branch --verbose --color --list develop 
+		git branch -v --color --list develop 
 
 	mergepushdevelop = ! \
 		git mergedevelop $1 && \
-		git push && \
-		git co develop && \
-		git push && \
-		git branch --verbose --color --list develop 
+		git push origin develop $1 && \
+		git branch -v --color --list develop 
 
 
 	contains = ! \
