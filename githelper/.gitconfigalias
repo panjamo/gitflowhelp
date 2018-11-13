@@ -90,6 +90,7 @@
 		git merge -v --ff-only $1 && \
 		git co $1 && \
 		git merge -v --ff-only develop && \
+		git co develop && \
 		git branch -v --color --list develop 
 
 	mergepushdevelop = ! \
