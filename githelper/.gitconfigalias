@@ -43,8 +43,8 @@
 	graph = ! 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
 	# checkout and pull all branches
-	ffall = ! git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
-	pullOne = ! git checkout --force $1 &&git pull --ff-only && echo working on 
+	ffall = ! git fetch origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
+	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on 
 
 	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
@@ -86,7 +86,7 @@
 		git co $1 && \
 		git pull && \
 		git co develop && \
-		git pull && \
+		git merge && \
 		git merge -v --ff-only $1 && \
 		git co $1 && \
 		git merge -v --ff-only develop && \
