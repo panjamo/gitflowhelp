@@ -83,12 +83,13 @@
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	mergedevelop = ! \
-		git co  develop && \
-		git pull -v && \
+		git co $1 && \
+		git pull  && \
+		git co develop && \
+		git pull  && \
 		git status && \
 		git merge -v --ff-only $1 && \
 		git co $1 && \
-		git pull -v && \
 		git status && \
 		git merge -v --ff-only develop && \
 		git branch --verbose --color --list develop 
