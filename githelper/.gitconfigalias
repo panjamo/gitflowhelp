@@ -5,9 +5,12 @@
 #
 [alias]
 	logfull=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
-	l = ! git logfull -n 20
 	logfulltxt=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
 	logfullbw=log --graph --abbrev-commit --decorate --date=relative --format=format:\"%h - (%ar) %s - %an%d\"
+
+	l = log --graph --pretty=oneline --abbrev-commit -n 20
+	ln = log --graph --pretty=oneline --abbrev-commit --no-merges -n 20
+
 
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
@@ -129,18 +132,14 @@
     lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
 
 	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
-	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
+	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]	
 
-
-	
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
 	d = diff
 	dc = diff --cached
 	fp = format-patch
 	g = !git gui &
-	gr = log --graph
-	go = log --graph --pretty=oneline --abbrev-commit
 	k = !gitk &
 	ka = !gitk --all &
 	lc = log ORIG_HEAD.. --stat --no-merges
