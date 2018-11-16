@@ -7,7 +7,7 @@
 
 	l = log --graph --branches --oneline  -n 20
 	ln = log --graph --branches --oneline --no-merges -n 20
-	lg = log --graph --branches --oneline --simplify-by-decoration -n 20
+	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
