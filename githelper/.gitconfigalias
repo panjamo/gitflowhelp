@@ -96,6 +96,18 @@
 		git push origin develop $1 && \
 		git branch -v --color --list develop 
 
+	md = ! \
+		echo [git md] merge [M]evlop branch and [D]efault branch && \
+		echo set default branch: e.g. [git config devbranch.name support/12.0] actually it is set to [$(git config --get devbranch.name)] && \
+		git config --get devbranch.name && \
+		git mergedevelop $(git config --get devbranch.name)
+	
+	mdp = ! \
+		echo [git mdp] [M]erge [D]evlop branch and default branch and [P]ush both branches && \
+		echo set default branch: e.g. [git config devbranch.name support/12.0] actually it is set to [$(git config --get devbranch.name)] && \
+		git config --get devbranch.name && \
+		git mergepushdevelop $(git config --get devbranch.name)
+	
 
 	contains = ! \
 		echo \"\" && \
@@ -140,3 +152,6 @@
 	stm = status --untracked=no
 	stfu = status --untracked=no
 	
+
+	lll = ! cmd /c "for /f %i in ('git rev-parse --abbrev-ref HEAD') do set CURRENTBRANCH=%i"
+	llll = ! echo $(git config --get devbranch.name) 
