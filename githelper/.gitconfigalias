@@ -81,6 +81,7 @@
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	mergedevelop = ! \
+		git config devbranch.name $1 &&\
 		git co $1 && \
 		git pull && \
 		git co develop && \
