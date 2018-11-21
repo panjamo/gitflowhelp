@@ -38,7 +38,7 @@
 	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
 	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> nul
 
-	graph = ! 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
+	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
 	# checkout and pull all branches
 	ffall = ! git fetch origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
@@ -64,7 +64,9 @@
 	fixup=commit --fixup head
 
 	# missing pushes to origin
-	mp=push --all origin --dry-run
+	mp = push --all origin --dry-run
+
+	remergefile = git checkout --conflict=diff3 
 
 	dt = ! git difftool -d \"$1^\"
 
@@ -81,9 +83,10 @@
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	mergedevelop = ! \
+		git fetch && \
 		git config devbranch.name $1 &&\
 		git co $1 && \
-		git pull && \
+		git merge && \
 		git co develop && \
 		git merge && \
 		git merge -v --ff-only $1 && \
@@ -103,8 +106,8 @@
 		git config --get devbranch.name && \
 		git mergedevelop $(git config --get devbranch.name)
 	
-	mdp = ! \
-		echo [git mdp] [M]erge [D]evlop branch and default branch and [P]ush both branches && \
+	mpd = ! \
+		echo [git mdp] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
 		echo set default branch: e.g. [git config devbranch.name support/12.0] actually it is set to [$(git config --get devbranch.name)] && \
 		git config --get devbranch.name && \
 		git mergepushdevelop $(git config --get devbranch.name)
