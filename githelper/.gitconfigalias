@@ -5,9 +5,11 @@
 #
 [alias]
 
-	l = log --graph --oneline  -n 20
+	l = log --graph --oneline -n 20
+	lf = log -20 --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 20
 	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
+	
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
@@ -158,7 +160,3 @@
 	sh = !git-sh
 	stm = status --untracked=no
 	stfu = status --untracked=no
-	
-
-	lll = ! cmd /c "for /f %i in ('git rev-parse --abbrev-ref HEAD') do set CURRENTBRANCH=%i"
-	llll = ! echo $(git config --get devbranch.name) 
