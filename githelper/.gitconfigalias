@@ -27,7 +27,8 @@
 	hidechanged = ! git status --short | grep \"^ M\" | awk  '{ print $2 }' | xargs git update-index --assume-unchanged
 	hidden = ! git ls-files -v | grep \"^h\"
 	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f 
-	unhideall = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git unhide
+	unhideall = ! git ls-files -v | grep \"^h\" |  sed 's/^h //' | sed 's/.*/"&"/' | xargs -I{} git unhide '{}'
+	# unhideall = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git unhide
 	hideModified = ! git ls-files --modified | xargs git hide
 	
 	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
