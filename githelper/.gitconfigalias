@@ -43,6 +43,9 @@
 
 	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
+	# https://goo.gl/a36RnA
+	deleteBranchBoth = ! git branch -d $1 && git push origin --delete $1
+
 	# checkout and pull all branches
 	ffall = ! git fetch origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
 	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on 
@@ -69,7 +72,7 @@
 	# missing pushes to origin
 	mp = push --all origin --dry-run
 
-	remergefile = git checkout --conflict=diff3 
+	remergefile = checkout --conflict=diff3 
 
 	dt = ! git difftool -d \"$1^\"
 
