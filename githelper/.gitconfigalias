@@ -89,7 +89,8 @@
 	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
 
 	mergedevelop = ! \
-		git fetch && \
+		git isClean && \
+		git fetch --all && \
 		git config devbranch.name $1 &&\
 		git co $1 && \
 		git merge && \
@@ -145,6 +146,11 @@
 	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]	
 
+	isClean = ! git diff --stat --exit-code
+	rebaseToDevelop = ! git isClean && git co -b tempForRebaseOnly && git rebase -i develop && git finishRebaseToDevelop
+
+	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly		
+
 # some commands from: https://gist.github.com/igal/53855
 	ba = branch -a
 	d = diff
@@ -164,3 +170,5 @@
 	sh = !git-sh
 	stm = status --untracked=no
 	stfu = status --untracked=no
+
+
