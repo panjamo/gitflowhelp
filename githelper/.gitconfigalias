@@ -6,7 +6,7 @@
 [alias]
 
 	l = log --graph --oneline -n 20
-	lf = log -20 --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
+	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 20
 	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
 	
@@ -47,7 +47,7 @@
 	deleteBranchBoth = ! git branch -d $1 && git push origin --delete $1
 
 	# checkout and pull all branches
-	ffall = ! git fetch origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
+	ffall = ! git fetch --tags origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
 	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on 
 
 	# track all remote branches
@@ -151,24 +151,13 @@
 
 	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly		
 
-# some commands from: https://gist.github.com/igal/53855
-	ba = branch -a
-	d = diff
-	dc = diff --cached
-	fp = format-patch
-	g = !git gui &
-	k = !gitk &
-	ka = !gitk --all &
 	lc = log ORIG_HEAD.. --stat --no-merges
 	lp = log --patch-with-stat
-	mnf = merge --no-ff
-	mnff = merge --no-ff
 	mt = mergetool
-	p = format-patch -1
 	serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
-	sra = svn rebase --all
-	sh = !git-sh
 	stm = status --untracked=no
 	stfu = status --untracked=no
+
+	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/\\2=git \\2/g'
 
 
