@@ -169,6 +169,8 @@
 
 	parent = "!git show-branch | grep '*' | grep -v \"$(git rev-parse --abbrev-ref HEAD)\" | head -n1 | sed 's/.*\\[\\(.*\\)\\].*/\\1/' | sed 's/[\\^~].*//' #"
 
-	storeDevCorrespondingSupportBranch = "! git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}')"
+	storeDevCorrespondingSupportBranch = "! \
+		git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
+		git symbolic-ref build refs/heads/$(git config --get devbranch.name)"
 
 
