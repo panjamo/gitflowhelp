@@ -9,13 +9,13 @@
 	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 20
 	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
-	
+
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
 	# search in git diffs
 	diffs = ! git rev-list --all | xargs git grep
-	
+
 	co=checkout
 	ci=commit
 	st = status --short
@@ -26,11 +26,11 @@
 	unhide = update-index --no-assume-unchanged
 	hidechanged = ! git status --short | grep \"^ M\" | awk  '{ print $2 }' | xargs git update-index --assume-unchanged
 	hidden = ! git ls-files -v | grep \"^h\"
-	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f 
+	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f
 	unhideall = ! git ls-files -v | grep \"^h\" |  sed 's/^h //' | sed 's/.*/"&"/' | xargs -I{} git unhide '{}'
 	# unhideall = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git unhide
 	hideModified = ! git ls-files --modified | xargs git hide
-	
+
 	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
 	reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
 	stdiff = ! git diff -G"." --name-only
@@ -48,12 +48,12 @@
 
 	# checkout and pull all branches
 	ffall = ! git fetch --tags origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
-	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on 
+	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on
 
 	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
 
-	
+
 	# show diffeneces between branch and origin/branch
 	udiff = diff @{u}
 
@@ -72,7 +72,7 @@
 	# missing pushes to origin
 	mp = push --all origin --dry-run
 
-	remergefile = checkout --conflict=diff3 
+	remergefile = checkout --conflict=diff3
 
 	dt = ! git difftool -d \"$1^\"
 
@@ -85,8 +85,8 @@
 	alias = ! git config --get-regexp alias
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
-	
-	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\" 
+
+	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\"
 
 	mergedevelop = ! \
 		git isClean && \
@@ -100,34 +100,39 @@
 		git co $1 && \
 		git merge -v --ff-only develop && \
 		git co develop && \
-		git branch -v --color --list develop 
+		git branch -v --color --list develop
 
 	mergepushdevelop = ! \
 		git mergedevelop $1 && \
 		git push origin develop $1 && \
-		git branch -v --color --list develop 
+		git branch -v --color --list develop
 
-	md = ! \
+	md = "! \
 		echo [git md] merge [M]evlop branch and [D]efault branch && \
-		echo set default branch: e.g. [git config devbranch.name support/12.0] actually it is set to [$(git config --get devbranch.name)] && \
+		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
+		read -r -p 'Are you sure? [y/N] ' response && \
+		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
 		git config --get devbranch.name && \
-		git mergedevelop $(git config --get devbranch.name)
-	
-	mpd = ! \
+		git mergedevelop $(git config --get devbranch.name)"
+
+	mpd = "! \
 		echo [git mdp] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
-		echo set default branch: e.g. [git config devbranch.name support/12.0] actually it is set to [$(git config --get devbranch.name)] && \
+		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
+		read -r -p 'Are you sure? [y/N] ' response && \
+		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
 		git config --get devbranch.name && \
-		git mergepushdevelop $(git config --get devbranch.name)
-	
+		git mergepushdevelop $(git config --get devbranch.name)"
+
 	# after merge conflict: use theirs, user ours
 	ut = ! git checkout --theirs \"$1\" && git add \"$1\" && echo
 	uo = ! git checkout --ours \"$1\" && git add \"$1\" && echo
 
-	contains = ! \
+	contains = "! \
 		echo \"\" && \
 		git branch -a --contains $1 && \
 		git tag  --contains $1 && \
-		git log --oneline -1 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\"
+		git log --oneline -1 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" \
+		"
 
 	find = ! \
 		echo \"Overview...\" && \
@@ -144,12 +149,12 @@
 	releases = ! git tag -l Thi* | xargs -L1 git contains
 
 	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
-	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]	
+	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
 	isClean = ! git diff --stat --exit-code
 	rebaseToDevelop = ! git isClean && git co -b tempForRebaseOnly && git rebase -i develop && git finishRebaseToDevelop
 
-	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly		
+	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
 
 	lc = log ORIG_HEAD.. --stat --no-merges
 	lp = log --patch-with-stat
@@ -159,5 +164,11 @@
 	stfu = status --untracked=no
 
 	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/\\2=git \\2/g'
+
+	templateFunction = "!f() { git l; }; f"
+
+	parent = "!git show-branch | grep '*' | grep -v \"$(git rev-parse --abbrev-ref HEAD)\" | head -n1 | sed 's/.*\\[\\(.*\\)\\].*/\\1/' | sed 's/[\\^~].*//' #"
+
+	storeDevCorrespondingSupportBranch = "! git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}')"
 
 
