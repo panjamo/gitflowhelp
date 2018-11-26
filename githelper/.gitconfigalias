@@ -163,7 +163,7 @@
 	stm = status --untracked=no
 	stfu = status --untracked=no
 
-	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/\\2=git \\2/g'
+	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
 
 	templateFunction = "!f() { git l; }; f"
 
