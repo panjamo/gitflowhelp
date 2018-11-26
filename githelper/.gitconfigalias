@@ -45,8 +45,9 @@
 	deleteBranchBoth = ! git branch -d $1 && git push origin --delete $1
 
 	# checkout and pull all branches
-	ffall = ! git fetch --tags origin && git branch | grep  -oh '[^ ]*$' | xargs -n 1 git pullOne
-	pullOne = ! git checkout --force $1 &&git merge --ff-only && echo working on
+	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
+	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
+	ffall = "! git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\""
 
 	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
