@@ -108,6 +108,7 @@
 		git branch -v --color --list develop
 
 	md = "! \
+		git isClean && \
 		echo [git md] merge [M]evlop branch and [D]efault branch && \
 		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
@@ -116,6 +117,7 @@
 		git mergedevelop $(git config --get devbranch.name)"
 
 	mpd = "! \
+		git isClean && \
 		echo [git mdp] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
 		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
