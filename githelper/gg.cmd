@@ -40,12 +40,6 @@ if NOT .%1 == .-d GOTO CLONE
     )
     ECHO cloning %repo% ...
 
-    REM IF .%rootname% == .Home (
-    REM     SET repo=ssh://jochen@192.168.42.83/volume1/homes/jochen/repos/%groupname%/%modulename%.git
-    REM ) ELSE (
-    REM     SET repo=git@ctd-sv01.thinprint.de:%groupname%/%modulename%.git
-    REM )
-
     IF NOT EXIST .git (
 
         git clone "%repo%" .
@@ -66,4 +60,3 @@ if NOT .%1 == .-d GOTO CLONE
         start /min git graph
     )
     EXIT /b
-

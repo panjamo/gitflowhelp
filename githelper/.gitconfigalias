@@ -151,7 +151,7 @@
 	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
-	isClean = ! git diff --stat --exit-code
+	isClean = diff --stat --exit-code
 	rebaseToDevelop = ! git isClean && git co -b tempForRebaseOnly && git rebase -i develop && git finishRebaseToDevelop
 
 	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
