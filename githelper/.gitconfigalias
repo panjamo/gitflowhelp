@@ -4,7 +4,6 @@
 # 	path = d:/Development/gitflowhelper/githelper/.gitconfigalias
 #
 [alias]
-
 	l = log --graph --oneline -n 20
 	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 20
@@ -153,7 +152,7 @@
 	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
-	isClean = ! "git diff --stat --exit-code || ( echo Repository is NOT clean, use \\'git stash\\' before, command aborted. && false )"
+	isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
 	rebaseToDevelop = ! git isClean && git co -b tempForRebaseOnly && git rebase -i develop && git finishRebaseToDevelop
 
 	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
