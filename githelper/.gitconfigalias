@@ -17,7 +17,7 @@
 
 	co=checkout
 	ci=commit
-	st = "! git br -v | grep -E '(ahead|behind) [0-9]' & git status --short"
+	st = "! git br -v | grep -E '(ahead|behind) [0-9]';  git status --short"
 	staged = diff --name-only --cached
 	br = branch
 
