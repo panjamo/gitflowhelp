@@ -17,7 +17,7 @@
 
 	co=checkout
 	ci=commit
-	st = status --short
+	st = "! git br -v | grep -E '(ahead|behind) [0-9]' & git status --short"
 	staged = diff --name-only --cached
 	br = branch
 
@@ -47,7 +47,7 @@
 	# checkout and pull all branches
 	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
 	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
-	ffall = "! git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\""
+	ffAll = "! git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\"" && git co develop --force
 
 	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
