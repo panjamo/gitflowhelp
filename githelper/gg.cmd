@@ -1,34 +1,33 @@
 @ECHO OFF
-
 if "%REPO_PREFIX%" == "" (
     SET REPO_PREFIX=^
         GIT#git@ctd-sv01.thinprint.de:
 ) 
+REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
+For %%A in ("%CD%") do (
+    set modulename=%%~nA%%~xA
+    set pardirname=%%~pA
+    )
+For %%B in ("%pardirname:~0,-1%") do (
+    set groupname=%%~nB%%~xB
+    set pardirname=%%~pB
+    )
+For %%C in ("%pardirname:~0,-1%") do (
+    set rootname=%%~nC%%~xC
+    )
 
-@echo off
 if NOT .%1 == .-d GOTO CLONE
     echo Epmty %CD% completely, type [yes]:
     set /p answer=""
     echo %answer%
     if .%answer% == .yes (
-        pskill TortoiseGitProc.exe
+        taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
+        echo gg.cmd > "_git clone %groupname%---%modulename%.cmd"
     )
     EXIT
 
 :CLONE
-    REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
-    For %%A in ("%CD%") do (
-        set modulename=%%~nA%%~xA
-        set pardirname=%%~pA
-        )
-    For %%B in ("%pardirname:~0,-1%") do (
-        set groupname=%%~nB%%~xB
-        set pardirname=%%~pB
-        )
-    For %%C in ("%pardirname:~0,-1%") do (
-        set rootname=%%~nC%%~xC
-        )
 
     FOR %%i IN (%REPO_PREFIX%) DO (
         FOR  /F "tokens=1-2 delims=#" %%a IN ('echo %%i') DO (
@@ -41,8 +40,11 @@ if NOT .%1 == .-d GOTO CLONE
     ECHO cloning %repo% ...
 
     IF NOT EXIST .git (
-
-        git clone "%repo%" .
+        del "_git clone %groupname%---%modulename%.cmd"
+        git clone %repo% .
+        echo gg -d > _removeall--%groupname%---%modulename%.cmd
+        echo _removeall--%groupname%---%modulename%.cmd >> .git\info\exclude
+        git co develop
         if ERRORLEVEL 1 (
             PAUSE
             EXIT /b
