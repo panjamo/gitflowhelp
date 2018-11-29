@@ -17,7 +17,7 @@
 
 	co=checkout
 	ci=commit
-	st = "! git br -v | grep -E '(ahead|behind) [0-9]';  git status --short"
+	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short"
 	staged = diff --name-only --cached
 	br = branch
 
@@ -69,7 +69,7 @@
 	fixup=commit --fixup head
 
 	# missing pushes to origin
-	mp = push --all origin --dry-run
+	mp = "! echo mp depracted, please use [git st], now running for you... ; echo ''; git st "
 
 	remergefile = checkout --conflict=diff3
 
