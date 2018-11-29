@@ -2,7 +2,7 @@
 if "%REPO_PREFIX%" == "" (
     SET REPO_PREFIX=^
         GIT#git@ctd-sv01.thinprint.de:^
-        SSH#https://ctd-sv01.thinprint.de/
+        HTTPS#https://ctd-sv01.thinprint.de/
 ) 
 REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
 For %%A in ("%CD%") do (
