@@ -1,7 +1,8 @@
 @ECHO OFF
 if "%REPO_PREFIX%" == "" (
     SET REPO_PREFIX=^
-        GIT#git@ctd-sv01.thinprint.de:
+        GIT#git@ctd-sv01.thinprint.de:^
+        SSH#https://ctd-sv01.thinprint.de/
 ) 
 REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
 For %%A in ("%CD%") do (
@@ -20,7 +21,7 @@ if NOT .%1 == .-d GOTO CLONE
     echo Epmty %CD% completely, type [yes]:
     set /p answer=""
     echo %answer%
-    if .%answer% == .yes (
+    if /I .%answer% == .yes (
         taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
         echo gg.cmd > "_git clone %groupname%---%modulename%.cmd"
@@ -32,11 +33,27 @@ if NOT .%1 == .-d GOTO CLONE
     FOR %%i IN (%REPO_PREFIX%) DO (
         FOR  /F "tokens=1-2 delims=#" %%a IN ('echo %%i') DO (
             echo checking %rootname% -- %%a (with %%b^)
-            IF "%rootname%" == "%%a"  (
+            IF /I "%rootname%" == "%%a"  (
                 set repo=%%b%groupname%/%modulename%.git
             )
         )
     )
+    
+    IF .%repo% == . (
+      echo. 
+      echo ERROR
+      echo Could not determine repo link.
+      echo Root dir - at 2 levels up - is: "%rootname%"
+      echo Currently supported names are:
+      FOR %%i IN (%REPO_PREFIX%) DO (
+          FOR  /F "tokens=1-2 delims=#" %%a IN ('echo %%i') DO (
+              echo   %%a
+          )
+      )
+      pause
+      exit
+    )
+    
     ECHO cloning %repo% ...
 
     IF NOT EXIST .git (
