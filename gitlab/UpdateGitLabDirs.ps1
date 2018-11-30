@@ -10,14 +10,14 @@ $WshShell = New-Object -comObject WScript.Shell
 
 Get-GitLabProject | ForEach-Object {
     $MinusName = $_.path_with_namespace -replace "/", "---"
+    $cwd = (Get-Location).Path + "/"
 
-    New-Item -ItemType directory $_.path_with_namespace
-    $filePath = ($_.path_with_namespace + "/_git clone " + $MinusName + ".cmd")
+    New-Item -ItemType directory ($cwd + $_.path_with_namespace) -ErrorAction SilentlyContinue
+    $filePath = $cwd + ($_.path_with_namespace + "/_git clone " + $MinusName + ".cmd")
     [System.IO.File]::WriteAllText($filePath,"gg.cmd",[System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-    $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath("./"+$MinusName+".lnk"))
-    $Shortcut.TargetPath = [IO.Path]::GetFullPath($_.path_with_namespace)
+    $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd+$MinusName+".lnk"))
+    $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd+$_.path_with_namespace)
     #$Shortcut.Arguments = '%*'
     $Shortcut.Save()
-
     }
