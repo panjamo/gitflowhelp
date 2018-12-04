@@ -1,14 +1,15 @@
 @ECHO OFF
-if "%REPO_PREFIX%" == "" (
+SETLOCAL ENABLEEXTENSIONS
+IF ERRORLEVEL 1 ECHO Unable to enable extensions
+if NOT DEFINED REPO_PREFIX (
     SET REPO_PREFIX=^
         GIT#git@ctd-sv01.thinprint.de:^
         HTTPS#https://ctd-sv01.thinprint.de/
 ) 
-if "%COMMAND_LINE_TOOL%" == "" (
+if NOT DEFINED COMMAND_LINE_TOOL (
     SET COMMAND_LINE_TOOL="C:\Program Files\Git\git-bash.exe"
-    REM SET COMMAND_LINE_TOOL=cmdr.bat "git fetch --tags --prune && git st"
 ) 
-if "%GIT_FLOW_INIT%" == "" (
+if NOT DEFINED GIT_FLOW_INIT (
     SET GIT_FLOW_INIT=call gitflowinit.cmd
 ) 
 REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
