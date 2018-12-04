@@ -15,6 +15,8 @@
 	# search in git diffs
 	diffs = ! git rev-list --all | xargs git grep
 
+	sub = ! git submodule foreach git
+
 	co=checkout
 	ci=commit
 	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short"
