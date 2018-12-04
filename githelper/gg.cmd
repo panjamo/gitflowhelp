@@ -82,6 +82,7 @@ if NOT .%1 == .-d GOTO CLONE
         git storeDevCorrespondingSupportBranch
         %GIT_FLOW_INIT%
     ) ELSE (
+        git fetch --prune
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
     )
