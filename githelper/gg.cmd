@@ -4,6 +4,13 @@ if "%REPO_PREFIX%" == "" (
         GIT#git@ctd-sv01.thinprint.de:^
         HTTPS#https://ctd-sv01.thinprint.de/
 ) 
+if "%COMMAND_LINE_TOOL%" == "" (
+    SET COMMAND_LINE_TOOL="C:\Program Files\Git\git-bash.exe"
+    REM SET COMMAND_LINE_TOOL=cmdr.bat "git fetch --tags --prune && git st"
+) 
+if "%GIT_FLOW_INIT%" == "" (
+    SET GIT_FLOW_INIT=call gitflowinit.cmd
+) 
 REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
 For %%A in ("%CD%") do (
     set modulename=%%~nA%%~xA
@@ -66,16 +73,15 @@ if NOT .%1 == .-d GOTO CLONE
             PAUSE
             EXIT /b
         )
-        call c:\bin\cmdr.bat
+        start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         git checkout develop
         start /min git graph
         start /MIN git submodule update --init --recursive
         git trackall
         git storeDevCorrespondingSupportBranch
-        call "c:\bin\gitflowinit.cmd"
+        %GIT_FLOW_INIT%
     ) ELSE (
-
-        call c:\bin\cmdr.bat "git fetch --tags && git mp"
+        start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
     )
     EXIT /b
