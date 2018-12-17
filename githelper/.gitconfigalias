@@ -44,8 +44,8 @@
 	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
 	# https://goo.gl/a36RnA
-	deleteBranchBoth = ! git branch -d $1 && git push origin --delete $1
-
+	deleteBranchBoth = "!f() { git push --delete origin $1; git branch --delete $1; }; f"
+	
 	# checkout and pull all branches
 	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
 	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
