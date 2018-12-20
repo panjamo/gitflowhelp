@@ -69,13 +69,13 @@ if NOT .%1 == .-d GOTO CLONE
         git clone %repo% .
         echo gg -d > _removeall--%groupname%---%modulename%.cmd
         echo _removeall--%groupname%---%modulename%.cmd >> .git\info\exclude
-        git co develop
-        if ERRORLEVEL 1 (
-            PAUSE
-            EXIT /b
-        )
+        REM git checkout develop
+        REM if ERRORLEVEL 1 (
+        REM     PAUSE
+        REM     EXIT /b
+        REM )
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
-        git checkout develop
+        REM git checkout develop
         start /min git graph
         start /MIN git submodule update --init --recursive
         git trackall
