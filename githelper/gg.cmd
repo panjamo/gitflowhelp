@@ -33,8 +33,9 @@ if NOT .%1 == .-d GOTO CLONE
         taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
         echo gg.cmd > "_git clone %groupname%---%modulename%.cmd"
+        EXIT
     )
-    EXIT
+    EXIT /B
 
 :CLONE
 
