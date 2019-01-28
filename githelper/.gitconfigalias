@@ -44,7 +44,7 @@
 	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
 	# https://goo.gl/a36RnA
-	deleteBranchBoth = "!f() { git push --delete origin $1; git branch --delete $1; }; f"
+	deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
 	
 	# checkout and pull all branches
 	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
@@ -83,7 +83,7 @@
 
 	uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
 
-	alias = ! git config --get-regexp alias
+	alias = ! git config --get-regexp alias | grep -i 
 
 	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
