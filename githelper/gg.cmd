@@ -32,7 +32,7 @@ if NOT .%1 == .-d GOTO CLONE
     if /I .%answer% == .yes (
         taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
-        echo gg.cmd > "_git clone %groupname%---%modulename%.cmd"
+        echo gg.cmd> "_git clone %groupname%---%modulename%.cmd"
         EXIT
     )
     EXIT /B
@@ -68,8 +68,8 @@ if NOT .%1 == .-d GOTO CLONE
     IF NOT EXIST .git (
         del "_git clone %groupname%---%modulename%.cmd"
         git clone %repo% .
-        echo gg -d > _removeall--%groupname%---%modulename%.cmd
-        echo _removeall--%groupname%---%modulename%.cmd >> .git\info\exclude
+        echo gg -d> _removeall--%groupname%---%modulename%.cmd
+        echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
         REM git checkout develop
         REM if ERRORLEVEL 1 (
         REM     PAUSE
