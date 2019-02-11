@@ -33,6 +33,9 @@ if NOT .%1 == .-d GOTO CLONE
         taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
         echo gg.cmd> "_git clone %groupname%---%modulename%.cmd"
+        echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
+        echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
+
         EXIT
     )
     EXIT /B
@@ -67,6 +70,7 @@ if NOT .%1 == .-d GOTO CLONE
 
     IF NOT EXIST .git (
         del "_git clone %groupname%---%modulename%.cmd"
+        del "gitlab %groupname%---%modulename%.url"
         git clone %repo% .
         echo gg -d> _removeall--%groupname%---%modulename%.cmd
         echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
