@@ -12,17 +12,18 @@ $WshShell = New-Object -comObject WScript.Shell
 Get-GitLabProject | ForEach-Object {
     $MinusName = $_.path_with_namespace -replace "/", "---"
     $cwd = (Get-Location).Path + "/"
-    
-    $filePath = $cwd + ($_.path_with_namespace + "/gitlab " + $MinusName + ".url")
-    [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $_.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
-    
+        
     if (New-Item -ItemType directory ($cwd + $_.path_with_namespace) -ErrorAction SilentlyContinue   ) {
         $filePath = $cwd + ($_.path_with_namespace + "/_git clone " + $MinusName + ".cmd")
-        [System.IO.File]::WriteAllText($filePath,"gg.cmd",[System.Text.Encoding]::GetEncoding('iso-8859-1'))        
+        [System.IO.File]::WriteAllText($filePath, "gg.cmd", [System.Text.Encoding]::GetEncoding('iso-8859-1'))        
     
-        $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd+$MinusName+".lnk"))
-        $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd+$_.path_with_namespace)
+        $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd + $MinusName + ".lnk"))
+        $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd + $_.path_with_namespace)
         #$Shortcut.Arguments = '%*'
         $Shortcut.Save()    
     }
+    
+    $filePath = $cwd + ($_.path_with_namespace + "/gitlab " + $MinusName + ".url")
+    [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $_.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+
 }
