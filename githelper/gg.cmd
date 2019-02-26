@@ -1,4 +1,5 @@
 @ECHO OFF
+SET PATH=c:\Program Files\Git\usr\bin;%PATH%
 SETLOCAL ENABLEEXTENSIONS
 IF ERRORLEVEL 1 ECHO Unable to enable extensions
 if NOT DEFINED REPO_PREFIX (
@@ -90,10 +91,17 @@ if NOT .%1 == .-d GOTO CLONE
         start /MIN git submodule update --init --recursive
         git trackall
         git storeDevCorrespondingSupportBranch
+        find . -name "*.sln" | xargs -I {} nuget restore "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
         %GIT_FLOW_INIT%
     ) ELSE (
         git fetch --prune
+        find . -name "*.sln" | xargs -I {} nuget restore "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
+        pause
     )
     EXIT /b
