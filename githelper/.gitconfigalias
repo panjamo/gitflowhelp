@@ -110,6 +110,7 @@
 
 	md = "! \
 		git isClean && \
+		if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
 		echo [git md] merge [M]evlop branch and [D]efault branch && \
 		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
@@ -119,6 +120,7 @@
 
 	mpd = "! \
 		git isClean && \
+		if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
 		echo [git mpd] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
 		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \

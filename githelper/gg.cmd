@@ -80,28 +80,35 @@ if NOT .%1 == .-d GOTO CLONE
         echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
         echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
 
+        find . -name "*.sln" | xargs -I {} nuget restore "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
+
         REM git checkout develop
         REM if ERRORLEVEL 1 (
         REM     PAUSE
         REM     EXIT /b
         REM )
-        start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         REM git checkout develop
         start /min git graph
-        start /MIN git submodule update --init --recursive
+        git submodule update --init --recursive
         git trackall
         git storeDevCorrespondingSupportBranch
-        find . -name "*.sln" | xargs -I {} nuget restore "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
         %GIT_FLOW_INIT%
+        start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
     ) ELSE (
         git fetch --prune
+        echo gg -d> _removeall--%groupname%---%modulename%.cmd
+        echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
+
+        echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
+        echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
+        echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
+
         find . -name "*.sln" | xargs -I {} nuget restore "{}"
         find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
         find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
-        pause
     )
     EXIT /b
