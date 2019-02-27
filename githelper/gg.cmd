@@ -81,8 +81,7 @@ if NOT .%1 == .-d GOTO CLONE
         echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
 
         find . -name "*.sln" | xargs -I {} nuget restore "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "{}"
 
         REM git checkout develop
         REM if ERRORLEVEL 1 (
@@ -106,8 +105,7 @@ if NOT .%1 == .-d GOTO CLONE
         echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
 
         find . -name "*.sln" | xargs -I {} nuget restore "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild.mkversiov3 "{}"
+        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "{}"
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
     )
