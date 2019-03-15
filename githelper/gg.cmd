@@ -104,8 +104,8 @@ if NOT .%1 == .-d GOTO CLONE
         echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
         echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
 
-        find . -name "*.sln" | xargs -I {} nuget restore "{}"
-        find . -name "*.sln" | xargs -I {} nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "{}"
+        for /R "." %%f in (*.sln) do start nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "%%f"
+        
         start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
         start /min git graph
     )
