@@ -167,6 +167,8 @@
 	serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
 	stm = status --untracked=no
 	stfu = status --untracked=no
+	
+	gg = ! git fetch --tags --prune && git st
 
 	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
 
