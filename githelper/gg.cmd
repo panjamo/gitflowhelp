@@ -68,6 +68,7 @@ For %%C in ("%pardirname:~0,-1%") do (
 IF /I "%MODE%" == "UPDATENUGET" (
     find . -name "*.sln" | xargs -I {} nuget restore "{}"
     for /R "." %%f in (*.sln) do nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "%%f"
+    git st
     EXIT /B
 )
 
