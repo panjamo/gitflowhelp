@@ -20,7 +20,7 @@
 
 	co=checkout
 	ci=commit
-	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short"
+	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
 	staged = diff --name-only --cached
 	br = branch
 
@@ -78,8 +78,8 @@
 
 	# SC=show commit
 	sc = ! git difftool -d \"$1^\"
-	dt = difftool
-	dtd = difftool
+	dt = difftool 
+	dtd = difftool -d 
 
 	rl = reflog
 	subget=submodule update --init --recursive
@@ -193,3 +193,6 @@
 
 	newfeature = "!f() { git co -b feature/$1 && git push --set-upstream origin feature/$1; }; f"
 
+	theirs = "!f() { git checkout --theirs $@; git add $@; }; f"
+	ours = "!f() { git checkout --ours $@; git add $@; }; f"
+	

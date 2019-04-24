@@ -10,6 +10,7 @@ SET MODE=CLONE
     if "%LOOPVAR%" == "" GOTO LeaveOptionLoop
     if %LOOPVAR:~0,2%. == -h.  ( set HELP=true)
     if %LOOPVAR:~0,2%. == -d.  ( set MODE=DELETE)
+    if %LOOPVAR:~0,2%. == -r.  ( set MODE=RESTORENUGET)
     if %LOOPVAR:~0,2%. == -r.  ( set MODE=UPDATENUGET)
     if %LOOPVAR:~0,2%. == -f.  ( pushd  %LOOPVAR:~2,100%)
     SHIFT
@@ -23,7 +24,8 @@ if %HELP% == true (
     echo gg: get git repo
     echo    -h help
     echo    -d delete dir
-    echo    -r restore nuget packages, and update ThinPrint.MSBuild 
+    echo    -r restore nuget packages
+    echo    -u restore nuget packages, and update ThinPrint.MSBuild 
     echo       and ThinPrint.MSBuild.mkversiov3 package
     echo    "-f..." startup folder
     echo.
@@ -66,8 +68,14 @@ For %%C in ("%pardirname:~0,-1%") do (
     )
 
 IF /I "%MODE%" == "UPDATENUGET" (
-    find . -name "*.sln" | xargs -I {} nuget restore "{}"
+    for /R "." %%f in (*.sln) do nuget restore "%%f"
     for /R "." %%f in (*.sln) do nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "%%f"
+    git st
+    EXIT /B
+)
+
+IF /I "%MODE%" == "RESTORENUGET" (
+    for /R "." %%f in (*.sln) do nuget restore "%%f"
     git st
     EXIT /B
 )
