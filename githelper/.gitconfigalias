@@ -3,6 +3,7 @@
 # [include]
 # 	path = d:/Development/gitflowhelper/githelper/.gitconfigalias
 #
+# Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
 	l = log --graph --oneline -n 20
 	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
@@ -12,9 +13,9 @@
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
-	# search in git diffs
-	diffs = ! git rev-list --all | xargs git grep
-
+	# search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
+	diffs = l -G
+	
 	sub = ! git submodule foreach git
 
 	co=checkout
@@ -182,4 +183,10 @@
 	
 	build-symbolic-ref = ! cat $(git rev-parse --show-toplevel)/.git/build
 
+	# AddGitExclude
+	age = "!f() { for var in \"$@\"; do echo \"$var\" >> .git/info/exclude; done; git st; }; f"
+	# AddGitIgnore
+	agi = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
+
+	newfeature = "!f() { git co -b feature/$1 && git push --set-upstream origin feature/$1; }; f"
 
