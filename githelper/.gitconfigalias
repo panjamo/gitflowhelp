@@ -76,7 +76,10 @@
 
 	remergefile = checkout --conflict=diff3
 
-	dt = ! git difftool -d \"$1^\"
+	# SC=show commit
+	sc = ! git difftool -d \"$1^\"
+	dt = difftool
+	dtd = difftool
 
 	rl = reflog
 	subget=submodule update --init --recursive
