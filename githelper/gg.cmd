@@ -11,7 +11,7 @@ SET MODE=CLONE
     if %LOOPVAR:~0,2%. == -h.  ( set HELP=true)
     if %LOOPVAR:~0,2%. == -d.  ( set MODE=DELETE)
     if %LOOPVAR:~0,2%. == -r.  ( set MODE=RESTORENUGET)
-    if %LOOPVAR:~0,2%. == -r.  ( set MODE=UPDATENUGET)
+    if %LOOPVAR:~0,2%. == -u.  ( set MODE=UPDATENUGET)
     if %LOOPVAR:~0,2%. == -f.  ( pushd  %LOOPVAR:~2,100%)
     SHIFT
 GOTO Loop
@@ -68,14 +68,14 @@ For %%C in ("%pardirname:~0,-1%") do (
     )
 
 IF /I "%MODE%" == "UPDATENUGET" (
-    for /R "." %%f in (*.sln) do nuget restore "%%f"
-    for /R "." %%f in (*.sln) do nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 "%%f"
+    for /R "." %%f in (*.sln) do pushd "%%~dpf" & nuget restore %%~nxf & popd
+    for /R "." %%f in (*.sln) do pushd "%%~dpf" & nuget.exe update -Id ThinPrint.MSBuild -Id ThinPrint.MSBuild.mkversiov3 %%~nxf & popd
     git st
     EXIT /B
 )
 
 IF /I "%MODE%" == "RESTORENUGET" (
-    for /R "." %%f in (*.sln) do nuget restore "%%f"
+    for /R "." %%f in (*.sln) do pushd "%%~dpf" & nuget restore %%~nxf & popd
     git st
     EXIT /B
 )

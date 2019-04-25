@@ -44,9 +44,6 @@
 
 	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
-	# https://goo.gl/a36RnA
-	deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
-	
 	# checkout and pull all branches
 	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
 	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
@@ -161,9 +158,32 @@
 	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
 	isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
-	rebaseToDevelop = ! git isClean && git co -b tempForRebaseOnly && git rebase -i develop && git finishRebaseToDevelop
 
-	finishRebaseToDevelop = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
+	deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
+	
+	# FEAT FEAT FEAT
+	openfeat = "!f() { \
+		git co -b feature/$1 && \
+		git push --set-upstream origin feature/$1; \
+		echo ''; \
+		echo -e \"\\e[32mnext steps: [git closefeat] and [git finishfeat]\\e[0m\"; }; f"
+
+	closefeat = "! \
+		git isClean && \
+		echo closefeat: rebase current branch to develop && \
+		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
+		read -r -p 'Are you sure? [y/N] ' response && \
+		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
+		git co -b tempForRebaseOnly && \
+		git rebase -i develop && \
+		git finishclosefeat"
+
+	finishclosefeat = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
+
+	finishfeat = "!f() { git deleteBranchBoth $1 -f; }; f"
+
+	# FEAT FEAT FEAT
+
 
 	lc = log ORIG_HEAD.. --stat --no-merges
 	lp = log --patch-with-stat
@@ -191,7 +211,6 @@
 	# AddGitIgnore
 	agi = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
 
-	newfeature = "!f() { git co -b feature/$1 && git push --set-upstream origin feature/$1; }; f"
 
 	theirs = "!f() { git checkout --theirs $@; git add $@; }; f"
 	ours = "!f() { git checkout --ours $@; git add $@; }; f"
