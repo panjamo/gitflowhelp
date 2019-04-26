@@ -178,7 +178,7 @@
 		git rebase -i develop && \
 		git finishclosefeat"
 
-	finishclosefeat = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly
+	finishclosefeat = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl
 
 	finishfeat = "!f() { git deleteBranchBoth $1 -f; }; f"
 
