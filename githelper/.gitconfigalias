@@ -218,5 +218,5 @@
 	# get [C]urrent commit [URL]
 	curl = "!f() { \
 		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse HEAD); else sha=$1; fi && \
-		git config --get remote.origin.url | explorer $(sed 's/git@ctd-sv01.thinprint.de:\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g'); \
+		git config --get remote.origin.url | explorer $(sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g'); \
 	}; f"
