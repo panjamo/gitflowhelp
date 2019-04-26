@@ -216,4 +216,7 @@
 	ours = "!f() { git checkout --ours $@; git add $@; }; f"
 	
 	# get [C]urrent commit [URL]
-	curl = "!f() { git config --get remote.origin.url | sed 's/git@ctd-sv01.thinprint.de:\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$(git rev-parse HEAD)'/g'; }; f"
+	curl = "!f() { \
+		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse HEAD); else sha=$1; fi && \
+		git config --get remote.origin.url | explorer $(sed 's/git@ctd-sv01.thinprint.de:\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g'); \
+	}; f"
