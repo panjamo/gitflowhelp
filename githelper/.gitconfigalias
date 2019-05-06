@@ -75,6 +75,7 @@
 
 	# SC=show commit
 	sc = ! git difftool -d \"$1^\"
+	scd = ! git d \"$1^\"
 	dt = difftool 
 	dtd = difftool -d 
 
@@ -222,3 +223,9 @@
 		echo $url | clip; \
 		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
 	}; f"
+
+	# https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
+	d = diff --color-words -U0
+	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+"
+	d2 = diff --color-words='\\w'
+	d3 = diff --word-diff-regex=.
