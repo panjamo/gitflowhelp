@@ -23,6 +23,10 @@
 	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
 	staged = diff --name-only --cached
 	br = branch
+	brl = "!f() { \
+		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/network\\//g') && \
+		git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
+	 }; f"
 
 	hide = update-index --assume-unchanged
 	unhide = update-index --no-assume-unchanged
