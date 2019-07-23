@@ -28,7 +28,8 @@
 		git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
 	 }; f"
 
-	hide = update-index --assume-unchanged
+
+	hide = "!f() { git ls-files $@ | xargs -n1 -I{} git update-index --verbose --assume-unchanged '{}'; }; f"
 	unhide = update-index --no-assume-unchanged
 	hidechanged = ! git status --short | grep \"^ M\" | awk  '{ print $2 }' | xargs git update-index --assume-unchanged
 	hidden = ! git ls-files -v | grep \"^h\"
