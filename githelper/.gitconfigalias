@@ -28,7 +28,6 @@
 		git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
 	 }; f"
 
-
 	hide = "!f() { git ls-files $@ | xargs -n1 -I{} git update-index --verbose --assume-unchanged '{}'; }; f"
 	unhide = update-index --no-assume-unchanged
 	hidechanged = ! git status --short | grep \"^ M\" | awk  '{ print $2 }' | xargs git update-index --assume-unchanged
@@ -172,19 +171,19 @@
 		git co -b feature/$1 && \
 		git push --set-upstream origin feature/$1; \
 		echo ''; \
-		echo -e \"\\e[32mnext steps: [git closefeat] and [git finishfeat]\\e[0m\"; }; f"
+		echo -e \"\\e[32mnext steps: [git closefeat <parent-branchname>] and [git finishfeat <feature-branchname>]\\e[0m\"; }; f"
 
-	closefeat = "! \
+	closefeat = "!f() { \
 		git isClean && \
-		echo closefeat: rebase current branch to develop && \
+		echo closefeat: rebase current branch to $1 && \
 		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
 		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
 		git co -b tempForRebaseOnly && \
-		git rebase --interactive --autosquash develop && \
-		git finishclosefeat"
+		git rebase --interactive --autosquash $1 && \
+		git finishclosefeat $1; }; f"
 
-	finishclosefeat = ! git co develop && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl
+	finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
 
 	finishfeat = "!f() { git deleteBranchBoth $1 -f; }; f"
 
