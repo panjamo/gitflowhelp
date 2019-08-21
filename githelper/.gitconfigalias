@@ -15,6 +15,7 @@
 
 	# search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
 	diffs = l -G
+	search = l -G
 	
 	sub = ! git submodule foreach git
 
@@ -233,3 +234,5 @@
 	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+"
 	d2 = diff --color-words='\\w'
 	d3 = diff --word-diff-regex=.
+
+	aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
