@@ -29,7 +29,7 @@ if %HELP% == true (
     echo    -u restore nuget packages, and update ThinPrint.MSBuild 
     echo       and ThinPrint.MSBuild.mkversiov3 package
     echo    "-f..." startup folder
-    echo    "-b..." branch name when clonig (e.g. "-bsupport/12.0" )
+    echo    "-b..." branch name when clonig, e.g. "-bsupport/12.0"
     echo.
     echo REMARKS:
     echo     These environment variables can be defined to configure gg.cmd
