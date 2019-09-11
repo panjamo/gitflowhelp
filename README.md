@@ -19,3 +19,41 @@ git config --global include.path <rootpath>\gitflowhelper\githelper\.gitconfigal
 ### include to path
 * Add <rootpth>\gitflowhelper\gitflowhelper\ to yout PATH environment variable **OR**
 * set hardlink to your tools folder whitch is already included in your PATH environment variable
+
+## Powershell (UpdateGitLabDirs.ps1) 
+
+### Step 1
+* open the Powershell in **elevated mode**
+* copy the following line in the console and press enter
+
+```powershell
+Find-Module -Name PSGitLab | Install-Module
+```
+
+### Step 2
+* Navigate to https://ctd-sv01.thinprint.de/profile/personal_access_tokens
+* Create a *Personal Access Token* with _"api Access the authenticated user's API"_ checkbox checked
+
+### Step 3
+* open the Powershell in **elevated mode**
+* copy the following line in the console and press enter
+
+```powershell
+Save-GitLabAPIConfiguration -Domain https://ctd-sv01.XXXXXXXXX.de -Token "<insert token here>"
+```
+
+* Create folder "GIT" on your disk
+* start UpdateGitLabDirs.ps1 in this folder als working directory
+
+## Configure _git clone  \<projectdir\>---\<projectname\>.cmd
+
+* add <rootdir>\gitflowhelper\githelper to your path variable, or make <rootdir>\gitflowhelper\githelper\gg.cmd somehow accessable bei PATH, e.g. to make an hard-link run following command (elevated mode):
+
+```make hardlink
+mklink c:\tools.cmd <rootdir>\gitflowhelper\githelper\gg.cmd
+```
+
+### additional configuration environment variables
+
+* REPO_PREFIX=GIT#git@ctd-sv01.thinprint.de: Home#ssh://name@192.168.67.83/volume1/homes/jochen/repos/
+* COMMAND_LINE_TOOL=cmdr "-cgit gg & tc" -i
