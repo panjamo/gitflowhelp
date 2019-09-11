@@ -143,6 +143,7 @@ IF NOT EXIST .git (
     start /min git graph
     git submodule update --init --recursive
     git trackall
+    git co %BRANCH%
     git storeDevCorrespondingSupportBranch
     %GIT_FLOW_INIT%
     start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
