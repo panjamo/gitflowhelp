@@ -10,6 +10,7 @@ $WshShell = New-Object -comObject WScript.Shell
 
 
 Get-GitLabProject | ForEach-Object {
+    $_
     $MinusName = $_.path_with_namespace -replace "/", "---"
     $cwd = (Get-Location).Path + "/"
         

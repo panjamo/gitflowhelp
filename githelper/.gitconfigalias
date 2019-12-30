@@ -42,6 +42,7 @@
 	stdiff = ! git diff -G"." --name-only
 	unstage = reset HEAD --
 	resetfdx = ! git reset --hard && git clean -fdx && git st
+	resetfd = ! git reset --hard && git clean -fd && git st
 	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
 
 	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
