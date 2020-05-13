@@ -187,7 +187,7 @@
 
 	finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
 
-	finishfeat = "!f() { git deleteBranchBoth $1 -f; }; f"
+	finishfeat = "!f() { git deleteBranchBoth feature/$1 -f; }; f"
 
 	# FEAT FEAT FEAT
 
