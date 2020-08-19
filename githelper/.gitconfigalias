@@ -182,7 +182,7 @@
 		read -r -p 'Are you sure? [y/N] ' response && \
 		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
 		git co -b tempForRebaseOnly && \
-		git rebase --interactive --autosquash $1 && \
+		git rebase --interactive $1 && \
 		git finishclosefeat $1; }; f"
 
 	finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
@@ -224,7 +224,7 @@
 	
 	# get [C]urrent commit [URL]
 	curl = "!f() { \
-		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse HEAD); else sha=$1; fi && \
+		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi && \
 		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g') && \
 		echo $url | clip; \
 		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
