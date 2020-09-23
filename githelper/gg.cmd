@@ -14,6 +14,7 @@ SET MODE=CLONE
     if %LOOPVAR:~0,2%. == -u.  ( set MODE=UPDATENUGET)
     if %LOOPVAR:~0,2%. == -f.  ( pushd  %LOOPVAR:~2,100%)
     if %LOOPVAR:~0,2%. == -b.  ( set BRANCH=-b %LOOPVAR:~2,100%)
+    if %LOOPVAR:~0,2%. == -p.  ( set repo=%LOOPVAR:~2,100%)
     SHIFT
 GOTO Loop
 :LeaveOptionLoop
@@ -26,10 +27,11 @@ if %HELP% == true (
     echo    -h help
     echo    -d delete dir
     echo    -r restore nuget packages
-    echo    -u restore nuget packages, and update ThinPrint.MSBuild 
+    echo    -u restore nuget packages, and update ThinPrint.MSBuild
     echo       and ThinPrint.MSBuild.mkversiov3 package
     echo    "-f..." startup folder
     echo    "-b..." branch name when clonig, e.g. "-bsupport/12.0"
+    echo    "-p..." repo link, e.g. "-pgit@ctd-sv01.thinprint.de:ezeep/mac-print-app/ezp-cups-tpog.git"
     echo.
     echo REMARKS:
     echo     These environment variables can be defined to configure gg.cmd
@@ -37,7 +39,7 @@ if %HELP% == true (
     echo     This command executed as last command
     echo     default: COMMAND_LINE_TOOL="C:\Program Files\Git\git-bash.exe"
     echo.
-    echo     Define GIT Repo Base Folders and their git prefix   
+    echo     Define GIT Repo Base Folders and their git prefix
     echo     default: REPO_PREFIX=GIT#git@ctd-sv01.thinprint.de: HTTPS#https://ctd-sv01.thinprint.de/
     echo.
     echo     Defined Addition GIT init command
@@ -49,13 +51,13 @@ if NOT DEFINED REPO_PREFIX (
     SET REPO_PREFIX=^
         GIT#git@ctd-sv01.thinprint.de:^
         HTTPS#https://ctd-sv01.thinprint.de/
-) 
+)
 if NOT DEFINED COMMAND_LINE_TOOL (
     SET COMMAND_LINE_TOOL="C:\Program Files\Git\git-bash.exe"
-) 
+)
 if NOT DEFINED GIT_FLOW_INIT (
     SET GIT_FLOW_INIT=call gitflowinit.cmd
-) 
+)
 REM https://de.wikibooks.org/wiki/Batch-Programmierung:_Erweiterungen_unter_Windows_NT
 For %%A in ("%CD%") do (
     set modulename=%%~nA%%~xA
@@ -89,7 +91,7 @@ if NOT %MODE% == DELETE GOTO CLONE
     if /I "%answer%" == "yes" (
         taskkill /IM "TortoiseGitProc.exe" /F
         rmdir . /s /q
-        echo gg.cmd %%*> "_git clone %groupname%---%modulename%.cmd"
+        echo gg.cmd %%* -p%repo%> "_git clone %groupname%---%modulename%.cmd"
         echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
         echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
         EXIT
@@ -97,17 +99,18 @@ if NOT %MODE% == DELETE GOTO CLONE
     EXIT /B
 :CLONE
 
-FOR %%i IN (%REPO_PREFIX%) DO (
-    FOR  /F "tokens=1-2 delims=#" %%a IN ('echo %%i') DO (
-        echo checking %rootname% -- %%a (with %%b^)
-        IF /I "%rootname%" == "%%a"  (
-            set repo=%%b%groupname%/%modulename%.git
+IF .%repo% == . (
+    FOR %%i IN (%REPO_PREFIX%) DO (
+        FOR  /F "tokens=1-2 delims=#" %%a IN ('echo %%i') DO (
+            echo checking %rootname% -- %%a (with %%b^)
+            IF /I "%rootname%" == "%%a"  (
+                set repo=%%b%groupname%/%modulename%.git
+            )
         )
     )
 )
-
 IF .%repo% == . (
-    echo. 
+    echo.
     echo ERROR
     echo Could not determine repo link.
     echo Root dir - at 2 levels up - is: "%rootname%"
@@ -124,10 +127,10 @@ IF .%repo% == . (
 IF NOT EXIST .git (
 
     ECHO cloning %repo% ...
-    del "_git clone %groupname%---%modulename%.cmd"
-    del "gitlab %groupname%---%modulename%.url"
+    del "_git clone *.cmd"
+    del "gitlab *.url"
     git clone %BRANCH% %repo% .
-    echo gg -d> _removeall--%groupname%---%modulename%.cmd
+    echo gg -d -p%repo%> _removeall--%groupname%---%modulename%.cmd
     echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
 
     echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
