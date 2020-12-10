@@ -53,7 +53,7 @@
 	# checkout and pull all branches
 	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
 	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
-	ffAll = "! git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\"" && git co develop --force
+	ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
 	# track all remote branches
 	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
@@ -181,6 +181,7 @@
 		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
 		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
+        git br -D tempForRebaseOnly & \
 		git co -b tempForRebaseOnly && \
 		git rebase --interactive $1 && \
 		git finishclosefeat $1; }; f"
