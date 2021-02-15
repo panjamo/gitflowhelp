@@ -13,11 +13,11 @@ mklink %USERPROFILE%\AppData\Local\Atlassian\SourceTree  <rootpath>\customaction
 
 ### Extend your global .gitconfig
 ```
-git config --global include.path <rootpath>\gitflowhelper\githelper\.gitconfigalias
+git config --global include.path <rootpath>/gitflowhelper/githelper/.gitconfigalias
 ```
 
 ### include to path
-* Add <rootpth>\gitflowhelper\gitflowhelper\ to yout PATH environment variable **OR**
+* Add <rootpth>\gitflowhelper\gitflowhelper\ to your PATH environment variable **OR**
 * set hardlink to your tools folder whitch is already included in your PATH environment variable
 
 ## Powershell (UpdateGitLabDirs.ps1) 
