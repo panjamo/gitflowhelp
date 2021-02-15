@@ -237,4 +237,7 @@
 	d2 = diff --color-words='\\w'
 	d3 = diff --word-diff-regex=.
 
+    
+    flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
+
 	aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
