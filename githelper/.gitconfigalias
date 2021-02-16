@@ -5,7 +5,8 @@
 #
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
-	l = log --graph --oneline -n 20
+	l  = log --graph --oneline -n 20
+	lf = log --graph --oneline  --name-only -n 20
 	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 20
 	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
