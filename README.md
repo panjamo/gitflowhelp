@@ -13,7 +13,7 @@ mklink %USERPROFILE%\AppData\Local\Atlassian\SourceTree  <rootpath>\customaction
 
 ### Extend your global .gitconfig
 ```
-git config --global include.path <rootpath>/gitflowhelper/githelper/.gitconfigalias
+git config --global include.path <rootpath>/gitflowhelp/githelper/.gitconfigalias
 ```
 
 ### include to path
