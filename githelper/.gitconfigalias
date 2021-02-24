@@ -32,7 +32,7 @@
 
 	hide = "!f() { git ls-files $@ | xargs -n1 -I{} git update-index --verbose --assume-unchanged '{}'; }; f"
 	unhide = update-index --no-assume-unchanged
-	hidechanged = ! git status --short | grep \"^ M\" | awk  '{ print $2 }' | xargs git update-index --assume-unchanged
+    hidechanged = ! git status --short | grep \"^ M\" | sed 's/^..//' | xargs git update-index --assume-unchanged
 	hidden = ! git ls-files -v | grep \"^h\"
 	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f
 	unhideall = ! git ls-files -v | grep \"^h\" | sed 's/^h //' | sed 's/.*/\"&\"/' | xargs -I{} git unhide '{}'
