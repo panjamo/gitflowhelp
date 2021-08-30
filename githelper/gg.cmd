@@ -133,10 +133,10 @@ IF NOT EXIST .git (
     echo gg -d -p%repo%> _removeall--%groupname%---%modulename%.cmd
     echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
     echo _git clone *.*>> .git\info\exclude
+    echo gitlab*.url>> .git\info\exclude
 
     echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
     echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
-    echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
 
     REM git checkout develop
     REM if ERRORLEVEL 1 (
