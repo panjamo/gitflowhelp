@@ -5,14 +5,15 @@
 #
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
-	l  = log --graph --oneline -n 20
-	lf = log --graph --oneline  --name-only -n 20
-	lb = log -20 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
-	ln = log --graph --oneline --no-merges -n 20
-	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 20
+	l  = log --graph --oneline -n 5
+	ll  = log --graph --oneline -n 15
+	lf = log --graph --oneline  --name-only -n 5
+	lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
+	ln = log --graph --oneline --no-merges -n 5
+	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 5
 
 	# git log with submodules
-	ls = ! git log --graph --oneline -U0 --submodule -20 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
+	ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
 	# search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
 	diffs = l -G
@@ -182,7 +183,7 @@
 		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
 		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
-        git br -D tempForRebaseOnly & \
+        git br --delete --force tempForRebaseOnly & \
 		git co -b tempForRebaseOnly && \
 		git rebase --interactive $1 && \
 		git finishclosefeat $1; }; f"
