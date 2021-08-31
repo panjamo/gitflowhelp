@@ -129,7 +129,7 @@ IF NOT EXIST .git (
     ECHO cloning %repo% ...
     del "_git clone *.cmd"
     del "gitlab *.url"
-    git clone %BRANCH% %repo% .
+    git clone --recursive %BRANCH% %repo% .
     echo gg -d -p%repo%> _removeall--%groupname%---%modulename%.cmd
     echo _removeall--%groupname%---%modulename%.cmd>> .git\info\exclude
     echo _git clone *.*>> .git\info\exclude
