@@ -242,6 +242,14 @@
 		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
 	}; f"
 
+	gl = "!f() { \
+		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi && \
+		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1/g') && \
+		echo $url | clip; \
+		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        explorer $url; \
+	}; f"
+
 	# https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
 	d = diff --color-words -U0
 	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+"
