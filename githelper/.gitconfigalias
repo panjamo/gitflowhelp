@@ -49,7 +49,7 @@
 	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
 
 	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
-	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> nul
+	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> /dev/null
 
 	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
@@ -184,11 +184,11 @@
 
 	closefeat = "!f() { \
 		git isClean && \
+        git br --delete --force tempForRebaseOnly 2> /dev/null & \
 		echo closefeat: rebase current branch to $1 && \
 		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
 		read -r -p 'Are you sure? [y/N] ' response && \
 		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
-        git br --delete --force tempForRebaseOnly & \
 		git co -b tempForRebaseOnly && \
 		git rebase --interactive $1 && \
 		git finishclosefeat $1; }; f"
@@ -252,6 +252,13 @@
 		echo $url | clip; \
 		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         explorer $url; \
+	}; f"
+
+	jk = "!f() { \
+		export url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g') && \
+        echo $url | clip; \
+		echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        start $url; \
 	}; f"
 
 	# https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
