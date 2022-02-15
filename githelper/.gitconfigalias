@@ -10,7 +10,10 @@
 	lf = log --graph --oneline  --name-only -n 5
 	lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 	ln = log --graph --oneline --no-merges -n 5
-	lg = log --graph --branches --oneline --all --simplify-by-decoration -n 5
+
+    lg = log --graph --simplify-by-decoration --pretty=format:'%d' --all
+	lgv = log --graph --branches --oneline --all --simplify-by-decoration
+    lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
 	# git log with submodules
 	ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
