@@ -268,9 +268,9 @@
 
 	# https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
 	d = diff --color-words -U0
-	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+"
-	d2 = diff --color-words='\\w'
-	d3 = diff --word-diff-regex=.
+	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+" -U0
+	d2 = diff --color-words='\\w' -U0
+	d3 = diff --word-diff-regex=. -U0
 
     
     flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
