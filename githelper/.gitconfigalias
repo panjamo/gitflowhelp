@@ -26,7 +26,8 @@
 	sub = ! git submodule foreach git
 
 	co=checkout --recurse-submodules
-	ci=commit
+	ci = commit
+    ciam = commit -am
 	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
 	staged = diff --name-only --cached
 	br = branch
