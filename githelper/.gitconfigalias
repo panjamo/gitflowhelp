@@ -1,239 +1,246 @@
 # add follwing line(s) in C:\Users\<user>\.gitconfig
 #
 # [include]
-# 	path = d:/Development/gitflowhelper/githelper/.gitconfigalias
+#     path = d:/Development/gitflowhelper/githelper/.gitconfigalias
 #
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
-	l  = log --graph --oneline -n 5
-	ll  = log --graph --oneline -n 15
-	lf = log --graph --oneline  --name-only -n 5
-	lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
-	ln = log --graph --oneline --no-merges -n 5
+    l  = log --graph --oneline -n 5
+    ll  = log --graph --oneline -n 15
+    lf = log --graph --oneline  --name-only -n 5
+    lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
+    ln = log --graph --oneline --no-merges -n 5
 
     lg = log --graph --simplify-by-decoration --pretty=format:'%d' --all
-	lgv = log --graph --branches --oneline --all --simplify-by-decoration
+    lgv = log --graph --branches --oneline --all --simplify-by-decoration
     lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
-	# git log with submodules
-	ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
+    # git log with submodules
+    ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
-	# search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
-	diffs = l -G
-	search = l -G
+    # search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
+    diffs = l -G
+    search = l -G
 
     cloner = clone --recursive
-	sub = ! git submodule foreach git
+    sub = ! git submodule foreach git
 
-	co=checkout --recurse-submodules
-	ci = commit
+    co=checkout --recurse-submodules
+    ci = commit
     ciam = commit -am
-	st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
-	staged = diff --name-only --cached
-	br = branch
-	brl = "!f() { \
-		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/network\\//g') && \
-		git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
-	 }; f"
+    st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
+    staged = diff --name-only --cached
+    br = branch
+    brl = "!f() { \
+        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/network\\//g') && \
+        git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
+     }; f"
 
-	hide = "!f() { git ls-files $@ | xargs -n1 -I{} git update-index --verbose --assume-unchanged '{}'; }; f"
-	unhide = update-index --no-assume-unchanged
+    hide = "!f() { git ls-files $@ | xargs -n1 -I{} git update-index --verbose --assume-unchanged '{}'; }; f"
+    unhide = update-index --no-assume-unchanged
     hidechanged = ! git status --short | grep \"^ M\" | sed 's/^..//' | xargs git update-index --assume-unchanged
-	hidden = ! git ls-files -v | grep \"^h\"
-	cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f
-	unhideall = ! git ls-files -v | grep \"^h\" | sed 's/^h //' | sed 's/.*/\"&\"/' | xargs -I{} git unhide '{}'
-	hideModified = ! git ls-files --modified | xargs git hide
+    hidden = ! git ls-files -v | grep \"^h\"
+    cohidden = ! git ls-files -v | grep \"^h\" | awk  '{ print $2 }' | xargs git co -f
+    unhideall = ! git ls-files -v | grep \"^h\" | sed 's/^h //' | sed 's/.*/\"&\"/' | xargs -I{} git unhide '{}'
+    hideModified = ! git ls-files --modified | xargs git hide
 
-	stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
-	reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
-	stdiff = ! git diff -G"." --name-only
-	unstage = reset HEAD --
-	resetfdx = ! git reset --hard && git clean -fdx && git st
-	resetfd = ! git reset --hard && git clean -fd && git st
-	b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
+    stagediff = ! git diff -G"." --name-only -z | xargs -0 git add && git st
+    reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
+    stdiff = ! git diff -G"." --name-only
+    unstage = reset HEAD --
+    resetfdx = ! git reset --hard && git clean -fdx && git st
+    resetfd = ! git reset --hard && git clean -fd && git st
+    b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
 
-	deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
-	findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> /dev/null
+    deleteAllTrackedFiles = ! git ls-tree -z -r HEAD --name-only | xargs -0 rm
+    findDangelingCommits = ! git fsck --full --no-reflogs --unreachable --lost-found | xargs -n 1 git log -n 1 --pretty=oneline 2> /dev/null
 
-	graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
+    graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
-	# checkout and pull all branches
-	bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
-	bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
-	ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
+    # checkout and pull all branches
+    bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
+    bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
+    ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
-	# track all remote branches
-	trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
+    # track all remote branches
+    trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
 
 
-	# show diffeneces between branch and origin/branch
-	udiff = diff @{u}
+    # show diffeneces between branch and origin/branch
+    udiff = diff @{u}
 
-	# comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
-	branchdiff = ! \
-		echo \"******** $1 --not $2\" && \
-		git rev-list $1 --not $2 --oneline && \
-		echo \"\" && \
-		echo \"******** $2 --not $1\" && \
-		git rev-list $2 --not $1 --oneline && \
-		echo \"******** [end] git branchdiff\"
+    # comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
+    branchdiff = ! \
+        echo \"******** $1 --not $2\" && \
+        git rev-list $1 --not $2 --oneline && \
+        echo \"\" && \
+        echo \"******** $2 --not $1\" && \
+        git rev-list $2 --not $1 --oneline && \
+        echo \"******** [end] git branchdiff\"
 
-	# commits with a "fixup! ...." commit message from HEAD
-	fixup=commit --fixup head
+    # commits with a "fixup! ...." commit message from HEAD
+    fixup=commit --fixup head
 
-	# missing pushes to origin
-	mp = "! echo mp depracted, please use [git st], now running for you... ; echo ''; git st "
+    # missing pushes to origin
+    mp = "! echo mp depracted, please use [git st], now running for you... ; echo ''; git st "
 
-	remergefile = checkout --conflict=diff3
+    remergefile = checkout --conflict=diff3
 
-	# SC=show commit
-	sc = ! git difftool -d \"$1^\"
-	scc = ! git d \"$1^\"
+    # SC=show commit
+    sc = ! git difftool -d \"$1^\"
+    scc = ! git d \"$1^\"
 
     # dt = difftool c=code d=-d
-	dt = difftool
-	dtd = dt -d
-	dtc = difftool --tool=code
-	dtcd = dtc -d
+    dt = difftool
+    dtd = dt -d
+    dtc = difftool --tool=code
+    dtcd = dtc -d
+    dtg = "!f() { \
+        if [ \"$2\" = \"\" ]; then sha2=$(git rev-parse --short HEAD); sha1=$(git rev-parse --short $1); else sha2=$(git rev-parse --short $2); sha1=$(git rev-parse --short $1); fi && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/-\\/compare\\/'$sha1...$sha2'/g') && \
+        echo $url | clip; \
+        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        start $url; \
+    }; f"
 
-	rl = reflog
-	subget=submodule update --init --recursive
-	deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
+    rl = reflog
+    subget=submodule update --init --recursive
+    deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
 
-	uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
+    uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
 
-	alias = ! git config --get-regexp alias | grep -i 
+    alias = ! git config --get-regexp alias | grep -i 
 
-	flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
+    flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
-	diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\"
+    diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\"
 
-	mergedevelop = ! \
-		git isClean && \
-		git fetch --all && \
-		git config devbranch.name $1 &&\
-		git co $1 && \
-		git merge && \
-		git co develop && \
-		git merge && \
-		git merge -v --ff-only $1 && \
-		git co $1 && \
-		git merge -v --ff-only develop && \
-		git co develop && \
-		git branch -v --color --list develop
+    mergedevelop = ! \
+        git isClean && \
+        git fetch --all && \
+        git config devbranch.name $1 &&\
+        git co $1 && \
+        git merge && \
+        git co develop && \
+        git merge && \
+        git merge -v --ff-only $1 && \
+        git co $1 && \
+        git merge -v --ff-only develop && \
+        git co develop && \
+        git branch -v --color --list develop
 
-	mergepushdevelop = ! \
-		git mergedevelop $1 && \
-		git push origin develop $1 && \
-		git branch -v --color --list develop
+    mergepushdevelop = ! \
+        git mergedevelop $1 && \
+        git push origin develop $1 && \
+        git branch -v --color --list develop
 
-	md = "! \
-		git isClean && \
-		if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
-		echo [git md] merge [M]evlop branch and [D]efault branch && \
-		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
-		read -r -p 'Are you sure? [y/N] ' response && \
-		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
-		git config --get devbranch.name && \
-		git mergedevelop $(git config --get devbranch.name)"
+    md = "! \
+        git isClean && \
+        if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
+        echo [git md] merge [M]evlop branch and [D]efault branch && \
+        echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
+        read -r -p 'Are you sure? [y/N] ' response && \
+        if [ \"$response\" = \"y\" ]; then true; else false; fi && \
+        git config --get devbranch.name && \
+        git mergedevelop $(git config --get devbranch.name)"
 
-	mpd = "! \
-		git isClean && \
-		if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
-		echo [git mpd] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
-		echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
-		read -r -p 'Are you sure? [y/N] ' response && \
-		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
-		git config --get devbranch.name && \
-		git mergepushdevelop $(git config --get devbranch.name)"
+    mpd = "! \
+        git isClean && \
+        if [ \"$1\" = \"\" ]; then true; else git config devbranch.name $1; fi && \
+        echo [git mpd] [M]erge and [P]ush [D]evlop branch and default branch and push both branches && \
+        echo \"set default branch: e.g. [git config devbranch.name support/XX.X] actually it is set to =====> [$(git config --get devbranch.name)] <=====\" && \
+        read -r -p 'Are you sure? [y/N] ' response && \
+        if [ \"$response\" = \"y\" ]; then true; else false; fi && \
+        git config --get devbranch.name && \
+        git mergepushdevelop $(git config --get devbranch.name)"
 
-	# after merge conflict: use theirs, user ours
-	ut = ! git checkout --theirs \"$1\" && git add \"$1\" && echo
-	uo = ! git checkout --ours \"$1\" && git add \"$1\" && echo
+    # after merge conflict: use theirs, user ours
+    ut = ! git checkout --theirs \"$1\" && git add \"$1\" && echo
+    uo = ! git checkout --ours \"$1\" && git add \"$1\" && echo
 
-	contains = "! \
-		echo \"\" && \
-		git branch -a --contains $1 && \
-		git tag  --contains $1 && \
-		git log --oneline -1 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" \
-		"
+    contains = "! \
+        echo \"\" && \
+        git branch -a --contains $1 && \
+        git tag  --contains $1 && \
+        git log --oneline -1 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" \
+        "
 
     find = ! git log --oneline --all | grep -i
 
-	findc = ! \
-		echo \"Overview...\" && \
-		git log --oneline --all | grep -i \"$1\" && \
-		echo \"\nDetails...\" && \
-		git log --oneline --all | \
-			grep -i \"$1\"  | \
-			awk  '{ print $1 }' | \
-			xargs -L 1 git contains && \
-		echo [finished git find]
+    findc = ! \
+        echo \"Overview...\" && \
+        git log --oneline --all | grep -i \"$1\" && \
+        echo \"\nDetails...\" && \
+        git log --oneline --all | \
+            grep -i \"$1\"  | \
+            awk  '{ print $1 }' | \
+            xargs -L 1 git contains && \
+        echo [finished git find]
 
-	unreleasedCommits = !  git log `git describe --tags --abbrev=0`..HEAD --oneline && echo commits since `git describe --tags --abbrev=0`
+    unreleasedCommits = !  git log `git describe --tags --abbrev=0`..HEAD --oneline && echo commits since `git describe --tags --abbrev=0`
 
-	releases = ! git tag -l Thi* | xargs -L1 git contains
+    releases = ! git tag -l Thi* | xargs -L1 git contains
 
-	showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
-	applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
+    showUnreachableCommits = ! git show --stat --oneline  $(git fsck --unreachable | git cat-file --batch-check | awk '/commit/ { print $3 }')
+    applyCommitToWorkingDirectory = ! git diff $1~1 $1 | git apply - && echo [finished git applyCommitToWorkingDirectory]
 
-	isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
+    isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
 
-	deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
-	
-	# FEAT FEAT FEAT
-	openfeat = "!f() { \
-		git co -b feature/$1 && \
-		git push --set-upstream origin feature/$1; \
-		echo ''; \
-		echo -e \"\\e[32mnext steps: [git closefeat <parent-branchname>] and [git finishfeat <feature-branchname>]\\e[0m\"; }; f"
+    deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
+    
+    # FEAT FEAT FEAT
+    openfeat = "!f() { \
+        git co -b feature/$1 && \
+        git push --set-upstream origin feature/$1; \
+        echo ''; \
+        echo -e \"\\e[32mnext steps: [git closefeat <parent-branchname>] and [git finishfeat <feature-branchname>]\\e[0m\"; }; f"
 
-	closefeat = "!f() { \
-		git isClean && \
+    closefeat = "!f() { \
+        git isClean && \
         git br --delete --force tempForRebaseOnly 2> /dev/null & \
-		echo closefeat: rebase current branch to $1 && \
-		echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
-		read -r -p 'Are you sure? [y/N] ' response && \
-		if [ \"$response\" = \"y\" ]; then true; else false; fi && \
-		git co -b tempForRebaseOnly && \
-		git rebase --interactive $1 && \
-		git finishclosefeat $1; }; f"
+        echo closefeat: rebase current branch to $1 && \
+        echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
+        read -r -p 'Are you sure? [y/N] ' response && \
+        if [ \"$response\" = \"y\" ]; then true; else false; fi && \
+        git co -b tempForRebaseOnly && \
+        git rebase --interactive $1 && \
+        git finishclosefeat $1; }; f"
 
-	finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
+    finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
 
-	finishfeat = "!f() { git deleteBranchBoth feature/$1 -f; }; f"
+    finishfeat = "!f() { git deleteBranchBoth feature/$1 -f; }; f"
 
-	# FEAT FEAT FEAT
+    # FEAT FEAT FEAT
 
 
-	lc = log ORIG_HEAD.. --stat --no-merges
-	lp = log --patch-with-stat
-	mt = mergetool
-	serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
-	stm = status --untracked=no
-	stfu = status --untracked=no
-	
-	gg = ! git fetch --tags --prune && git st
+    lc = log ORIG_HEAD.. --stat --no-merges
+    lp = log --patch-with-stat
+    mt = mergetool
+    serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
+    stm = status --untracked=no
+    stfu = status --untracked=no
+    
+    gg = ! git fetch --tags --prune && git st
 
-	generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
+    generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
 
-	templateFunction = "!f() { git l; }; f"
+    templateFunction = "!f() { git l; }; f"
 
-	parent = "!git show-branch | grep '*' | grep -v \"$(git rev-parse --abbrev-ref HEAD)\" | head -n1 | sed 's/.*\\[\\(.*\\)\\].*/\\1/' | sed 's/[\\^~].*//' #"
+    parent = "!git show-branch | grep '*' | grep -v \"$(git rev-parse --abbrev-ref HEAD)\" | head -n1 | sed 's/.*\\[\\(.*\\)\\].*/\\1/' | sed 's/[\\^~].*//' #"
 
-	storeDevCorrespondingSupportBranch = "! \
-		git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
-		git symbolic-ref build refs/heads/$(git config --get devbranch.name)"
-	
-	build-symbolic-ref = ! cat $(git rev-parse --show-toplevel)/.git/build
+    storeDevCorrespondingSupportBranch = "! \
+        git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
+        git symbolic-ref build refs/heads/$(git config --get devbranch.name)"
+    
+    build-symbolic-ref = ! cat $(git rev-parse --show-toplevel)/.git/build
 
-	exclude = "!f() { for var in \"$@\"; do echo \"$var\" >> .git/info/exclude; done; git st; }; f"
+    exclude = "!f() { for var in \"$@\"; do echo \"$var\" >> .git/info/exclude; done; git st; }; f"
     excludeUnknown = "!f() { git ls-files --others --exclude-standard $1 >> .git/info/exclude; }; f"
     excluded = ! cat "$(git root)/.git/info/exclude"; git st
     includeall = ! rm "$(git root)/.git/info/exclude"
     root = rev-parse --show-toplevel
 
-	ignore = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
+    ignore = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
     ignoreUnknown = "!f() { \
         git ls-files --others --exclude-standard $1 > "$(git root)/.git/info/.gitignore"; \
         echo '' >> "$(git root)/.gitignore"; \
@@ -241,39 +248,38 @@
         rm  "$(git root)/.git/info/.gitignore"; \
     }; f"
 
-	theirs = "!f() { git checkout --theirs $@; git add $@; }; f"
-	ours = "!f() { git checkout --ours $@; git add $@; }; f"
-	
-	# get [C]urrent commit [URL]
-	curl = "!f() { \
-		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi && \
-		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g') && \
-		echo $url | clip; \
-		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-	}; f"
-
-	gl = "!f() { \
-		if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi && \
-		export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1/g') && \
-		echo $url | clip; \
-		echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        explorer $url; \
-	}; f"
-
-	jk = "!f() { \
-		export url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g') && \
+    theirs = "!f() { git checkout --theirs $@; git add $@; }; f"
+    ours = "!f() { git checkout --ours $@; git add $@; }; f"
+    
+    # get [C]urrent commit [URL]
+    curl = "!f() { \
+        if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g') && \
         echo $url | clip; \
-		echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        start $url; \
-	}; f"
+        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+    }; f"
 
-	# https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
-	d = diff --color-words -U0
-	d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+" -U0
-	d2 = diff --color-words='\\w' -U0
-	d3 = diff --word-diff-regex=. -U0
+    gl = "!f() { \
+        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1/g') && \
+        echo $url | clip; \
+        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        explorer $url; \
+    }; f"
+
+    jk = "!f() { \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g') && \
+        echo $url | clip; \
+        echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        start $url; \
+    }; f"
+
+    # https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
+    d = diff --color-words -U0
+    d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+" -U0
+    d2 = diff --color-words='\\w' -U0
+    d3 = diff --word-diff-regex=. -U0
 
     
     flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
 
-	aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
+    aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
