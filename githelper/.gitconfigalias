@@ -7,22 +7,31 @@
 [alias]
     l  = log --graph --oneline -n 5
     ll  = log --graph --oneline -n 15
-    lf = log --graph --oneline  --name-only -n 5
+    lf = log --graph --oneline --name-only -n 5
     lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
     ln = log --graph --oneline --no-merges -n 5
+    lsha = log --abbrev-commit --format=format:%h
 
     lg = log --graph --simplify-by-decoration --pretty=format:'%d' --all
     lgv = log --graph --branches --oneline --all --simplify-by-decoration
     lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
     # git log with submodules
-    ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
+    ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 $5 $6 $7 $8 $9 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
     # search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
     # find commits where given string (regex) is in diff
-    search = l --text -G
+
+    # --color=always
+    lfind = log --oneline --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
+
+    search = lfind --regexp-ignore-case --text -G
+    # find commits where given string (regex) is in diff and show the matching line of the diff
+    searchv = lfind -p --name-only --regexp-ignore-case --text -G
+    searchvv = "!f() { git lfind --regexp-ignore-case -p --text -G \"$1\" $2 $3 $4 $5 $6 $7 $8 $9 | grep -E -i \"(^diff --git |^[0-9a-f]{7} |$1)\" ; }; f"
     # find commits where given string (regex) is in diff and show diff (use another grep to filter the mathing lines only)
-    searchp = l -p --text -G
+    searchvvv = lfind -p --regexp-ignore-case --text -G
+
 
 
     cloner = clone --recursive
@@ -161,24 +170,23 @@
     ut = ! git checkout --theirs \"$1\" && git add \"$1\" && echo
     uo = ! git checkout --ours \"$1\" && git add \"$1\" && echo
 
-    contains = "! \
-        echo \"\" && \
-        git branch -a --contains $1 && \
-        git tag  --contains $1 && \
-        git log --oneline -1 --format=format:\"%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(bold yellow)%d%C(reset)\" \
-        "
+    contains = "!f() { \
+        echo \"\"; \
+        git lfind -1 $1; \
+        echo \"\"; \
+        git branch -a --contains $1; \
+        git tag --contains $1; \
+    }; f"
 
-    find = ! git log --oneline --all | grep -i
+    find = "!f() { git lfind --regexp-ignore-case --grep=\"$1\" $2 $3 $4 $5 $6 $7 $8 $9; }; f"
+    findv = "!f() { git lfind -p --name-only --regexp-ignore-case --grep=\"$1\" $2 $3 $4 $5 $6 $7 $8 $9; }; f"
+    findvv = "!f() { git lfind -p --regexp-ignore-case --grep=\"$1\" $2 $3 $4 $5 $6 $7 $8 $9; }; f"
 
-    findc = ! \
-        echo \"Overview...\" && \
-        git log --oneline --all | grep -i \"$1\" && \
-        echo \"\nDetails...\" && \
-        git log --oneline --all | \
-            grep -i \"$1\"  | \
+    findc = "!f() { \
+        git lsha --regexp-ignore-case --grep=\"$1\" $2 $3 $4 $5 $6 $7 $8 $9 |\
             awk  '{ print $1 }' | \
-            xargs -L 1 git contains && \
-        echo [finished git find]
+            xargs -L 1 git contains;\
+        }; f"
 
     unreleasedCommits = !  git log `git describe --tags --abbrev=0`..HEAD --oneline && echo commits since `git describe --tags --abbrev=0`
 
@@ -260,6 +268,7 @@
         export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        explorer $url; \
     }; f"
 
     gl = "!f() { \
