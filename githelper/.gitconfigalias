@@ -19,8 +19,11 @@
     ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
 
     # search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
-    diffs = l -G
-    search = l -G
+    # find commits where given string (regex) is in diff
+    search = l --text -G
+    # find commits where given string (regex) is in diff and show diff (use another grep to filter the mathing lines only)
+    searchp = l -p --text -G
+
 
     cloner = clone --recursive
     sub = ! git submodule foreach git
