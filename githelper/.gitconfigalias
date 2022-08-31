@@ -25,12 +25,16 @@
     # --color=always
     lfind = log --oneline --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 
-    search = lfind --regexp-ignore-case --text -G
+    search = lfind -w --text -G
+    searchi = lfind -w --regexp-ignore-case --text -G
     # find commits where given string (regex) is in diff and show the matching line of the diff
-    searchv = lfind -p --name-only --regexp-ignore-case --text -G
-    searchvv = "!f() { git lfind --regexp-ignore-case -p --text -G \"$1\" $2 $3 $4 $5 $6 $7 $8 $9 | grep -E -i \"(^diff --git |^[0-9a-f]{7} |$1)\" ; }; f"
+    searchv = lfind -w -p --name-only --regexp-ignore-case --text -G
+    searchvi = lfind -w -p --name-only --text -G
+    searchvv = "!f() { git lfind -w -p --text -G \"$1\" $2 $3 $4 $5 $6 $7 $8 $9 | grep -E -i \"(^diff --git |^[0-9a-f]{7} |$1)\" ; }; f"
+    searchvvi = "!f() { git lfind -w --regexp-ignore-case -p --text -G \"$1\" $2 $3 $4 $5 $6 $7 $8 $9 | grep -E -i \"(^diff --git |^[0-9a-f]{7} |$1)\" ; }; f"
     # find commits where given string (regex) is in diff and show diff (use another grep to filter the mathing lines only)
-    searchvvv = lfind -p --regexp-ignore-case --text -G
+    searchvvv = lfind -w -p --text -G
+    searchvvvi = lfind -w -p --regexp-ignore-case --text -G
 
 
 
