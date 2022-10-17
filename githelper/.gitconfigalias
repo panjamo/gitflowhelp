@@ -8,6 +8,7 @@
     l  = log --graph --oneline -n 5
     ll  = log --graph --oneline -n 15
     lf = log --graph --oneline --name-only -n 5
+    lfb = log -5 --name-only --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
     lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
@@ -236,6 +237,7 @@
     stfu = status --untracked=no
     
     gg = ! git fetch --tags --prune && git st
+    prune = ! git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
 
     generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
 
@@ -300,3 +302,5 @@
     flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
 
     aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
+
+    snap = commit -am "snap!"
