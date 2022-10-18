@@ -291,6 +291,13 @@
         echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
     }; f"
+    # https://ctd-sv01.thinprint.de:440/#browse/search=keyword%3Dtpdbg
+    nx = "!f() { \
+        export url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1/g') && \
+        echo $url | clip; \
+        echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        start $url; \
+    }; f"
 
     # https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
     d = diff --color-words -U0
