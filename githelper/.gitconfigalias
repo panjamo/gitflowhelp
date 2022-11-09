@@ -13,7 +13,7 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
 
-    lg = ! git log --graph --simplify-by-decoration --pretty=format:'%d' --all --color=always | less -R
+    lg = ! git log --graph --simplify-by-decoration --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
     lgv = log --graph --branches --oneline --all --simplify-by-decoration
     lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
@@ -238,7 +238,7 @@
     stfu = status --untracked=no
     
     gg = ! git fetch --tags --prune && git st
-    prune = ! git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
+    prunebr = ! git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
 
     generatesAliases  = ! git alias | sed 's/^\\(alias.\\([^ \\t]*\\).*\\|\\(\\).*\\)$/gg\\2=git \\2/g'
 
