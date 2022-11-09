@@ -13,7 +13,7 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
 
-    lg = log --graph --simplify-by-decoration --pretty=format:'%d' --all
+    lg = ! git log --graph --simplify-by-decoration --pretty=format:'%d' --all --color=always | less -R
     lgv = log --graph --branches --oneline --all --simplify-by-decoration
     lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
@@ -82,6 +82,7 @@
     # track all remote branches
     trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
 
+    sync = "!f() { git pull --prune ; git trackAll ; git ffall; git st; }; f"
 
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
@@ -293,7 +294,7 @@
     }; f"
     # https://ctd-sv01.thinprint.de:440/#browse/search=keyword%3Dtpdbg
     nx = "!f() { \
-        export url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1/g') && \
+        export url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1*/g') && \
         echo $url | clip; \
         echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
