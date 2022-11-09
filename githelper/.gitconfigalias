@@ -80,9 +80,9 @@
     ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
     # track all remote branches
-    trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName
+    trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null
 
-    sync = "!f() { git pull --prune ; git trackAll ; git ffall; git st; }; f"
+    sync = "!f() { git pull --prune ; git trackAll ; git ffall; git br -vv; }; f"
 
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
