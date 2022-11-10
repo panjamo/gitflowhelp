@@ -79,8 +79,11 @@
     bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
     ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
+    ffAllForce = "! \
+        if [ `git diff --stat --exit-code | wc -l` = 0 ]; then git ffAll; else git stash; git ffall; git stash pop; fi"
+
     # track all remote branches
-    trackAll = ! git branch -r | grep  -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null
+    trackAll = ! git branch -r | grep -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffall; git br -vv; }; f"
 
