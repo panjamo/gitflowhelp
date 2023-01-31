@@ -116,6 +116,7 @@
     scc = ! git d \"$1^\"
 
     # dt = difftool c=code d=-d
+    vd = ! cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && git exclude diff.diff && code diff.diff
     dt = difftool
     dtd = dt -d
     dtc = difftool --tool=code
@@ -134,7 +135,7 @@
 
     uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
 
-    alias = ! git config --get-regexp alias | grep -i 
+    alias = ! git config --get-regexp alias | grep -i
 
     flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
 
@@ -211,7 +212,7 @@
     isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
 
     deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
-    
+
     # FEAT FEAT FEAT
     openfeat = "!f() { \
         git co -b feature/$1 && \
@@ -243,7 +244,7 @@
     serve = !git daemon --reuseaddr --verbose  --base-path=. --export-all ./.git
     stm = status --untracked=no
     stfu = status --untracked=no
-    
+
     gg = ! git fetch --tags --prune && git st
     prunebr = ! git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -d
 
@@ -256,10 +257,10 @@
     storeDevCorrespondingSupportBranch = "! \
         git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
         git symbolic-ref build refs/heads/$(git config --get devbranch.name)"
-    
+
     build-symbolic-ref = ! cat $(git rev-parse --show-toplevel)/.git/build
 
-    exclude = "!f() { for var in \"$@\"; do echo \"$var\" >> .git/info/exclude; done; git st; }; f"
+    exclude = "!f() { cd \"$(git root)\"; for var in \"$@\"; do echo \"$var\" >> .git/info/exclude; done; awk -i inplace '!seen[$0]++' .git/info/exclude; }; f"
     excludeUnknown = "!f() { git ls-files --others --exclude-standard $1 >> .git/info/exclude; }; f"
     excluded = ! cat "$(git root)/.git/info/exclude"; git st
     includeall = ! rm "$(git root)/.git/info/exclude"
@@ -275,7 +276,7 @@
 
     theirs = "!f() { git checkout --theirs $@; git add $@; }; f"
     ours = "!f() { git checkout --ours $@; git add $@; }; f"
-    
+
     # get [C]urrent commit [URL]
     curl = "!f() { \
         if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi; \
@@ -313,7 +314,7 @@
     d2 = diff --color-words='\\w' -U0
     d3 = diff --word-diff-regex=. -U0
 
-    
+
     flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
 
     aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
