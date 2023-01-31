@@ -114,9 +114,10 @@
     # SC=show commit
     sc = ! git difftool -d \"$1^\"
     scc = ! git d \"$1^\"
+    vc = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\"  > diff.diff && git exclude diff.diff && code diff.diff; }; f"
 
     # dt = difftool c=code d=-d
-    vd = ! cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && git exclude diff.diff && code diff.diff
+    vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && git exclude diff.diff && code diff.diff; }; f"
     dt = difftool
     dtd = dt -d
     dtc = difftool --tool=code
