@@ -5,6 +5,7 @@
 #
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
+    ls = git log --date-order --all $(git reflog show --format="%h" stash)
     l  = log --graph --oneline -n 5
     ll  = log --graph --oneline -n 15
     lf = log --graph --oneline --name-only -n 5
@@ -13,9 +14,12 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
 
-    lg = ! git log --graph --simplify-by-decoration --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
-    lgv = log --graph --branches --oneline --all --simplify-by-decoration
-    lgvv = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
+    lg = ! git log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
+    lgt = ! git log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
+    lgv = log --graph --branches --oneline --all --simplify-by-decoration --decorate-refs-exclude=refs/tags
+    lgvt = log --graph --branches --oneline --all --simplify-by-decoration
+    lgvv = log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
+    lgvvt = log --graph --simplify-by-decoration --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset%n' --abbrev-commit --date=relative --branches
 
     # git log with submodules
     ls = ! git log --graph --oneline -U0 --submodule -5 $1 $2 $3 $4 $5 $6 $7 $8 $9 | grep -E '^[*| /\\]+([0-9a-f]{7} |Submodule |> |$)' && echo end git ls
@@ -85,7 +89,7 @@
     # track all remote branches
     trackAll = ! git branch -r | grep -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null
 
-    sync = "!f() { git pull --prune ; git trackAll ; git ffall; git br -vv; }; f"
+    sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
 
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
