@@ -124,7 +124,7 @@
     dtcd = dtc -d
     dtg = "!f() { \
         if [ \"$2\" = \"\" ]; then sha2=$(git rev-parse --short HEAD); sha1=$(git rev-parse --short $1); else sha2=$(git rev-parse --short $2); sha1=$(git rev-parse --short $1); fi && \
-        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/-\\/compare\\/'$sha1...$sha2'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/-\\/compare\\/'$sha1...$sha2?w=1'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
@@ -213,6 +213,7 @@
     isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
 
     deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
+    dbb = deleteBranchBoth
 
     # FEAT FEAT FEAT
     openfeat = "!f() { \
