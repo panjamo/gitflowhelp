@@ -31,6 +31,14 @@
     <IsSilent>true</IsSilent>
   </CustomAction>
   <CustomAction>
+    <Caption>git hidden</Caption>
+    <Target>git</Target>
+    <Parameters>hidden</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>true</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
     <Caption>git hidechanged</Caption>
     <Target>git</Target>
     <Parameters>hidechanged</Parameters>
