@@ -93,4 +93,20 @@
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>
   </CustomAction>
+  <CustomAction>
+    <Caption>git mergetool</Caption>
+    <Target>git</Target>
+    <Parameters>mergetool $FILE</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git reset --hard</Caption>
+    <Target>git</Target>
+    <Parameters>reset --hard $SHA</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>true</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
 </ArrayOfCustomAction>
