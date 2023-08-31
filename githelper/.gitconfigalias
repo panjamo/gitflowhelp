@@ -14,6 +14,12 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
 
+    lbv = "!f() { echo $1; git lb $1 -2 $2 ; echo; echo; }; f"
+    # git lbr [brach filter] [-10]
+    lbr = "!f() { git for-each-ref --format='%(refname:short)' refs/heads/ | grep -i \"$1\" | xargs -I{} git lbv {} $2; }; f"
+    
+
+
     lg = ! git log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
     lgt = ! git log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
     lgv = log --graph --branches --oneline --all --simplify-by-decoration --decorate-refs-exclude=refs/tags
