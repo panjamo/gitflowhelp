@@ -13,6 +13,8 @@
     lb = log -5 --no-merges --graph --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
+    lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
+
 
     lbv = "!f() { echo $1; git lb $1 -2 $2 ; echo; echo; }; f"
     # git lbr [brach filter] [-10]
@@ -121,12 +123,12 @@
     # SC=show commit
     sc = ! git difftool -d \"$1^\"
     scc = ! git d \"$1^\"
-    vc = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff.diff && git exclude diff.diff && code diff.diff; }; f"
-    vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && git exclude diff2.diff && code diff2.diff; }; f"
+    vc = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
+    vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
 
     # dt = difftool c=code d=-d
-    vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && git exclude diff.diff && code diff.diff; }; f"
-    vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && git exclude diff2.diff && code diff2.diff; }; f"
+    vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
+    vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
     dt = difftool
     dtd = dt -d
     dtc = difftool --tool=code
@@ -297,9 +299,11 @@
         explorer $url; \
     }; f"
 
+    # git@gitlab.com:Jochen.Schieberlein/connectto_tst_dev_stg.git --> https://gitlab.com/Jochen.Schieberlein/connectto_tst_dev_stg/-/tree/master?ref_type=heads
+    # https://ctd-sv01.thinprint.de/thinprint-engine/tpprintdm.git
     gl = "!f() { \
         branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\\//\\\\\\//g'); \
-        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/-\\/tree\\/'$branch'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/tree\\/'$branch'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         explorer $url; \
