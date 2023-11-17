@@ -8,7 +8,7 @@
 
 $WshShell = New-Object -comObject WScript.Shell
 
-Get-GitLabNamespace | % { Get-GitLabProject -GroupId $_.Id -ErrorAction SilentlyContinue} | ForEach-Object {
+((Get-GitLabNamespace) + (Get-GitLabGroup)) | % { Get-GitLabProject -GroupId $_.Id -ErrorAction SilentlyContinue} | ForEach-Object {
     $_
     $MinusName = $_.path_with_namespace -replace "/", "---"
     $cwd = (Get-Location).Path + "/"
@@ -19,6 +19,7 @@ Get-GitLabNamespace | % { Get-GitLabProject -GroupId $_.Id -ErrorAction Silently
             [System.IO.File]::WriteAllText($filePath, "gg.cmd -p" + $_.ssh_url_to_repo, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
             $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd + $MinusName + ".lnk"))
+            $sdlkfjsdklfj = [IO.Path]::GetFullPath($cwd + $_.path_with_namespace)
             $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd + $_.path_with_namespace)
             #$Shortcut.Arguments = '%*'
             $Shortcut.Save()

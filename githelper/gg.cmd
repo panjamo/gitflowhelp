@@ -144,13 +144,13 @@ IF NOT EXIST .git (
     REM     EXIT /b
     REM )
     REM git checkout develop
-    start /min git graph
+    @REM start /min git graph
     git submodule update --init --recursive
     git trackall
     git co %BRANCH%
     git storeDevCorrespondingSupportBranch
     %GIT_FLOW_INIT%
-    start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
+    @REM start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
 ) ELSE (
     git fetch --prune
     echo gg -d> _removeall--%groupname%---%modulename%.cmd
@@ -159,7 +159,7 @@ IF NOT EXIST .git (
     echo [InternetShortcut]>"gitlab %groupname%---%modulename%.url"
     echo URL=https://ctd-sv01.thinprint.de/%groupname%/%modulename%>>"gitlab %groupname%---%modulename%.url"
     echo gitlab %groupname%---%modulename%.url>> .git\info\exclude
-    start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
-    start /min git graph
+    @REM start "GIT %groupname%---%modulename%" %COMMAND_LINE_TOOL%
+    @REM start /min git graph
 )
 EXIT /b
