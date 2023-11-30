@@ -31,7 +31,7 @@ Find-Module -Name PSGitLab | Install-Module
 ```
 
 ### Step 2
-* Navigate to https://ctd-sv01.thinprint.de/profile/personal_access_tokens
+* Navigate to Gitlab Preferences -> Access tokens
 * Create a *Personal Access Token* with _"api Access the authenticated user's API"_ checkbox checked
 
 ### Step 3
