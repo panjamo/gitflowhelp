@@ -6,7 +6,7 @@ REM mklink %SystemRoot%\gitflowinit.cmd  "%~dp0\gitflowhelper\gitflowinit.cmd"
 
 REM https://www.powershellgallery.com/packages/PSGitLab/
 REM powershell: Install-Module -Name PSGitLab
-REM https://ctd-sv01.thinprint.de/profile/personal_access_tokens
+REM Navigate to Gitlab Preferences -> Access tokens
 REM w:\GIT\gitflowhelper\gitlab\UpdateGitLabDirs.ps1
 
 REM Link to StartupFoler for AutoUpdate Link

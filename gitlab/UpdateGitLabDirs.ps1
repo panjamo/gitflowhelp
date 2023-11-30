@@ -1,10 +1,9 @@
-# Prerequisits taken from: https://confluence.thinprint.de/x/eBVhBg
 # 1. install PSGitLab:
 #    Find-Module -Name PSGitLab | Install-Module
 # 2. Create App-Token on personal Gitlab page
-#    https://ctd-sv01.thinprint.de/profile/personal_access_tokens
+#    Navigate to Gitlab Preferences -> Access tokens
 # 3. Prepare PSGitLab to use this token:
-#    Save-GitLabAPIConfiguration -Domain https://ctd-sv01.thinprint.de  -Token "***SecretUserTokenFromGitLab***"
+#    Save-GitLabAPIConfiguration -Domain https://<gitlab-url>  -Token "***SecretUserTokenFromGitLab***"
 
 $WshShell = New-Object -comObject WScript.Shell
 
