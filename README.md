@@ -49,11 +49,6 @@ Save-GitLabAPIConfiguration -Domain https://ctd-sv01.XXXXXXXXX.de -Token "<inser
 
 * add <rootdir>\gitflowhelper\githelper to your path variable, or make <rootdir>\gitflowhelper\githelper\gg.cmd somehow accessable bei PATH, e.g. to make an hard-link run following command (elevated mode):
 
-```make hardlink
+```make symbolic link
 mklink c:\tools.cmd <rootdir>\gitflowhelper\githelper\gg.cmd
 ```
-
-### additional configuration environment variables
-
-* REPO_PREFIX=GIT#git@ctd-sv01.thinprint.de: Home#ssh://name@192.168.67.83/volume1/homes/jochen/repos/
-* COMMAND_LINE_TOOL=cmdr "-cgit gg & tc" -i
