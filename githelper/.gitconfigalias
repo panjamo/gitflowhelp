@@ -135,7 +135,7 @@
     dtcd = dtc -d
     dtg = "!f() { \
         if [ \"$2\" = \"\" ]; then sha2=$(git rev-parse --short HEAD); sha1=$(git rev-parse --short $1); else sha2=$(git rev-parse --short $2); sha1=$(git rev-parse --short $1); fi && \
-        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/-\\/compare\\/'$sha1...$sha2?w=1'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/compare\\/'$sha1...$sha2?w=1'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
@@ -293,7 +293,7 @@
     # get [C]urrent commit [URL]
     curl = "!f() { \
         if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi; \
-        export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/commit\\/'$sha'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/commit\\/'$sha'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         explorer $url; \
