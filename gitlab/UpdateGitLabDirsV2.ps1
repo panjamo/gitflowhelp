@@ -41,8 +41,8 @@ foreach ($key in $objHash.Keys) {
 
             $content = @"
             @echo off
-            git clone --recursive $($project.ssh_url_to_repo) src
-            robocopy src . /E /MOVE /NJH /NJS /NDL /NFL
+            git clone --recursive $($project.ssh_url_to_repo) clone_tmp
+            robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
             git config --global alias.trackbr "! git branch -r | grep -oh '\(release/.*\|support/.*\|feature/.*\|develop\|master\|dev\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null"
             git trackbr > nul
             git config --global --unset alias.trackbr
