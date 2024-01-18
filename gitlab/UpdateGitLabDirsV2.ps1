@@ -46,7 +46,7 @@ foreach ($key in $objHash.Keys) {
             git config --global alias.trackbr "! git branch -r | awk '{print `$1}' | awk '{split(`$0,a,\""origin/\""); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
             git trackbr > nul
             git config --global --unset alias.trackbr
-            git branch --list
+            git lbr 2> null && git branch -v --sort=-committerdate
             echo Enter branch name to checkout, [type branch name, {enter} for keep]:
             set /p answer=""
             git checkout %answer%
