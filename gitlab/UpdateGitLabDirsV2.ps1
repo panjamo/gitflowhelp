@@ -6,16 +6,19 @@
 #    Save-GitLabAPIConfiguration -Domain https://ctd-sv01.thinprint.de  -Token "***SecretUserTokenFromGitLab***"
 #    Save-GitLabAPIConfiguration -Domain https://gitlab.com  -Token "***SecretUserTokenFromGitLab***"
 
-$serchPar=@{}
+$serchPar = @{}
 $objHash = @{}
-Get-GitLabGroup | % { $_.full_path -split "/" | % {$serchPar[$_]=$true}}
+Get-GitLabGroup | % { $_.full_path -split "/" | % { $serchPar[$_] = $true } }
 foreach ($key in $serchPar.Keys) {
     Write-Host $key
     Get-GitLabGroup -Search $key | % { Get-GitLabProject -GroupId $_.Id -ErrorAction SilentlyContinue } | ForEach-Object {
-        $objHash[$_.Id] = $_
+        if (($_.path_with_namespace).count -gt 0) {
+            $objHash[$_.Id] = $_
+        }
     }
 }
 $objHash.count
+# $objHash.Values | select path_with_namespace,web_url,ssh_url_to_repo  | Out-GridView
 
 $WshShell = New-Object -comObject WScript.Shell
 
@@ -32,31 +35,41 @@ foreach ($key in $objHash.Keys) {
 
     if ($project.path_with_namespace) {
         if ((New-Item -ItemType directory ($cwd + $project.path_with_namespace) -ErrorAction SilentlyContinue) -or $true) {
-            $fileNameClone = "__CLONE " + ".cmd"
-            $fileNameDelete = "__REMOVE " + ".cmd"
+            $fileNameClone = "__CLONE" + ".cmd"
+            $fileNameDelete = "__REMOVE" + ".cmd"
             $filenameUrl = "__REMOTE" + ".url"
 
-            $content = "@echo off && git clone --bare $($project.ssh_url_to_repo) .git`n" +
-            "git config --unset core.bare`n" +
-            "git branch --list`n" +
-            "echo Enter branch name to checkout, [type branch name, {enter} for keep]:`n" +
-            "set /p answer=`"`"`n" +
-            "git checkout %answer%`n" +
-            "git submodule update --init --recursive`n" +
-            "for /f `"tokens=* delims=`" %%i in ('git branch -r') do git branch --track `"%%i`" `"%%i`"`n"
+            $content = @"
+            @echo off
+            git clone --recursive $($project.ssh_url_to_repo) src
+            robocopy src . /E /MOVE /NJH /NJS /NDL /NFL
+            git config --global alias.trackbr "! git branch -r | grep -oh '\(release/.*\|support/.*\|feature/.*\|develop\|master\|dev\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null"
+            git trackbr > nul
+            git config --global --unset alias.trackbr
+            git branch --list
+            echo Enter branch name to checkout, [type branch name, {enter} for keep]:
+            set /p answer=""
+            git checkout %answer%
+            git submodule update --init --recursive
+            echo __CLONE.cmd>> .git\info\exclude
+            echo __REMOVE.cmd>> .git\info\exclude
+            echo __REMOTE.url>> .git\info\exclude
+            echo diff.diff>> .git\info\exclude
+"@
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameClone)
             [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-            $content = "@echo off`n" +
-            "echo Epmty %CD% completely, type [yes]:" + "`n" +
-            'set /p answer=""' + "`n" +
-            'echo %answer%' + "`n" +
-            'if /I "%answer%" == "yes" (' + "`n" +
-            'for %%F in (*.*) do if not "%%~nxF"=="' + $fileNameClone + '" if not "%%~nxF"=="' + $fileNameDelete + '" if not "%%~nxF"=="' + $filenameUrl + '" del /F "%%F"' + "`n" +
-            'attrib -h -r .git && rd /S /Q .git`n' + "`n" +
-            'for /D %%G in (*) do rd /S /Q "%%G"' + "`n" +
-            ')'
+            $content = @"
+            @echo off
+            echo Epmty %CD% completely, type [yes]:
+            set /p answer=""
+            if /I "%answer%" == "yes" (
+                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" del /F "%%F"
+                attrib -h -r .git && rd /S /Q .git
+                for /D %%G in (*) do rd /S /Q "%%G"
+            )
+"@
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameDelete)
             [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
