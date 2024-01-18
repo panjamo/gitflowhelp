@@ -32,9 +32,9 @@ foreach ($key in $objHash.Keys) {
 
     if ($project.path_with_namespace) {
         if ((New-Item -ItemType directory ($cwd + $project.path_with_namespace) -ErrorAction SilentlyContinue) -or $true) {
-            $fileNameClone = "__git clone " + $RepoName + ".cmd"
-            $fileNameDelete = "__remove " + $RepoName + ".cmd"
-            $filenameUrl = "__gitlab" + $RepoName + ".url"
+            $fileNameClone = "__CLONE " + ".cmd"
+            $fileNameDelete = "__REMOVE " + ".cmd"
+            $filenameUrl = "__REMOTE" + ".url"
 
             $content = "@echo off && git clone --bare $($project.ssh_url_to_repo) .git`n" +
             "git config --unset core.bare`n" +
