@@ -1,29 +1,29 @@
-# 1. install PSGitLab:
-#    Find-Module -Name PSGitLab | Install-Module
-# 2. Create App-Token on personal Gitlab page
+# 1. Create App-Token on personal Gitlab page
 #    Navigate to Gitlab Preferences -> Access tokens
-# 3. Prepare PSGitLab to use this token:
-#    Save-GitLabAPIConfiguration -Domain https://ctd-sv01.thinprint.de  -Token "***SecretUserTokenFromGitLab***"
-#    Save-GitLabAPIConfiguration -Domain https://gitlab.com  -Token "***SecretUserTokenFromGitLab***"
-
-$serchPar = @{}
-$objHash = @{}
-Get-GitLabGroup | % { $_.full_path -split "/" | % { $serchPar[$_] = $true } }
-foreach ($key in $serchPar.Keys) {
-    Write-Host $key
-    Get-GitLabGroup -Search $key | % { Get-GitLabProject -GroupId $_.Id -ErrorAction SilentlyContinue } | ForEach-Object {
-        if (($_.path_with_namespace).count -gt 0) {
-            $objHash[$_.Id] = $_
-        }
-    }
+# 2. Prepare PSGitLab to use this token:
+#    Add environment variable "GITLAB" with value of the token
+$headers = @{
+    'PRIVATE-TOKEN' = $env:GITLAB
 }
-$objHash.count
-# $objHash.Values | select path_with_namespace,web_url,ssh_url_to_repo  | Out-GridView
+$page = 1
+$perPage = 100
+$allProjects = @()
+$id = (Invoke-RestMethod -Uri 'https://gitlab.com/api/v4/user' -Headers $headers).Id
+$allProjects = Invoke-RestMethod -Uri "https://gitlab.com/api/v4/users/$id/projects?per_page=$perPage" -Headers $headers
+do {
+    $url = "https://gitlab.com/api/v4/groups/cortado-group/projects?include_subgroups=true&page=$page&per_page=$perPage"
+    Write-Host $url
+    $response = Invoke-RestMethod -Uri $url -Headers $headers
+    $allProjects += $response
+    $page++
+} while ($response.Count -eq $perPage)
+
+$allProjects | ConvertTo-Json -Depth 3 | Out-File -FilePath "C:\tmp\allProjects.json"
 
 $WshShell = New-Object -comObject WScript.Shell
 
-foreach ($key in $objHash.Keys) {
-    $project = $objHash[$key]
+$allProjects | % {
+    $project = $_
     $project.path_with_namespace
 
     if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
@@ -38,6 +38,7 @@ foreach ($key in $objHash.Keys) {
             $fileNameClone = "__CLONE" + ".cmd"
             $fileNameDelete = "__REMOVE" + ".cmd"
             $filenameUrl = "__REMOTE" + ".url"
+            $filenameIssue = "__NEW_ISSUE" + ".url"
 
             $content = @"
             @echo off
@@ -81,5 +82,8 @@ foreach ($key in $objHash.Keys) {
 
         $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameUrl)
         [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+
+        $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
+        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + '/-/issues/new'), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
     }
 }
