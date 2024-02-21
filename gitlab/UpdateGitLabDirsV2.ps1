@@ -56,6 +56,7 @@ $allProjects | % {
             echo __CLONE.cmd>> .git\info\exclude
             echo __REMOVE.cmd>> .git\info\exclude
             echo __REMOTE.url>> .git\info\exclude
+            echo __NEW_ISSUE.url>> .git\info\exclude
             echo diff.diff>> .git\info\exclude
 "@
 
