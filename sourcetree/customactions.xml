@@ -23,9 +23,17 @@
     <IsSilent>false</IsSilent>
   </CustomAction>
   <CustomAction>
+    <Caption>git exclude (for not tracked files)</Caption>
+    <Target>git</Target>
+    <Parameters>exclude "$FILE"</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
     <Caption>git hide</Caption>
     <Target>git</Target>
-    <Parameters>hide $FILE</Parameters>
+    <Parameters>hide "$FILE"</Parameters>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>
@@ -73,6 +81,14 @@
     <Caption>Show complete diff for this commit</Caption>
     <Target>git</Target>
     <Parameters>difftool -d $SHA^ $SHA</Parameters>
+    <OpenInSeparateWindow>false</OpenInSeparateWindow>
+    <ShowFullOutput>false</ShowFullOutput>
+    <IsSilent>true</IsSilent>
+  </CustomAction>
+  <CustomAction>
+    <Caption>git commit --fixup</Caption>
+    <Target>git</Target>
+    <Parameters>commit --fixup $SHA</Parameters>
     <OpenInSeparateWindow>false</OpenInSeparateWindow>
     <ShowFullOutput>false</ShowFullOutput>
     <IsSilent>true</IsSilent>

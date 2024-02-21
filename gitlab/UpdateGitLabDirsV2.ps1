@@ -29,6 +29,7 @@ $allProjects | % {
     if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
         $RepoName = $matches[2]
         $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ")"
+        $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
     }
 
     $cwd = (Get-Location).Path + "/"
@@ -66,7 +67,7 @@ $allProjects | % {
             echo Epmty %CD% completely, type [yes]:
             set /p answer=""
             if /I "%answer%" == "yes" (
-                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" del /F "%%F"
+                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
                 attrib -h -r .git && rd /S /Q .git
                 for /D %%G in (*) do rd /S /Q "%%G"
             )

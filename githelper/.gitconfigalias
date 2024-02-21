@@ -15,12 +15,14 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
     lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
+    lbr = "!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold cyan)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head -10; }; f"
+
 
 
     lbv = "!f() { echo $1; git lb $1 -2 $2 ; echo; echo; }; f"
     # git lbr [brach filter] [-10]
-    lbr = "!f() { git for-each-ref --format='%(refname:short)' refs/heads/ | grep -i \"$1\" | xargs -I{} git lbv {} $2; }; f"
-    
+    # lbr = "!f() { git for-each-ref --format='%(refname:short)' refs/heads/ | grep -i \"$1\" | xargs -I{} git lbv {} $2; }; f"
+
 
 
     lg = ! git log --graph --simplify-by-decoration --decorate-refs-exclude=refs/tags --pretty=format:'%C(bold blue)%d%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset)' --all --color=always | less -R
@@ -97,7 +99,7 @@
         if [ `git diff --stat --exit-code | wc -l` = 0 ]; then git ffAll; else git stash; git ffall; git stash pop; fi"
 
     # track all remote branches
-    trackAll = ! git branch -r | grep -oh '\\(release/.*\\|support/.*\\|feature/.*\\|develop\\|master\\)$' | xargs -I branchName git branch --track branchName origin/branchName 2> /dev/null
+    trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
 
