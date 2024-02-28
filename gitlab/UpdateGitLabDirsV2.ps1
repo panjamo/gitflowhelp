@@ -40,6 +40,7 @@ $allProjects | % {
             $fileNameDelete = "__REMOVE" + ".cmd"
             $filenameUrl = "__REMOTE" + ".url"
             $filenameIssue = "__NEW_ISSUE" + ".url"
+            $filenameBug = "__NEW_BUG" + ".url"
 
             $content = @"
             @echo off
@@ -68,7 +69,7 @@ $allProjects | % {
             echo Epmty %CD% completely, type [yes]:
             set /p answer=""
             if /I "%answer%" == "yes" (
-                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
+                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
                 attrib -h -r .git && rd /S /Q .git
                 for /D %%G in (*) do rd /S /Q "%%G"
             )
@@ -86,6 +87,33 @@ $allProjects | % {
         [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
         $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
-        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + '/-/issues/new'), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+        $issueDescription = @"
+
+
+_Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeepPrintPath_
+/label ~"type::task"
+/label ~"team::ezeepPrintPath"
+/label ~"priority::medium"
+"@
+        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+
+        $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameBug)
+        $issueDescription = @"
+
+
+| Faulty Version | Fixed Version | Tested Version |
+| --- | --- | ---- |
+| n/a | n/a | n/a |
+
+| Customer / Partner | Ticket Url |
+| --- | --- |
+| n/a | n/a |
+
+_Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeepPrintPath_
+/label ~"type::bug"
+/label ~"team::ezeepPrintPath"
+/label ~"priority::medium"
+"@
+        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
     }
 }
