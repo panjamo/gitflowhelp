@@ -15,7 +15,7 @@
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
     lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
-    lbr = "!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold cyan)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head -10; }; f"
+    lbr = "!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold cyan)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head $1; }; f"
 
 
 
@@ -105,6 +105,8 @@
 
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
+
+    list = config --list --show-scope --show-origin
 
     # comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
     branchdiff = ! \
