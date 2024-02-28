@@ -1,48 +1,48 @@
-# 1. Create App-Token on personal Gitlab page
-#    Navigate to Gitlab Preferences -> Access tokens
-# 2. Prepare PSGitLab to use this token:
-#    Add environment variable "GITLAB" with value of the token
-$headers = @{
-    'PRIVATE-TOKEN' = $env:GITLAB
-}
-$page = 1
-$perPage = 100
-$allProjects = @()
-$id = (Invoke-RestMethod -Uri 'https://gitlab.com/api/v4/user' -Headers $headers).Id
-$allProjects = Invoke-RestMethod -Uri "https://gitlab.com/api/v4/users/$id/projects?per_page=$perPage" -Headers $headers
-do {
-    $url = "https://gitlab.com/api/v4/groups/cortado-group/projects?include_subgroups=true&page=$page&per_page=$perPage"
-    Write-Host $url
-    $response = Invoke-RestMethod -Uri $url -Headers $headers
-    $allProjects += $response
-    $page++
-} while ($response.Count -eq $perPage)
+#   Create App-Token on personal Gitlab page
+#   Navigate to Gitlab Preferences -> Access tokens
+#     https://gitlab.com/-/user_settings/personal_access_tokens --> $env:GITLABCOM
+#     https://ctd-sv01.thinprint.de/-/profile/personal_access_tokens -> $env:CTD-VS01
 
-$allProjects | ConvertTo-Json -Depth 3 | Out-File -FilePath "C:\tmp\allProjects.json"
+Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
+    $page = 1
+    $perPage = 100
+    $allProjects = @()
+    $id = (Invoke-RestMethod -Uri "$($gitlabhost)/api/v4/user" -Headers $headers).Id
+    $allProjects = Invoke-RestMethod -Uri "$($gitlabhost)/api/v4/users/$id/projects?per_page=$perPage&archived=false" -Headers $headers
+    do {
+        $url = "$($gitlabhost)$($getprojectURLPart)/projects?include_subgroups=true&page=$page&per_page=$perPage&archived=false"
+        Write-Host $url
+        $response = Invoke-RestMethod -Uri $url -Headers $headers
+        $allProjects += $response
+        $page++
+    } while ($response.Count -eq $perPage)
 
-$WshShell = New-Object -comObject WScript.Shell
+    $allProjects | ConvertTo-Json -Depth 3 | Out-File -FilePath "C:\tmp\allProjects.json"
 
-$allProjects | % {
-    $project = $_
-    $project.path_with_namespace
+    $WshShell = New-Object -comObject WScript.Shell
 
-    if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
-        $RepoName = $matches[2]
-        $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ")"
-        $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
-    }
+    $allProjects | % {
+        $project = $_
+        $project.path_with_namespace = $project.path_with_namespace -replace "cortado-group/thinprint/", ""
+        $project.path_with_namespace
 
-    $cwd = (Get-Location).Path + "/"
+        if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
+            $RepoName = $matches[2]
+            $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ")"
+            $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
+        }
 
-    if ($project.path_with_namespace) {
-        if ((New-Item -ItemType directory ($cwd + $project.path_with_namespace) -ErrorAction SilentlyContinue) -or $true) {
-            $fileNameClone = "__CLONE" + ".cmd"
-            $fileNameDelete = "__REMOVE" + ".cmd"
-            $filenameUrl = "__REMOTE" + ".url"
-            $filenameIssue = "__NEW_ISSUE" + ".url"
-            $filenameBug = "__NEW_BUG" + ".url"
+        $cwd = (Get-Location).Path + "/"
 
-            $content = @"
+        if ($project.path_with_namespace) {
+            if ((New-Item -ItemType directory ($cwd + $project.path_with_namespace) -ErrorAction SilentlyContinue) -or $true) {
+                $fileNameClone = "__CLONE" + ".cmd"
+                $fileNameDelete = "__REMOVE" + ".cmd"
+                $filenameUrl = "__REMOTE" + ".url"
+                $filenameIssue = "__NEW_ISSUE" + ".url"
+                $filenameBug = "__NEW_BUG" + ".url"
+
+                $content = @"
             @echo off
             git clone --recursive $($project.ssh_url_to_repo) clone_tmp
             robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
@@ -61,10 +61,10 @@ $allProjects | % {
             echo diff.diff>> .git\info\exclude
 "@
 
-            $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameClone)
-            [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+                $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameClone)
+                [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-            $content = @"
+                $content = @"
             @echo off
             echo Epmty %CD% completely, type [yes]:
             set /p answer=""
@@ -75,19 +75,19 @@ $allProjects | % {
             )
 "@
 
-            $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameDelete)
-            [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+                $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameDelete)
+                [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-            $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd + $MinusName + ".lnk"))
-            $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd + $project.path_with_namespace)
-            $Shortcut.Save()
-        }
+                $Shortcut = $WshShell.CreateShortcut([IO.Path]::GetFullPath($cwd + $MinusName + ".lnk"))
+                $Shortcut.TargetPath = [IO.Path]::GetFullPath($cwd + $project.path_with_namespace)
+                $Shortcut.Save()
+            }
 
-        $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameUrl)
-        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+            $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameUrl)
+            [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-        $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
-        $issueDescription = @"
+            $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
+            $issueDescription = @"
 
 
 _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeepPrintPath_
@@ -95,10 +95,10 @@ _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeep
 /label ~"team::ezeepPrintPath"
 /label ~"priority::medium"
 "@
-        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+            [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
-        $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameBug)
-        $issueDescription = @"
+            $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameBug)
+            $issueDescription = @"
 
 
 | Faulty Version | Fixed Version | Tested Version |
@@ -114,6 +114,12 @@ _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeep
 /label ~"team::ezeepPrintPath"
 /label ~"priority::medium"
 "@
-        [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+            [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+        }
     }
 }
+
+createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTD-VS01} "/api/v4"
+createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM} "/api/v4/groups/cortado-group"
+
+
