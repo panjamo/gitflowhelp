@@ -28,7 +28,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
         if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
             $RepoName = $matches[2]
-            $MinusName = $RepoName  + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id
+            $MinusName = $RepoName  + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id + ($project.namespace.parent_id ? " in " + $project.namespace.parent_id : "")
             $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
         }
 
@@ -41,6 +41,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
                 $filenameUrl = "__REMOTE" + ".url"
                 $filenameIssue = "__NEW_ISSUE" + ".url"
                 $filenameBug = "__NEW_BUG" + ".url"
+                $filenameSearch = "__SEARCH" + ".url"
 
                 $content = @"
             @echo off
@@ -54,11 +55,12 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
             set /p answer=""
             git checkout %answer%
             git submodule update --init --recursive
-            echo __CLONE.cmd>> .git\info\exclude
-            echo __REMOVE.cmd>> .git\info\exclude
-            echo __REMOTE.url>> .git\info\exclude
-            echo __NEW_ISSUE.url>> .git\info\exclude
-            echo __NEW_BUG.url>> .git\info\exclude
+            echo $fileNameClone>> .git\info\exclude
+            echo $fileNameDelete>> .git\info\exclude
+            echo $filenameUrl>> .git\info\exclude
+            echo $filenameIssue>> .git\info\exclude
+            echo $filenameBug>> .git\info\exclude
+            echo $filenameSearch>> .git\info\exclude
             echo diff.diff>> .git\info\exclude
 "@
 
@@ -70,7 +72,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
             echo Epmty %CD% completely, type [yes]:
             set /p answer=""
             if /I "%answer%" == "yes" (
-                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
+                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameSearch)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
                 attrib -h -r .git && rd /S /Q .git
                 for /D %%G in (*) do rd /S /Q "%%G"
             )
@@ -86,6 +88,13 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameUrl)
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+
+            if ($project.namespace.parent_id) {
+                $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameSearch)
+                $url = "https://gitlab.com/search?group_id=$($project.namespace.parent_id)&scope=issues&search=*&state=opened&project_id=$($project.id)"
+                [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
+            }
+
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
             $issueDescription = @"
