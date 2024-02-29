@@ -28,7 +28,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
         if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
             $RepoName = $matches[2]
-            $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ")"
+            $MinusName = $RepoName  + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id
             $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
         }
 
@@ -120,7 +120,5 @@ _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeep
     }
 }
 
-createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTD-VS01} "/api/v4"
+createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01} "/api/v4"
 createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM} "/api/v4/groups/cortado-group"
-
-
