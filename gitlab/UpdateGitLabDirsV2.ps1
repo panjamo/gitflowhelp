@@ -100,7 +100,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
             $issueDescription = @"
 
 
-_Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeepPrintPath_
+
 /label ~"type::task"
 /label ~"team::ezeepPrintPath"
 /label ~"priority::medium"
@@ -109,7 +109,12 @@ _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeep
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameBug)
             $issueDescription = @"
+<details>
+<summary>
 
+#### Versions / Customer, click here to _expand._
+
+</summary>
 
 | Faulty Version | Fixed Version | Tested Version |
 | --- | --- | ---- |
@@ -119,7 +124,8 @@ _Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeep
 | --- | --- |
 | n/a | n/a |
 
-_Availible Teams: team::ezeepBlue, team::hub, team::ThinPrintEngine, team::ezeepPrintPath_
+</details>
+
 /label ~"type::bug"
 /label ~"team::ezeepPrintPath"
 /label ~"priority::medium"
