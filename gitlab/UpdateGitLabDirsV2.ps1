@@ -95,6 +95,12 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
                 [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
             }
 
+            switch ($RepoName) {
+                "ezeep-blue" { $teamLable = "team::ezeepBlue" }
+                "hub-team" { $teamLable = "team::hub" }
+                "thinprint-engine-team" { $teamLable = "team::ThinPrintEngine" }
+                Default {$teamLable = "team::ezeepPrintPath"}
+            }
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
             $issueDescription = @"
@@ -102,8 +108,9 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
 
 /label ~"type::task"
-/label ~"team::ezeepPrintPath"
+/label ~"$teamLable"
 /label ~"priority::medium"
+/label ~"reported-by::internal"
 "@
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
@@ -127,8 +134,9 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 </details>
 
 /label ~"type::bug"
-/label ~"team::ezeepPrintPath"
+/label ~"$teamLable"
 /label ~"priority::medium"
+/label ~"reported-by::internal"
 "@
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
         }
