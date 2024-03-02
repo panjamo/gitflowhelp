@@ -102,7 +102,9 @@
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
-
+    fix = "!f() { git ci -a --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
+    
+    
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
 

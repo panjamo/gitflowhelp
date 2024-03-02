@@ -24,14 +24,14 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
     $allProjects | % {
         $project = $_
         $project.path_with_namespace = $project.path_with_namespace -replace "cortado-group/thinprint/", ""
-        $project.path_with_namespace
+        # $project.path_with_namespace
 
         if ($project.path_with_namespace -match "^(.*)/([^/]*)$") {
             $RepoName = $matches[2]
-            $MinusName = $RepoName  + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id + ($project.namespace.parent_id ? " in " + $project.namespace.parent_id : "")
+            $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id + ($project.namespace.parent_id ? " in " + $project.namespace.parent_id : "")
             $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
         }
-
+        $RepoName
         $cwd = (Get-Location).Path + "/"
 
         if ($project.path_with_namespace) {
@@ -99,7 +99,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
                 "ezeep-blue" { $teamLable = "team::ezeepBlue" }
                 "hub-team" { $teamLable = "team::hub" }
                 "thinprint-engine-team" { $teamLable = "team::ThinPrintEngine" }
-                Default {$teamLable = "team::ezeepPrintPath"}
+                Default { $teamLable = "team::ezeepPrintPath" }
             }
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameIssue)
@@ -143,5 +143,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
     }
 }
 
-createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01} "/api/v4"
-createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM} "/api/v4/groups/cortado-group"
+createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4"
+$repos = @()
+$repos += createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM } "/api/v4/groups/cortado-group"
+'"' + ($repos -join '", "') + '"' | Out-File -FilePath "repos.txt"
