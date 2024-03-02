@@ -1,6 +1,6 @@
 #   Create App-Token on personal Gitlab page
 #   Navigate to Gitlab Preferences -> Access tokens
-#     https://gitlab.com/-/user_settings/personal_access_tokens --> $env:GITLABCOM
+#     https://gitlab.com/-/user_settings/personal_access_tokens --> $env:GITLAB_TOKEN
 #     https://ctd-sv01.thinprint.de/-/profile/personal_access_tokens -> $env:CTD-VS01
 
 Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
@@ -145,5 +145,5 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
 createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4"
 $repos = @()
-$repos += createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM } "/api/v4/groups/cortado-group"
+$repos += createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLAB_TOKEN } "/api/v4/groups/cortado-group"
 '"' + ($repos -join '", "') + '"' | Out-File -FilePath "repos.txt"
