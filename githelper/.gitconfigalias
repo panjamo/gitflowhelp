@@ -103,8 +103,8 @@
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
     fix = "!f() { git ci -a --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
-    
-    
+
+
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
 
@@ -311,7 +311,7 @@
     # https://ctd-sv01.thinprint.de/thinprint-engine/tpprintdm.git
     gl = "!f() { \
         branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\\//\\\\\\//g'); \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/tree\\/'$branch'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/issues\\/'$1'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         explorer $url; \
