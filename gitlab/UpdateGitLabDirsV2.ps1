@@ -107,10 +107,11 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
 
 
+/weight 1
 /label ~"type::task"
 /label ~"$teamLable"
 /label ~"priority::medium"
-/label ~"reported-by::internal"
+/epic https://gitlab.com/groups/cortado-group/thinprint/project-planning/-/epics/<<epic-id>>
 "@
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
@@ -133,6 +134,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
 </details>
 
+/weight 1
 /label ~"type::bug"
 /label ~"$teamLable"
 /label ~"priority::medium"
