@@ -138,7 +138,6 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 /label ~"type::bug"
 /label ~"$teamLable"
 /label ~"priority::medium"
-/label ~"reported-by::internal"
 "@
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
         }

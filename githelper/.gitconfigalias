@@ -102,7 +102,7 @@
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
-    fix = "!f() { git ci -a --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
+    fix = "!f() { git add -p; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
 
     # show diffeneces between branch and origin/branch
@@ -110,6 +110,7 @@
 
     list = config --list --show-scope --show-origin
     delgonebr = ! git branch -vv | grep 'origin/.*: gone]' | awk '{print $1}' | xargs -I{} git branch -d {} -f
+    pushfwl = push --force-with-lease
 
     # comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
     branchdiff = ! \
@@ -151,7 +152,7 @@
 
     rl = reflog
     subget=submodule update --init --recursive
-    deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --prune=now && git fsck --unreachable
+    deleteUnreachable = ! git reflog expire --expire-unreachable=now --all && git fsck --unreachable && git gc --aggressive --prune=now && git fsck --unreachable
 
     uniqueCommits = ! git rev-list --oneline --no-merges --all --not $(git rev-list --all ^HEAD --pretty=format:%h | grep -v commit) | grep -v Buildserver
 
