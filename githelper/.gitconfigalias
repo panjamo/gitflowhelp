@@ -162,6 +162,12 @@
 
     diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\"
 
+    mrd = "!f() { \
+        if [ \"$2\" = \"\" ]; \
+            then git vd `git merge-base head $1` head $2 $3; \
+            else git vd `git merge-base $2 $1 ` $2 $3 $4; \
+        fi; }; f"
+    
     mergedevelop = ! \
         git isClean && \
         git fetch --all && \
