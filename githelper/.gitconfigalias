@@ -14,7 +14,7 @@
     lbf = log -5 --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
     ln = log --graph --oneline --no-merges -n 5
     lsha = log --abbrev-commit --format=format:%h
-    lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
+    lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff.diff; }; f"
     lbr = "!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold cyan)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head $1; }; f"
 
 
@@ -132,17 +132,17 @@
     # SC=show commit
     sc = ! git difftool -d \"$1^\"
     scc = ! git d \"$1^\"
-    vc = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
-    vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
+    vc = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff.diff; }; f"
+    vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff2.diff; }; f"
 
-    # dt = difftool c=code d=-d
+    # dt = difftool c='C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' d=-d
     vdmr = "!f() { \
          if [ \"$1\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' response; else response=$1; fi && \
          mb=$(git merge-base head $response) && \
          git vd $mb $2 $3 $4 $5 $6 $7; \
     }; f"
-    vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
-    vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
+    vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff.diff; }; f"
+    vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff2.diff; }; f"
     dt = difftool
     dtd = dt -d
     dtc = difftool --tool=code
