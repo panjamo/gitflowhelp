@@ -102,7 +102,7 @@
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
-    fix = "!f() { git add -p; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
+    fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
 
     # show diffeneces between branch and origin/branch
@@ -136,6 +136,11 @@
     vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
 
     # dt = difftool c=code d=-d
+    vdmr = "!f() { \
+         if [ \"$1\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' response; else response=$1; fi && \
+         mb=$(git merge-base head $response) && \
+         git vd $mb $2 $3 $4 $5 $6 $7; \
+    }; f"
     vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && code diff.diff; }; f"
     vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && code diff2.diff; }; f"
     dt = difftool
@@ -338,6 +343,7 @@
         start $url; \
     }; f"
 
+
     # https://stackoverflow.com/questions/3231759/how-can-i-visualize-per-character-differences-in-a-unified-diff-file/25634420
     d = diff --color-words -U0
     d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+" -U0
@@ -350,3 +356,8 @@
     aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
 
     snap = commit -am "snap!"
+    xbit = "!f() { git ls-files --stage $1 | grep -E '^[0-9]{6}'; }; f"
+    setxbit = "!f() { git ls-files $1 | xargs -n1 git update-index --chmod=+x; }; f"
+    #| xargs -n1 git update-index --chmod=+x
+
+
