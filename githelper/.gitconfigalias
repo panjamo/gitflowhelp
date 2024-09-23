@@ -137,9 +137,13 @@
 
     # dt = difftool c='C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' d=-d
     vdmr = "!f() { \
-         if [ \"$1\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' response; else response=$1; fi && \
-         mb=$(git merge-base head $response) && \
-         git vd $mb $2 $3 $4 $5 $6 $7; \
+        mergebranchname=$(git config --get mergebranch.name); \
+        if [ \"$1\" != \"\" ] && [ \"$1\" != \"-\" ] ; then mergebranchname=$1; fi && \
+        if [ \"$1\" = \"-\" ] || [ \"$mergebranchname\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' mergebranchname; fi && \
+        git config mergebranch.name $mergebranchname && \
+        echo "diff to merge branch name: $mergebranchname"; \
+        mb=$(git merge-base head $mergebranchname) && \
+        git vd $mb $2 $3 $4 $5 $6 $7; \
     }; f"
     vd = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff.diff; }; f"
     vd2 = "!f() { cd \"$(git root)\" && git diff $1 $2 $3 $4 $5 $6 $7 > diff2.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff2.diff; }; f"
