@@ -52,17 +52,20 @@
     searchvvv = lfind -w -p --text -G
     searchvvvi = lfind -w -p --regexp-ignore-case --text -G
 
-
-
     cloner = clone --recursive
     sub = ! git submodule foreach git
 
     co=checkout --recurse-submodules
     ci = commit
     ciam = commit -am
-    st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git br -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
+    st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git branch -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
     staged = diff --name-only --cached
-    br = branch
+    br = branch --sort=-committerdate
+    brs = "!f() { \
+        if [ \"$1\" = \"\" ]; then export countBranches=\"-5\"; else export countBranches=$1; shift; fi; \
+        git branch --sort=-committerdate $@| head $countBranches; \
+        echo -e \"\\e[31mOnly the first n branches are displayed!\\e[0m\"; \
+    }; f"
     # brl = "!f() { \
     #     export url=$(git config --get remote.origin.url | sed 's/^.*ctd-sv01.thinprint.de.\\(.*\\)\\.git/https:\\/\\/ctd-sv01.thinprint.de\\/\\1\\/network\\//g') && \
     #     git branch -r | sed 's/*/ /g' | sed 's/origin.//g' | awk -L '{ print $1 }' | xargs -I{} echo -e "\\\\e[32m{}\\\\e[0m $url{}?filter_ref=1"; \
@@ -91,8 +94,8 @@
     graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
     # checkout and pull all branches
-    bbehind = "! git br -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
-    bahead = "! git br -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
+    bbehind = "! git branch -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
+    bahead = "! git branch -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
     ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
     ffAllForce = "! \
@@ -101,7 +104,7 @@
     # track all remote branches
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
-    sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git br -vv; }; f"
+    sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git branch -vv; }; f"
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
 
@@ -136,10 +139,14 @@
     vc2 = "!f() { cd \"$(git root)\" && git diff \"$1~1\" \"$1\" $2 $3 $4 $5 $6 $7 > diff2.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff2.diff; }; f"
 
     # dt = difftool c='C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' d=-d
+    vdmrinit = "!f() { \
+        git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' mergebranchname && \
+        git config mergebranch.name $mergebranchname; \
+    }; f"
+
     vdmr = "!f() { \
         mergebranchname=$(git config --get mergebranch.name); \
-        if [ \"$1\" != \"\" ] && [ \"$1\" != \"-\" ] ; then mergebranchname=$1; fi && \
-        if [ \"$1\" = \"-\" ] || [ \"$mergebranchname\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' mergebranchname; fi && \
+        if [ \"$mergebranchname\" = \"\" ]; then git branch -v --color --list --sort=-committerdate | head -4; read -r -p 'Insert merge branch: ' mergebranchname; fi && \
         git config mergebranch.name $mergebranchname && \
         echo "diff to merge branch name: $mergebranchname"; \
         mb=$(git merge-base head $mergebranchname) && \
@@ -259,7 +266,7 @@
 
     closefeat = "!f() { \
         git isClean && \
-        git br --delete --force tempForRebaseOnly 2> /dev/null & \
+        git branch --delete --force tempForRebaseOnly 2> /dev/null & \
         echo closefeat: rebase current branch to $1 && \
         echo -e \"on merge conflict start \\e[32mgit finishclosefeat\\e[0m after solving all conflicts\" && \
         read -r -p 'Are you sure? [y/N] ' response && \
@@ -268,7 +275,7 @@
         git rebase --interactive $1 && \
         git finishclosefeat $1; }; f"
 
-    finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git br -d tempForRebaseOnly && git curl; }; f"
+    finishclosefeat = "!f() { git co $1 && git merge --ff-only tempForRebaseOnly && git branch -d tempForRebaseOnly && git curl; }; f"
 
     finishfeat = "!f() { git deleteBranchBoth feature/$1 -f; }; f"
 
@@ -292,7 +299,7 @@
     parent = "!git show-branch | grep '*' | grep -v \"$(git rev-parse --abbrev-ref HEAD)\" | head -n1 | sed 's/.*\\[\\(.*\\)\\].*/\\1/' | sed 's/[\\^~].*//' #"
 
     storeDevCorrespondingSupportBranch = "! \
-        git config devbranch.name $(git br | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
+        git config devbranch.name $(git branch | awk '{split($0,a,\"/\"); print a[2] $0}'  | sort --general-numeric-sort -r | head -n1 |  awk '{print $2}') && \
         git symbolic-ref build refs/heads/$(git config --get devbranch.name)"
 
     build-symbolic-ref = ! cat $(git rev-parse --show-toplevel)/.git/build
