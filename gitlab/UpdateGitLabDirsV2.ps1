@@ -44,38 +44,53 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
                 $filenameSearch = "__SEARCH" + ".url"
 
                 $content = @"
-            @echo off
-            git clone --recursive $($project.ssh_url_to_repo) clone_tmp
-            robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
-            git config --global alias.trackbr "! git branch -r | awk '{print `$1}' | awk '{split(`$0,a,\""origin/\""); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
-            git trackbr > nul
-            git config --global --unset alias.trackbr
-            git lbr 2> nul & git branch -v --sort=-committerdate
-            echo Enter branch name to checkout, [type branch name, {enter} for keep]:
-            set /p answer=""
-            git checkout %answer%
-            git submodule update --init --recursive
-            echo $fileNameClone>> .git\info\exclude
-            echo $fileNameDelete>> .git\info\exclude
-            echo $filenameUrl>> .git\info\exclude
-            echo $filenameIssue>> .git\info\exclude
-            echo $filenameBug>> .git\info\exclude
-            echo $filenameSearch>> .git\info\exclude
-            echo diff.diff>> .git\info\exclude
+@echo off
+if not exist ".git" (
+    @echo off
+    git clone --recursive $($project.ssh_url_to_repo) clone_tmp
+    robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
+    git config --global alias.trackbr "! git branch -r | awk '{print `$1}' | awk '{split(`$0,a,\""origin/\""); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
+    git trackbr > nul
+    git config --global --unset alias.trackbr
+    git lbr 2> nul & git branch -v --sort=-committerdate
+    echo Enter branch name to checkout, [type branch name, {enter} for keep]:
+    set /p answer=""
+    git checkout %answer%
+    git submodule update --init --recursive
+    echo $fileNameClone>> .git\info\exclude
+    echo $fileNameDelete>> .git\info\exclude
+    echo $filenameUrl>> .git\info\exclude
+    echo $filenameIssue>> .git\info\exclude
+    echo $filenameBug>> .git\info\exclude
+    echo $filenameSearch>> .git\info\exclude
+    echo diff.diff>> .git\info\exclude
+)
 "@
+                # $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
+                # if (Test-Path $repoExcludeFilename) {
+                #     $exclude = (Get-Content $repoExcludeFilename).Trim() | Where-Object { $_ -ne "" }
+                #     if ($exclude -notcontains $fileNameClone) { $exclude += $fileNameClone }
+                #     if ($exclude -notcontains $fileNameDelete) { $exclude += $fileNameDelete }
+                #     if ($exclude -notcontains $filenameUrl) { $exclude += $filenameUrl }
+                #     if ($exclude -notcontains $filenameIssue) { $exclude += $filenameIssue }
+                #     if ($exclude -notcontains $filenameBug) { $exclude += $filenameBug }
+                #     if ($exclude -notcontains $filenameSearch) { $exclude += $filenameSearch }
+                #     if ($exclude -notcontains "diff.diff") { $exclude += "diff.diff" }
+                #     $exclude | Set-Content $repoExcludeFilename -Encoding UTF8
+                # }
 
                 $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameClone)
                 [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
                 $content = @"
-            @echo off
-            echo Epmty %CD% completely, type [yes]:
-            set /p answer=""
-            if /I "%answer%" == "yes" (
-                for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameSearch)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
-                attrib -h -r .git && rd /S /Q .git
-                for /D %%G in (*) do rd /S /Q "%%G"
-            )
+@echo off
+echo Epmty %CD% completely, type [yes]:
+set /p answer=""
+if /I "%answer%" == "yes" (
+    for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameSearch)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
+    attrib -h -r .git && rd /S /Q .git
+    for /D %%G in (*) do rd /S /Q "%%G"
+)
 "@
 
                 $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameDelete)
