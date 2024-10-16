@@ -84,7 +84,7 @@
     reset0diff = ! git stagediff && git diff --name-only -z | xargs -0 git co -f && git unstage
     stdiff = ! git diff -G"." --name-only
     unstage = reset HEAD --
-    resetfdx = ! git reset --hard && git clean -fdx && git st
+    resetfdx = ! git reset --hard && git clean -fdx --exclude=__*.url --exclude=__*.cmd && git st
     resetfd = ! git reset --hard && git clean -fd && git st
     b = ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/heads && ! git for-each-ref --sort='-authordate' --format='%(authordate)%09%(objectname:short)%09%(refname)' refs/remotes
 
