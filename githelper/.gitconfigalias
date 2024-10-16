@@ -59,6 +59,7 @@
     ci = commit
     ciam = commit -am
     st = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git branch -v | grep -E '(ahead|behind) [0-9]';  git status --short --branch"
+    sta = "! git branch -vv | grep -v origin | sed 's/^..//' | sed 's/ .*/ [branch not connected to remote origin]/'; git branch -v | grep -E '(ahead|behind) [0-9]';  git status --short --untracked-files=no --branch; git ls-files --others"
     staged = diff --name-only --cached
     br = branch --sort=-committerdate
     brs = "!f() { \

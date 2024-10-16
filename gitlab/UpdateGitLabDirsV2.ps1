@@ -45,26 +45,27 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 
                 $content = @"
 @echo off
-if not exist ".git" (
-    @echo off
-    git clone --recursive $($project.ssh_url_to_repo) clone_tmp
-    robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
-    git config --global alias.trackbr "! git branch -r | awk '{print `$1}' | awk '{split(`$0,a,\""origin/\""); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
-    git trackbr > nul
-    git config --global --unset alias.trackbr
-    git lbr 2> nul & git branch -v --sort=-committerdate
-    echo Enter branch name to checkout, [type branch name, {enter} for keep]:
-    set /p answer=""
-    git checkout %answer%
-    git submodule update --init --recursive
-    echo $fileNameClone>> .git\info\exclude
-    echo $fileNameDelete>> .git\info\exclude
-    echo $filenameUrl>> .git\info\exclude
-    echo $filenameIssue>> .git\info\exclude
-    echo $filenameBug>> .git\info\exclude
-    echo $filenameSearch>> .git\info\exclude
-    echo diff.diff>> .git\info\exclude
+if exist ".git" (
+    echo Already cloned
+    exit /b
 )
+git clone --recursive $($project.ssh_url_to_repo) clone_tmp
+robocopy clone_tmp . /E /MOVE /NJH /NJS /NDL /NFL
+git config --global alias.trackbr "! git branch -r | awk '{print `$1}' | awk '{split(`$0,a,\""origin/\""); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
+git trackbr > nul
+git config --global --unset alias.trackbr
+git lbr 2> nul & git branch -v --sort=-committerdate
+echo Enter branch name to checkout, [type branch name, {enter} for keep]:
+set /p answer=""
+git checkout %answer%
+git submodule update --init --recursive
+echo $fileNameClone>> .git\info\exclude
+echo $fileNameDelete>> .git\info\exclude
+echo $filenameUrl>> .git\info\exclude
+echo $filenameIssue>> .git\info\exclude
+echo $filenameBug>> .git\info\exclude
+echo $filenameSearch>> .git\info\exclude
+echo diff.diff>> .git\info\exclude
 "@
                 # $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
                 # if (Test-Path $repoExcludeFilename) {
