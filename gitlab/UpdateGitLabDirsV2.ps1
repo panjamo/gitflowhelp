@@ -8,6 +8,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
     $perPage = 100
     $allProjects = @()
     $id = (Invoke-RestMethod -Uri "$($gitlabhost)/api/v4/user" -Headers $headers).Id
+
     $allProjects = Invoke-RestMethod -Uri "$($gitlabhost)/api/v4/users/$id/projects?per_page=$perPage&archived=false" -Headers $headers
     do {
         $url = "$($gitlabhost)$($getprojectURLPart)/projects?include_subgroups=true&page=$page&per_page=$perPage&archived=false"
@@ -18,6 +19,7 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
     } while ($response.Count -eq $perPage)
 
     $allProjects | ConvertTo-Json -Depth 3 | Out-File -FilePath "C:\tmp\allProjects.json"
+
 
     $WshShell = New-Object -comObject WScript.Shell
 
@@ -31,8 +33,10 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
             $MinusName = $RepoName + " (" + ($matches[1] -replace "/", "#") + ") " + $project.id + ($project.namespace.parent_id ? " in " + $project.namespace.parent_id : "")
             $MinusName = $MinusName -replace "cortado-group#thinprint#", ""
         }
-        $RepoName
+        # $RepoName
         $cwd = (Get-Location).Path + "/"
+
+        ($cwd + $project.path_with_namespace)
 
         if ($project.path_with_namespace) {
             if ((New-Item -ItemType directory ($cwd + $project.path_with_namespace) -ErrorAction SilentlyContinue) -or $true) {
@@ -41,7 +45,6 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
                 $filenameUrl = "__REMOTE" + ".url"
                 $filenameIssue = "__NEW_ISSUE" + ".url"
                 $filenameBug = "__NEW_BUG" + ".url"
-                $filenameSearch = "__SEARCH" + ".url"
 
                 $content = @"
 @echo off
@@ -64,7 +67,6 @@ echo $fileNameDelete>> .git\info\exclude
 echo $filenameUrl>> .git\info\exclude
 echo $filenameIssue>> .git\info\exclude
 echo $filenameBug>> .git\info\exclude
-echo $filenameSearch>> .git\info\exclude
 echo diff.diff>> .git\info\exclude
 "@
                 # $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
@@ -75,7 +77,6 @@ echo diff.diff>> .git\info\exclude
                 #     if ($exclude -notcontains $filenameUrl) { $exclude += $filenameUrl }
                 #     if ($exclude -notcontains $filenameIssue) { $exclude += $filenameIssue }
                 #     if ($exclude -notcontains $filenameBug) { $exclude += $filenameBug }
-                #     if ($exclude -notcontains $filenameSearch) { $exclude += $filenameSearch }
                 #     if ($exclude -notcontains "diff.diff") { $exclude += "diff.diff" }
                 #     $exclude | Set-Content $repoExcludeFilename -Encoding UTF8
                 # }
@@ -88,7 +89,7 @@ echo diff.diff>> .git\info\exclude
 echo Epmty %CD% completely, type [yes]:
 set /p answer=""
 if /I "%answer%" == "yes" (
-    for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameSearch)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
+    for %%F in (*.*) do if not "%%~nxF"=="$($fileNameClone)" if not "%%~nxF"=="$($fileNameDelete)" if not "%%~nxF"=="$($filenameUrl)" if not "%%~nxF"=="$($filenameBug)" if not "%%~nxF"=="$($filenameIssue)" del /F "%%F"
     attrib -h -r .git && rd /S /Q .git
     for /D %%G in (*) do rd /S /Q "%%G"
 )
@@ -104,12 +105,6 @@ if /I "%answer%" == "yes" (
 
             $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameUrl)
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
-
-            if ($project.namespace.parent_id) {
-                $filePath = $cwd + ($project.path_with_namespace + "/" + $filenameSearch)
-                $url = "https://gitlab.com/search?group_id=$($project.namespace.parent_id)&scope=issues&search=*&state=opened&project_id=$($project.id)"
-                [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $url), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
-            }
 
             switch ($RepoName) {
                 "ezeep-blue" { $teamLable = "team::ezeepBlue" }
@@ -160,7 +155,47 @@ if /I "%answer%" == "yes" (
     }
 }
 
-createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4"
+# Remove all files named $filenameIssue recursively from the current working directory
+Get-ChildItem -Path (Get-Location).Path -Recurse -Filter __NEW_ISSUE.url | ForEach-Object {
+    Remove-Item -Path $_.FullName -Force
+}
 $repos = @()
-$repos += createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLAB_TOKEN } "/api/v4/groups/cortado-group"
+$repos += (createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4")| Sort-Object -Unique
+$repos += (createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLAB_TOKEN } "/api/v4/groups/cortado-group") | Sort-Object -Unique
+$repos | Export-Clixml -Path "repos.xml"
 '"' + ($repos -join '", "') + '"' | Out-File -FilePath "repos.txt"
+
+# Check for duplicates
+# $repos = Import-Clixml -Path "repos.xml"
+$uniqueRepos = $repos | Sort-Object  -Unique
+if ($uniqueRepos.Count -ne $repos.Count) {
+    Write-Host "Project that are active in 'gitlab.com' and 'ctd-sv01.thinprint.de':"
+    $duplicateRepos = $repos | Group-Object | Where-Object { $_.Count -gt 1 }
+    $duplicateRepos | ForEach-Object {
+        $_.Group | ForEach-Object {
+            Write-Host $_
+        }
+    }
+} else {
+    Write-Host "No duplicate entries found."
+}
+#
+
+$uniqueRepos = $uniqueRepos | ForEach-Object { $_ -replace "/", "\" }
+
+$parents = @()
+$uniqueRepos | ForEach-Object {
+    $folder = $_
+    $parents += (Get-Item -Path $folder ).Parent
+}
+$uniqueParents = $parents | Sort-Object -Unique
+$uniqueParents.Count
+
+$uniqueParents | % {
+    $subfolders = Get-ChildItem -Path $_ -Directory
+    $subfolders | % {
+        if (-not (Test-Path "$_\__NEW_ISSUE.url") -and (Get-ChildItem -Path $_ -File)) {
+            Write-Host "Missing __NEW_ISSUE.url in $_"
+        }
+    }
+}
