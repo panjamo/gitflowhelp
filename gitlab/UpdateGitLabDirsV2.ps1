@@ -69,17 +69,17 @@ echo $filenameIssue>> .git\info\exclude
 echo $filenameBug>> .git\info\exclude
 echo diff.diff>> .git\info\exclude
 "@
-                # $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
-                # if (Test-Path $repoExcludeFilename) {
-                #     $exclude = (Get-Content $repoExcludeFilename).Trim() | Where-Object { $_ -ne "" }
-                #     if ($exclude -notcontains $fileNameClone) { $exclude += $fileNameClone }
-                #     if ($exclude -notcontains $fileNameDelete) { $exclude += $fileNameDelete }
-                #     if ($exclude -notcontains $filenameUrl) { $exclude += $filenameUrl }
-                #     if ($exclude -notcontains $filenameIssue) { $exclude += $filenameIssue }
-                #     if ($exclude -notcontains $filenameBug) { $exclude += $filenameBug }
-                #     if ($exclude -notcontains "diff.diff") { $exclude += "diff.diff" }
-                #     $exclude | Set-Content $repoExcludeFilename -Encoding UTF8
-                # }
+                $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
+                if (Test-Path $repoExcludeFilename) {
+                    $exclude = (Get-Content $repoExcludeFilename).Trim() | Where-Object { $_ -ne "" }
+                    if ($exclude -notcontains $fileNameClone) { $exclude += $fileNameClone }
+                    if ($exclude -notcontains $fileNameDelete) { $exclude += $fileNameDelete }
+                    if ($exclude -notcontains $filenameUrl) { $exclude += $filenameUrl }
+                    if ($exclude -notcontains $filenameIssue) { $exclude += $filenameIssue }
+                    if ($exclude -notcontains $filenameBug) { $exclude += $filenameBug }
+                    if ($exclude -notcontains "diff.diff") { $exclude += "diff.diff" }
+                    $exclude | Set-Content $repoExcludeFilename -Encoding UTF8
+                }
 
                 $filePath = $cwd + ($project.path_with_namespace + "/" + $fileNameClone)
                 [System.IO.File]::WriteAllText($filePath, $content, [System.Text.Encoding]::GetEncoding('iso-8859-1'))
@@ -155,7 +155,7 @@ if /I "%answer%" == "yes" (
     }
 }
 
-# Remove all files named $filenameIssue recursively from the current working directory
+# Remove all files named __NEW_ISSUE.url recursively from the current working directory
 Get-ChildItem -Path (Get-Location).Path -Recurse -Filter __NEW_ISSUE.url | ForEach-Object {
     Remove-Item -Path $_.FullName -Force
 }
