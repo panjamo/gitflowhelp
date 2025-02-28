@@ -122,7 +122,7 @@ if /I "%answer%" == "yes" (
 /label ~"type::task"
 /label ~"$teamLable"
 /label ~"priority::medium"
-/epic https://gitlab.com/groups/cortado-group/thinprint/project-planning/-/epics/<<epic-id>>
+/epic https://gitlab.com/groups/cortado-group/thinprint/-/epics/<<epic-id>>
 "@
             [System.IO.File]::WriteAllText($filePath, ("[InternetShortcut]`r`nURL=" + $project.web_url + "/-/issues/new?issue[title]=newissue&issue[description]=" + [System.Web.HttpUtility]::UrlEncode($issueDescription)), [System.Text.Encoding]::GetEncoding('iso-8859-1'))
 
@@ -159,6 +159,10 @@ if /I "%answer%" == "yes" (
 Get-ChildItem -Path (Get-Location).Path -Recurse -Filter __NEW_ISSUE.url | ForEach-Object {
     Remove-Item -Path $_.FullName -Force
 }
+Get-ChildItem -Path (Get-Location).Path -Filter *.lnk | ForEach-Object {
+    Remove-Item -Path $_.FullName -Force
+}
+
 $repos = @()
 $repos += (createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4")| Sort-Object -Unique
 $repos += (createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLAB_TOKEN } "/api/v4/groups/cortado-group") | Sort-Object -Unique
