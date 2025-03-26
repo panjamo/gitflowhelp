@@ -335,7 +335,7 @@
     # https://ctd-sv01.thinprint.de/thinprint-engine/tpprintdm.git
     gl = "!f() { \
         branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\\//\\\\\\//g'); \
-        if [ \"$1\" = \"\" ]; then topic=issues; else topic=$1; fi; \
+        if [ \"$1\" = \"\" ]; then topic=\"blob\\/$branch\\/README.md\"; else topic=$1; fi; \
         if [ \"$topic\" = \"network\" ]; then topic=\"$topic\\/$branch\"; fi; \
         export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/'$topic'/g') && \
         echo $url | clip; \
