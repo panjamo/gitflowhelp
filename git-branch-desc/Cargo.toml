@@ -1,0 +1,11 @@
+[package]
+name = "git-branch-desc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+git2 = "0.18"
+anyhow = "1.0"
+tabwriter = "1.4"
+terminal_size = "0.3"
