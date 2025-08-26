@@ -225,6 +225,101 @@ git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 180 --push
 git diff --cached | git-branch-desc edit --stdin --ai-summarize --ai-timeout 600 --commit
 ```
 
+## Testing
+
+The project includes a comprehensive test suite with unit tests, integration tests, and mock tests.
+
+### Running Tests
+
+#### Quick Test Commands
+```bash
+# Run all tests
+cargo test
+
+# Run only unit tests
+cargo test --lib
+
+# Run only integration tests
+cargo test --test integration_tests --test mock_tests
+
+# Run with verbose output
+cargo test -- --verbose
+```
+
+#### Test Scripts
+**Windows (PowerShell):**
+```powershell
+# Run all tests with comprehensive reporting
+.\test.ps1 -All
+
+# Run specific test types
+.\test.ps1 -Unit
+.\test.ps1 -Integration
+.\test.ps1 -Coverage
+
+# Run with filters
+.\test.ps1 -Filter "parse_issue"
+.\test.ps1 -Unit -Verbose
+```
+
+**Unix/Linux/macOS (Bash):**
+```bash
+# Run all tests with comprehensive reporting
+./test.sh --all
+
+# Run specific test types
+./test.sh --unit
+./test.sh --integration
+./test.sh --coverage
+
+# Run with filters
+./test.sh --filter "parse_issue"
+./test.sh --unit --verbose
+```
+
+### Test Coverage
+
+#### Coverage Report
+```bash
+# Install coverage tool
+cargo install cargo-tarpaulin
+
+# Generate HTML coverage report
+cargo tarpaulin --out Html --output-dir target/coverage
+open target/coverage/tarpaulin-report.html
+```
+
+#### Test Categories
+- **Unit Tests** (`src/lib.rs`): Core functionality, parsing, utilities
+- **Integration Tests** (`tests/integration_tests.rs`): Full workflows, Git operations
+- **Mock Tests** (`tests/mock_tests.rs`): Edge cases, error conditions, boundary tests
+
+### AI Testing (Optional)
+
+AI-related tests require Ollama to be running locally:
+
+```bash
+# Setup Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+ollama run llama3.2:1b
+
+# Run AI tests
+cargo test --features ai_tests
+```
+
+### CI/CD
+
+The project uses GitHub Actions for continuous integration:
+- ✅ **Multi-platform testing** (Ubuntu, Windows, macOS)
+- ✅ **Multiple Rust versions** (stable, beta)
+- ✅ **Code formatting** and **linting**
+- ✅ **Security audit**
+- ✅ **Documentation checks**
+- ✅ **Coverage reporting**
+- ⚠️ **Optional AI tests**
+
+See `.github/workflows/ci.yml` for full CI configuration.
+
 ## Development
 
 ```bash
@@ -236,6 +331,10 @@ cargo clippy --fix
 
 # Run tests
 cargo test
+
+# Run comprehensive test suite
+.\test.ps1 -All  # Windows
+./test.sh --all  # Unix/Linux/macOS
 
 # Test specific functionality
 cargo run -- edit --help
