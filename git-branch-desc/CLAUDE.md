@@ -32,6 +32,8 @@ cargo clippy --fix
 # Alternative input methods
 ./target/release/git-branch-desc edit --clipboard      # From clipboard
 echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
+./target/release/git-branch-desc edit --issue 123      # From GitLab issue number
+./target/release/git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456"  # From GitLab issue URL
 
 ./target/release/git-branch-desc list
 ```
@@ -51,6 +53,8 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - `terminal_size`: Terminal width detection for text wrapping
 - `anyhow`: Error handling
 - `arboard`: Clipboard access for reading descriptions from system clipboard
+- `regex`: URL parsing for GitLab issue links
+- `serde_json`: Robust JSON parsing for GitLab issue data
 
 ### Git Integration
 - **Current Branch Operations**: Traditional Git workflow (write file → stage → commit)
@@ -63,6 +67,9 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - `get_clipboard_content()`: Reads description text from system clipboard
 - `get_stdin_content()`: Reads description text from stdin with terminal detection
 - `get_interactive_input()`: Handles interactive description input with existing content display
+- `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe`
+- `parse_issue_reference()`: Parses GitLab issue numbers and URLs
+- `parse_issue_json()`: Robustly extracts title and description from glab JSON output using serde_json
 - `list_descriptions()`: Reads descriptions from all branches using Git objects
 - `commit_to_branch()`: Low-level Git operations for committing to non-current branches
 - `read_branch_description_from_git()`: Reads description files directly from Git trees
@@ -77,6 +84,9 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - Safety warnings and confirmations prevent accidental branch modifications
 - The unified `edit` command intelligently detects existing descriptions and shows them for editing
 - Commit messages automatically reflect whether content was "Added" or "Updated"
-- Multiple input methods supported: direct argument, interactive prompt, clipboard, and stdin
-- Clipboard and stdin options are mutually exclusive with each other and direct text input
+- Multiple input methods supported: direct argument, interactive prompt, clipboard, stdin, and GitLab issues
+- All input options (clipboard, stdin, issue) are mutually exclusive with each other and direct text input
 - Stdin input includes terminal detection to prevent hanging when no input is available
+- GitLab issue support uses configured `glab.exe` and accepts both issue numbers and full GitLab URLs
+- Issue content is formatted as "Title" followed by the issue description (no markdown heading prefix)
+- JSON parsing uses `serde_json` for robust handling of complex GitLab API responses

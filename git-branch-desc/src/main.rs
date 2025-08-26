@@ -2,12 +2,13 @@ use anyhow::{Context, Result};
 use arboard::Clipboard;
 use clap::{Parser, Subcommand};
 use git2::Repository;
-use serde::Deserialize;
+use regex::Regex;
+use serde_json::Value;
 use std::collections::HashSet;
-use std::env;
 use std::fs;
-use std::io::{self, Write, Read, IsTerminal};
+use std::io::{self, IsTerminal, Read, Write};
 use std::path::Path;
+use std::process::Command;
 use tabwriter::TabWriter;
 use terminal_size::{Width, terminal_size};
 
@@ -35,9 +36,9 @@ enum Commands {
         /// Read description from stdin
         #[arg(long, conflicts_with_all = ["description", "clipboard", "issue"])]
         stdin: bool,
-        /// Read description from GitLab issue number
+        /// Read description from GitLab issue (number or URL)
         #[arg(long, conflicts_with_all = ["description", "clipboard", "stdin"])]
-        issue: Option<u64>,
+        issue: Option<String>,
         /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
         commit: bool,
@@ -73,23 +74,26 @@ fn main() -> Result<()> {
             commit,
             push,
             force,
-        } => edit_description(branch, description, clipboard, stdin, issue, commit, push, force),
+        } => edit_description(
+            branch,
+            description,
+            clipboard,
+            stdin,
+            issue,
+            commit,
+            push,
+            force,
+        ),
         Commands::List { detailed, all } => list_descriptions(detailed, all),
     }
 }
 
-#[derive(Deserialize)]
-struct GitLabIssue {
-    title: String,
-    description: Option<String>,
-}
-
-async fn edit_description(
+fn edit_description(
     target_branch: Option<String>,
     description: Option<String>,
     clipboard: bool,
     stdin: bool,
-    issue: Option<u64>,
+    issue: Option<String>,
     commit: bool,
     push: bool,
     force: bool,
@@ -148,8 +152,8 @@ async fn edit_description(
         get_clipboard_content()?
     } else if stdin {
         get_stdin_content()?
-    } else if let Some(issue_number) = issue {
-        get_issue_content(&repo, issue_number).await?
+    } else if let Some(issue_ref) = issue {
+        get_issue_content(&issue_ref)?
     } else {
         get_interactive_input(&target_branch, &existing_description)?
     };
@@ -560,17 +564,23 @@ fn get_local_branch_list(repo: &Repository) -> Result<Vec<String>> {
 
 fn get_clipboard_content() -> Result<String> {
     let mut clipboard = Clipboard::new().context("Failed to access clipboard")?;
-    let content = clipboard.get_text().context("Failed to read from clipboard")?;
+    let content = clipboard
+        .get_text()
+        .context("Failed to read from clipboard")?;
     Ok(content.trim().to_string())
 }
 
 fn get_stdin_content() -> Result<String> {
     if io::stdin().is_terminal() {
-        anyhow::bail!("No input detected on stdin. Use --clipboard or provide description as argument instead.");
+        anyhow::bail!(
+            "No input detected on stdin. Use --clipboard or provide description as argument instead."
+        );
     }
-    
+
     let mut content = String::new();
-    io::stdin().read_to_string(&mut content).context("Failed to read from stdin")?;
+    io::stdin()
+        .read_to_string(&mut content)
+        .context("Failed to read from stdin")?;
     Ok(content.trim().to_string())
 }
 
@@ -590,34 +600,74 @@ fn get_interactive_input(target_branch: &str, existing_description: &str) -> Res
     Ok(input.trim().to_string())
 }
 
-async fn get_issue_content(repo: &Repository, issue_number: u64) -> Result<String> {
-    // Get GitLab project ID from remote origin URL
-    let (project_id, gitlab_url) = get_gitlab_project_info(repo)?;
-    
-    // Get GitLab token from environment
-    let token = env::var("GITLAB_TOKEN")
-        .or_else(|_| env::var("GITLAB_ACCESS_TOKEN"))
-        .context("GitLab token not found. Please set GITLAB_TOKEN or GITLAB_ACCESS_TOKEN environment variable.")?;
-    
-    // Construct API URL
-    let api_url = format!("{}/api/v4/projects/{}/issues/{}", gitlab_url, project_id, issue_number);
-    
-    // Make API request
-    let client = reqwest::Client::new();
-    let response = client
-        .get(&api_url)
-        .header("PRIVATE-TOKEN", &token)
-        .send()
-        .await
-        .context("Failed to make GitLab API request")?;
-    
-    if !response.status().is_success() {
-        let status = response.status();
-        let error_text = response.text().await.unwrap_or_default();
-        anyhow::bail!("GitLab API request failed with status {}: {}", status, error_text);
+fn get_issue_content(issue_ref: &str) -> Result<String> {
+    // Parse the issue reference - could be a number or a URL
+    let issue_number = parse_issue_reference(issue_ref)?;
+
+    // Use glab to get issue information
+    let output = Command::new("glab")
+        .args(["issue", "view", &issue_number, "--output", "json"])
+        .output()
+        .context("Failed to execute glab command. Make sure glab is installed and configured.")?;
+
+    if !output.status.success() {
+        let error_msg = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("glab command failed: {}", error_msg);
     }
-    
-    let
+
+    let json_output =
+        String::from_utf8(output.stdout).context("Failed to parse glab output as UTF-8")?;
+
+    // Parse the JSON output manually to extract title and description
+    parse_issue_json(&json_output)
+}
+
+fn parse_issue_reference(issue_ref: &str) -> Result<String> {
+    // Check if it's a GitLab issue URL
+    let url_regex = Regex::new(r"https?://[^/]+/[^/]+/[^/]+/-/issues/(\d+)")
+        .context("Failed to compile URL regex")?;
+
+    if let Some(captures) = url_regex.captures(issue_ref) {
+        if let Some(number) = captures.get(1) {
+            return Ok(number.as_str().to_string());
+        }
+    }
+
+    // Check if it's just a number
+    if issue_ref.chars().all(|c| c.is_ascii_digit()) {
+        return Ok(issue_ref.to_string());
+    }
+
+    anyhow::bail!(
+        "Invalid issue reference: '{}'. Expected either an issue number (e.g., '123') or a GitLab issue URL.",
+        issue_ref
+    );
+}
+
+fn parse_issue_json(json: &str) -> Result<String> {
+    // Parse JSON using serde_json for robust parsing
+    let parsed: Value = serde_json::from_str(json)
+        .context("Failed to parse JSON output from glab")?;
+
+    // Extract title
+    let title = parsed["title"]
+        .as_str()
+        .context("Could not extract issue title from glab output")?;
+
+    // Extract description (handle null and empty cases)
+    let description = parsed["description"]
+        .as_str()
+        .unwrap_or("")
+        .trim();
+
+    // Format the content as title + description
+    let mut content = format!("{}", title);
+    if !description.is_empty() {
+        content.push_str(&format!("\n\n{}", description));
+    }
+
+    Ok(content)
+}
 
 fn read_branch_description_from_git(
     repo: &Repository,
@@ -653,5 +703,90 @@ fn read_branch_description_from_git(
             Ok(Some(content))
         }
         None => Ok(None),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_issue_reference() {
+        // Test issue number
+        assert_eq!(parse_issue_reference("123").unwrap(), "123");
+        
+        // Test GitLab URL
+        assert_eq!(
+            parse_issue_reference("https://gitlab.com/owner/repo/-/issues/456").unwrap(),
+            "456"
+        );
+        
+        // Test GitLab URL with different domain
+        assert_eq!(
+            parse_issue_reference("https://gitlab.example.com/group/project/-/issues/789").unwrap(),
+            "789"
+        );
+        
+        // Test invalid input
+        assert!(parse_issue_reference("invalid").is_err());
+        assert!(parse_issue_reference("https://github.com/owner/repo/issues/123").is_err());
+    }
+
+    #[test]
+    fn test_parse_issue_json() {
+        // Test with actual failing JSON sample from the error report
+        let actual_sample = r#"{"id":172148901,"iid":15,"external_id":"","state":"opened","description":"Currently the project builds on Jenkins using the @jenkinsfile. We need to migrate this to a GitLab CI/CD pipeline.\n\nThe Jenkins pipeline currently:\n\n- Builds using VS2017 with MsBuild\n- Runs serverbuild.cmd and serverbuild_msm.cmd\n- Generates TPTrackSvc_x64.msm and TPTrackSvc_x86.msm files\n- Deploys artifacts using Maven\n- Creates git tags\n\nReference: Jenkinsfile in repository root\n\nrelates to #16+s","health_status":"","title":"add a build pipeline for build and generating the msm, former build on jenkins","created_at":"2025-08-20T12:20:31.835Z"}"#;
+        
+        let actual_result = parse_issue_json(actual_sample).unwrap();
+        assert!(actual_result.starts_with("add a build pipeline for build and generating the msm, former build on jenkins"));
+        assert!(actual_result.contains("Currently the project builds on Jenkins"));
+        assert!(actual_result.contains("We need to migrate this to a GitLab CI/CD pipeline"));
+        
+        // Test with real glab JSON output format
+        let json = r#"{"id":172148901,"iid":15,"title":"add a build pipeline for build and generating the msm, former build on jenkins","description":"Currently the project builds on Jenkins using the @jenkinsfile. We need to migrate this to a GitLab CI/CD pipeline.\n\nThe Jenkins pipeline currently:\n\n- Builds using VS2017 with MsBuild\n- Runs serverbuild.cmd and serverbuild_msm.cmd\n- Generates TPTrackSvc_x64.msm and TPTrackSvc_x86.msm files\n- Deploys artifacts using Maven\n- Creates git tags\n\nReference: Jenkinsfile in repository root\n\nrelates to #16+s","state":"opened"}"#;
+        
+        let result = parse_issue_json(json).unwrap();
+        assert!(result.starts_with("add a build pipeline for build and generating the msm, former build on jenkins"));
+        assert!(result.contains("Currently the project builds on Jenkins"));
+        assert!(result.contains("We need to migrate this to a GitLab CI/CD pipeline"));
+        
+        // Test with simple JSON
+        let simple_json = r#"{"title":"Simple Title","description":"Simple description"}"#;
+        let simple_result = parse_issue_json(simple_json).unwrap();
+        assert_eq!(simple_result, "Simple Title\n\nSimple description");
+        
+        // Test with null description
+        let null_desc_json = r#"{"title":"Title Only","description":null}"#;
+        let null_result = parse_issue_json(null_desc_json).unwrap();
+        assert_eq!(null_result, "Title Only");
+        
+        // Test with empty description
+        let empty_desc_json = r#"{"title":"Title Only","description":""}"#;
+        let empty_result = parse_issue_json(empty_desc_json).unwrap();
+        assert_eq!(empty_result, "Title Only");
+        
+        // Test with escaped characters
+        let escaped_json = r#"{"title":"Title with \"quotes\"","description":"Description with\nnewlines and \"quotes\""}"#;
+        let escaped_result = parse_issue_json(escaped_json).unwrap();
+        assert!(escaped_result.contains("Title with \"quotes\""));
+        assert!(escaped_result.contains("Description with\nnewlines and \"quotes\""));
+        
+        // Test with complex nested JSON (like real glab output)
+        let complex_json = r#"{"id":123,"title":"Complex Issue","description":"Multi-line\ndescription","author":{"name":"Test User"},"labels":["bug","priority::high"]}"#;
+        let complex_result = parse_issue_json(complex_json).unwrap();
+        assert_eq!(complex_result, "Complex Issue\n\nMulti-line\ndescription");
+        
+        // Test with missing description field
+        let no_desc_json = r#"{"id":123,"title":"Title Only","state":"open"}"#;
+        let no_desc_result = parse_issue_json(no_desc_json).unwrap();
+        assert_eq!(no_desc_result, "Title Only");
+        
+        // Test error case - missing title
+        let no_title_json = r#"{"id":123,"description":"Description only"}"#;
+        assert!(parse_issue_json(no_title_json).is_err());
+        
+        // Test error case - invalid JSON
+        let invalid_json = r#"{"title":"Invalid JSON" missing bracket"#;
+        assert!(parse_issue_json(invalid_json).is_err());
     }
 }
