@@ -316,6 +316,18 @@
     root = rev-parse --show-toplevel
 
     brdesc = "!f() { git-branch-desc.exe \"$@\"; }; f"
+    brdesclist = "!f() { \
+        echo \"Listing BRANCHREADME.md contents from all branches...\"; \
+        echo \"\"; \
+        for branch in $(git branch -a --format='%(refname:short)' | grep -v '/HEAD$' | sort -u); do \
+            if git show \"$branch:BRANCHREADME.md\" >/dev/null 2>&1; then \
+                echo \"+- $branch $(printf '%*s' $((80 - ${#branch} - 3)) '' | tr ' ' '-')\"; \
+                git show \"$branch:BRANCHREADME.md\" | sed 's/^/│ /'; \
+                echo \"\n+$(printf '%*s' 80 '' | tr ' ' '-')\"; \
+                echo \"\"; \
+            fi; \
+        done; \
+    }; f"
 
     ignore = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
     ignoreUnknown = "!f() { \
@@ -379,5 +391,3 @@
     xbit = "!f() { git ls-files --stage $1 | grep -E '^[0-9]{6}'; }; f"
     setxbit = "!f() { git ls-files $1 | xargs -n1 git update-index --chmod=+x; }; f"
     #| xargs -n1 git update-index --chmod=+x
-
-
