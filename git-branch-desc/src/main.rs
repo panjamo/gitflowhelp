@@ -1,9 +1,12 @@
 use anyhow::{Context, Result};
+use arboard::Clipboard;
 use clap::{Parser, Subcommand};
 use git2::Repository;
+use serde::Deserialize;
 use std::collections::HashSet;
+use std::env;
 use std::fs;
-use std::io::{self, Write};
+use std::io::{self, Write, Read, IsTerminal};
 use std::path::Path;
 use tabwriter::TabWriter;
 use terminal_size::{Width, terminal_size};
@@ -26,6 +29,15 @@ enum Commands {
         branch: Option<String>,
         /// Description text (if not provided, will prompt for input)
         description: Option<String>,
+        /// Read description from clipboard
+        #[arg(long, conflicts_with_all = ["description", "stdin"])]
+        clipboard: bool,
+        /// Read description from stdin
+        #[arg(long, conflicts_with_all = ["description", "clipboard", "issue"])]
+        stdin: bool,
+        /// Read description from GitLab issue number
+        #[arg(long, conflicts_with_all = ["description", "clipboard", "stdin"])]
+        issue: Option<u64>,
         /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
         commit: bool,
@@ -55,17 +67,29 @@ fn main() -> Result<()> {
         Commands::Edit {
             branch,
             description,
+            clipboard,
+            stdin,
+            issue,
             commit,
             push,
             force,
-        } => edit_description(branch, description, commit, push, force),
+        } => edit_description(branch, description, clipboard, stdin, issue, commit, push, force),
         Commands::List { detailed, all } => list_descriptions(detailed, all),
     }
 }
 
-fn edit_description(
+#[derive(Deserialize)]
+struct GitLabIssue {
+    title: String,
+    description: Option<String>,
+}
+
+async fn edit_description(
     target_branch: Option<String>,
     description: Option<String>,
+    clipboard: bool,
+    stdin: bool,
+    issue: Option<u64>,
     commit: bool,
     push: bool,
     force: bool,
@@ -120,20 +144,14 @@ fn edit_description(
 
     let description = if let Some(desc) = description {
         desc
+    } else if clipboard {
+        get_clipboard_content()?
+    } else if stdin {
+        get_stdin_content()?
+    } else if let Some(issue_number) = issue {
+        get_issue_content(&repo, issue_number).await?
     } else {
-        // Always show existing description if it exists (unified behavior)
-        if !existing_description.is_empty() {
-            println!("Current description for branch '{target_branch}':");
-            println!("{existing_description}");
-            println!();
-        }
-
-        print!("Enter description for branch '{target_branch}': ");
-        io::stdout().flush()?;
-
-        let mut input = String::new();
-        io::stdin().read_line(&mut input)?;
-        input.trim().to_string()
+        get_interactive_input(&target_branch, &existing_description)?
     };
 
     if description.is_empty() {
@@ -539,6 +557,67 @@ fn get_local_branch_list(repo: &Repository) -> Result<Vec<String>> {
 
     Ok(branches)
 }
+
+fn get_clipboard_content() -> Result<String> {
+    let mut clipboard = Clipboard::new().context("Failed to access clipboard")?;
+    let content = clipboard.get_text().context("Failed to read from clipboard")?;
+    Ok(content.trim().to_string())
+}
+
+fn get_stdin_content() -> Result<String> {
+    if io::stdin().is_terminal() {
+        anyhow::bail!("No input detected on stdin. Use --clipboard or provide description as argument instead.");
+    }
+    
+    let mut content = String::new();
+    io::stdin().read_to_string(&mut content).context("Failed to read from stdin")?;
+    Ok(content.trim().to_string())
+}
+
+fn get_interactive_input(target_branch: &str, existing_description: &str) -> Result<String> {
+    // Always show existing description if it exists (unified behavior)
+    if !existing_description.is_empty() {
+        println!("Current description for branch '{target_branch}':");
+        println!("{existing_description}");
+        println!();
+    }
+
+    print!("Enter description for branch '{target_branch}': ");
+    io::stdout().flush()?;
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input)?;
+    Ok(input.trim().to_string())
+}
+
+async fn get_issue_content(repo: &Repository, issue_number: u64) -> Result<String> {
+    // Get GitLab project ID from remote origin URL
+    let (project_id, gitlab_url) = get_gitlab_project_info(repo)?;
+    
+    // Get GitLab token from environment
+    let token = env::var("GITLAB_TOKEN")
+        .or_else(|_| env::var("GITLAB_ACCESS_TOKEN"))
+        .context("GitLab token not found. Please set GITLAB_TOKEN or GITLAB_ACCESS_TOKEN environment variable.")?;
+    
+    // Construct API URL
+    let api_url = format!("{}/api/v4/projects/{}/issues/{}", gitlab_url, project_id, issue_number);
+    
+    // Make API request
+    let client = reqwest::Client::new();
+    let response = client
+        .get(&api_url)
+        .header("PRIVATE-TOKEN", &token)
+        .send()
+        .await
+        .context("Failed to make GitLab API request")?;
+    
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_text = response.text().await.unwrap_or_default();
+        anyhow::bail!("GitLab API request failed with status {}: {}", status, error_text);
+    }
+    
+    let
 
 fn read_branch_description_from_git(
     repo: &Repository,
