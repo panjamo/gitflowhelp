@@ -431,12 +431,16 @@ fn commit_current_branch_changes(repo: &Repository, branch_name: &str, is_modify
     // Push if requested
     if push {
         // Find the remote and push
-        let mut remote = repo.find_remote("origin")
-            .context("Failed to find 'origin' remote. Make sure remote is configured.")?;
+        // Use system git command for pushing since git2 has SSH issues
+        let output = std::process::Command::new("git")
+            .args(&["push", "origin", branch_name])
+            .output()
+            .context("Failed to execute git push command")?;
             
-        let refspec = format!("refs/heads/{}:refs/heads/{}", branch_name, branch_name);
-        remote.push(&[&refspec], None)
-            .context("Failed to push to remote")?;
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Git push failed: {}", stderr));
+        }
             
         println!("Pushed to origin/{}", branch_name);
     }
@@ -500,12 +504,6 @@ fn commit_to_branch(repo: &Repository, branch_name: &str, description: &str, is_
     if push {
         println!("🚀 Pushing to remote...");
         
-        // Find the remote and push
-        let mut remote = repo.find_remote("origin")
-            .context("Failed to find 'origin' remote. Make sure remote is configured.")?;
-            
-        let refspec = format!("refs/heads/{}:refs/heads/{}", branch_name, branch_name);
-        
         // Check if remote branch exists
         let remote_ref = format!("refs/remotes/origin/{}", branch_name);
         let remote_exists = repo.find_reference(&remote_ref).is_ok();
@@ -514,8 +512,16 @@ fn commit_to_branch(repo: &Repository, branch_name: &str, description: &str, is_
             println!("📡 Creating new remote branch origin/{}", branch_name);
         }
         
-        remote.push(&[&refspec], None)
-            .context("Failed to push to remote")?;
+        // Use system git command for pushing since git2 has SSH issues
+        let output = std::process::Command::new("git")
+            .args(&["push", "origin", branch_name])
+            .output()
+            .context("Failed to execute git push command")?;
+            
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Git push failed: {}", stderr));
+        }
             
         println!("✅ Pushed to origin/{}", branch_name);
     }
