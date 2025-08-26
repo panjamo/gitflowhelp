@@ -315,7 +315,7 @@
     includeall = ! rm "$(git root)/.git/info/exclude"
     root = rev-parse --show-toplevel
 
-    brdesc = "!f() { git-branch-desc.exe $@; }; f"
+    brdesc = "!f() { git-branch-desc.exe \"$@\"; }; f"
 
     ignore = "!f() { echo '' >> .gitignore; for var in \"$@\"; do echo \"$var\" >> .gitignore; done; git st; }; f"
     ignoreUnknown = "!f() { \
