@@ -18,36 +18,18 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Add or modify description for a branch (defaults to current branch)
-    #[command(alias = "set")]
-    Add {
+    /// Edit description for a branch (defaults to current branch)
+    #[command(alias = "e")]
+    Edit {
         /// Target branch name (defaults to current branch)
         #[arg(short, long)]
         branch: Option<String>,
         /// Description text (if not provided, will prompt for input)
         description: Option<String>,
-        /// Automatically commit the BRANCHREADME.md file after adding/modifying
+        /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
         commit: bool,
-        /// Automatically commit and push the BRANCHREADME.md file after adding/modifying
-        #[arg(short, long)]
-        push: bool,
-        /// Skip confirmation prompts (force operation)
-        #[arg(short, long)]
-        force: bool,
-    },
-    /// Modify description for a branch (defaults to current branch)
-    #[command(alias = "edit")]
-    Modify {
-        /// Target branch name (defaults to current branch)
-        #[arg(short, long)]
-        branch: Option<String>,
-        /// New description text (if not provided, will prompt for input)
-        description: Option<String>,
-        /// Automatically commit the BRANCHREADME.md file after adding/modifying
-        #[arg(short, long)]
-        commit: bool,
-        /// Automatically commit and push the BRANCHREADME.md file after adding/modifying
+        /// Automatically commit and push the BRANCHREADME.md file after editing
         #[arg(short, long)]
         push: bool,
         /// Skip confirmation prompts (force operation)
@@ -70,28 +52,20 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Add {
+        Commands::Edit {
             branch,
             description,
             commit,
             push,
             force,
-        } => add_or_modify_description(branch, description, false, commit, push, force),
-        Commands::Modify {
-            branch,
-            description,
-            commit,
-            push,
-            force,
-        } => add_or_modify_description(branch, description, true, commit, push, force),
+        } => edit_description(branch, description, commit, push, force),
         Commands::List { detailed, all } => list_descriptions(detailed, all),
     }
 }
 
-fn add_or_modify_description(
+fn edit_description(
     target_branch: Option<String>,
     description: Option<String>,
-    is_modify: bool,
     commit: bool,
     push: bool,
     force: bool,
@@ -109,10 +83,10 @@ fn add_or_modify_description(
 
         // Warn user about modifying a different branch (unless --force is used)
         if force {
-            println!("🚀 Force mode: Modifying branch '{target_branch}' without confirmation");
+            println!("🚀 Force mode: Editing branch '{target_branch}' without confirmation");
         } else {
             println!(
-                "⚠️  WARNING: You are about to modify branch '{target_branch}' while on '{current_branch}'"
+                "⚠️  WARNING: You are about to edit branch '{target_branch}' while on '{current_branch}'"
             );
 
             if commit || push {
@@ -133,20 +107,25 @@ fn add_or_modify_description(
         }
     }
 
+    // Check if description already exists
+    let existing_description = if is_current_branch {
+        read_current_branch_description().unwrap_or_default()
+    } else {
+        read_branch_description_from_git(&repo, &target_branch)
+            .unwrap_or(None)
+            .unwrap_or_default()
+    };
+
+    let is_new = existing_description.is_empty();
+
     let description = if let Some(desc) = description {
         desc
     } else {
-        if is_modify {
-            let existing = if is_current_branch {
-                read_current_branch_description().unwrap_or_default()
-            } else {
-                read_branch_description_from_git(&repo, &target_branch).unwrap_or_default()
-            };
-            if !existing.is_empty() {
-                println!("Current description for branch '{target_branch}':");
-                println!("{existing}");
-                println!();
-            }
+        // Always show existing description if it exists (unified behavior)
+        if !existing_description.is_empty() {
+            println!("Current description for branch '{target_branch}':");
+            println!("{existing_description}");
+            println!();
         }
 
         print!("Enter description for branch '{target_branch}': ");
@@ -177,17 +156,17 @@ fn add_or_modify_description(
         }
     }
 
-    let action = if is_modify { "Modified" } else { "Added" };
+    let action = if is_new { "Added" } else { "Updated" };
     println!("✅ {action} description for branch '{target_branch}'");
 
     // Handle commit and push options
     if push || commit {
         if is_current_branch {
             // Use traditional approach for current branch
-            commit_current_branch_changes(&repo, &target_branch, is_modify, push)?;
+            commit_current_branch_changes(&repo, &target_branch, !is_new, push)?;
         } else {
             // Use low-level Git operations for non-current branch
-            commit_to_branch(&repo, &target_branch, &description, is_modify, push)?;
+            commit_to_branch(&repo, &target_branch, &description, !is_new, push)?;
         }
     }
 
@@ -201,237 +180,169 @@ struct BranchDescription {
 
 fn get_terminal_width() -> usize {
     if let Some((Width(w), _)) = terminal_size() {
-        (f32::from(w) * 0.9) as usize
+        (w as usize * 90) / 100 // Use 90% of terminal width
     } else {
-        80 // Default fallback width
+        80 // Default width
     }
 }
 
-fn wrap_text(text: &str, width: usize) -> Vec<String> {
+fn wrap_text(text: &str, max_width: usize) -> String {
+    let words: Vec<&str> = text.split_whitespace().collect();
     let mut lines = Vec::new();
+    let mut current_line = String::new();
 
-    for line in text.lines() {
-        if line.len() <= width {
-            lines.push(line.to_string());
+    for word in words {
+        // If adding this word would exceed the max width, start a new line
+        if !current_line.is_empty() && current_line.len() + 1 + word.len() > max_width {
+            lines.push(current_line.clone());
+            current_line = word.to_string();
         } else {
-            let mut current_line = String::new();
-            let words: Vec<&str> = line.split_whitespace().collect();
-
-            for word in words {
-                if current_line.is_empty() {
-                    current_line = word.to_string();
-                } else if current_line.len() + 1 + word.len() <= width {
-                    current_line.push(' ');
-                    current_line.push_str(word);
-                } else {
-                    lines.push(current_line);
-                    current_line = word.to_string();
-                }
-            }
-
             if !current_line.is_empty() {
-                lines.push(current_line);
+                current_line.push(' ');
             }
+            current_line.push_str(word);
         }
     }
 
-    if lines.is_empty() {
-        lines.push(String::new());
+    // Don't forget the last line
+    if !current_line.is_empty() {
+        lines.push(current_line);
     }
 
-    lines
+    lines.join("\n")
 }
 
-fn list_descriptions(detailed: bool, show_all: bool) -> Result<()> {
+fn list_descriptions(detailed: bool, all: bool) -> Result<()> {
     let repo = Repository::open(".")
         .context("Failed to open repository. Make sure you're in a Git repository.")?;
 
-    // Get all local and remote branches without checking them out
-    let local_branches = repo.branches(Some(git2::BranchType::Local))?;
-    let remote_branches = repo.branches(Some(git2::BranchType::Remote))?;
+    let mut descriptions = Vec::new();
+    let local_branches = get_local_branch_list(&repo)?;
+    let mut processed_branches = HashSet::new();
 
-    let mut branch_descriptions = Vec::new();
-    let mut found_any = false;
-    let mut local_branch_names = HashSet::new();
+    // First, process remote branches
+    let remotes = repo.remotes()?;
+    for remote_name in remotes.iter() {
+        if let Some(remote_name) = remote_name {
+            let remote_refs = repo.references_glob(&format!("refs/remotes/{remote_name}/*"))?;
+            for reference in remote_refs {
+                if let Ok(reference) = reference {
+                    if let Some(branch_name) = reference.shorthand() {
+                        if let Some(branch_name) =
+                            branch_name.strip_prefix(&format!("{remote_name}/"))
+                        {
+                            if branch_name == "HEAD" {
+                                continue;
+                            }
 
-    // Process local branches first
-    for branch_result in local_branches {
-        let (branch, _) = branch_result?;
-
-        if let Some(branch_name) = branch.name()? {
-            local_branch_names.insert(branch_name.to_string());
-            if let Ok(description) = read_branch_description_from_git(&repo, branch_name) {
-                if !description.is_empty() {
-                    found_any = true;
-                    process_branch_description(
-                        branch_name,
-                        &description,
-                        detailed,
-                        &mut branch_descriptions,
-                    )?;
-                } else if show_all {
-                    found_any = true;
-                    process_branch_description(
-                        branch_name,
-                        "-",
-                        detailed,
-                        &mut branch_descriptions,
-                    )?;
+                            if let Some(desc) = process_branch_description(
+                                &repo,
+                                &format!("{remote_name}/{branch_name}"),
+                                true,
+                                all,
+                            ) {
+                                descriptions.push(desc);
+                                processed_branches.insert(branch_name.to_string());
+                            }
+                        }
+                    }
                 }
-            } else if show_all {
-                found_any = true;
-                process_branch_description(branch_name, "-", detailed, &mut branch_descriptions)?;
             }
         }
     }
 
-    // Process remote branches, but skip if local branch with same name exists
-    for branch_result in remote_branches {
-        let (branch, _) = branch_result?;
-
-        if let Some(branch_name) = branch.name()? {
-            // Skip remote HEAD references
-            if branch_name.ends_with("/HEAD") {
-                continue;
+    // Then process local branches that haven't been processed as remotes
+    for branch_name in local_branches {
+        if !processed_branches.contains(&branch_name) {
+            if let Some(desc) = process_branch_description(&repo, &branch_name, false, all) {
+                descriptions.push(desc);
             }
+        }
+    }
 
-            // Extract the branch name without remote prefix to check for local conflicts
-            let local_equivalent = if let Some(slash_pos) = branch_name.find('/') {
-                &branch_name[slash_pos + 1..]
+    if descriptions.is_empty() && !all {
+        println!("No branch descriptions found. Use --all to see all branches.");
+        return Ok(());
+    }
+
+    if detailed {
+        for desc in descriptions {
+            println!("Branch: {}", desc.branch);
+            println!("Description:");
+            println!("{}", desc.description);
+            println!("{}", "-".repeat(50));
+        }
+    } else {
+        let terminal_width = get_terminal_width();
+        let max_desc_width = if terminal_width > 30 {
+            terminal_width - 30
+        } else {
+            50
+        };
+
+        let mut tw = TabWriter::new(io::stdout());
+        writeln!(tw, "BRANCH\tDESCRIPTION")?;
+        writeln!(tw, "------\t-----------")?;
+
+        for desc in descriptions {
+            let wrapped_desc = if desc.description.len() > max_desc_width {
+                let truncated = &desc.description[..max_desc_width.saturating_sub(3)];
+                format!("{}...", truncated)
             } else {
-                branch_name
+                wrap_text(&desc.description, max_desc_width)
             };
 
-            // Skip this remote branch if a local branch with the same name exists
-            if local_branch_names.contains(local_equivalent) {
-                continue;
-            }
-
-            if let Ok(description) = read_branch_description_from_git(&repo, branch_name) {
-                if !description.is_empty() {
-                    found_any = true;
-                    process_branch_description(
-                        branch_name,
-                        &description,
-                        detailed,
-                        &mut branch_descriptions,
-                    )?;
-                } else if show_all {
-                    found_any = true;
-                    process_branch_description(
-                        branch_name,
-                        "-",
-                        detailed,
-                        &mut branch_descriptions,
-                    )?;
-                }
-            } else if show_all {
-                found_any = true;
-                process_branch_description(branch_name, "-", detailed, &mut branch_descriptions)?;
-            }
-        }
-    }
-
-    if !found_any {
-        if show_all {
-            println!("No branches found.");
-        } else {
-            println!("No branch descriptions found.");
-        }
-    } else if !detailed {
-        // Create tabwriter with proper padding and alignment
-        let mut tw = TabWriter::new(vec![]).padding(2);
-
-        // Write header
-        writeln!(tw, "Branch\tDescription").unwrap();
-        writeln!(tw, "------\t-----------").unwrap();
-
-        // Write data rows
-        for desc in branch_descriptions {
-            writeln!(tw, "{}\t{}", desc.branch, desc.description).unwrap();
+            writeln!(tw, "{}\t{}", desc.branch, wrapped_desc.replace('\n', " "))?;
         }
 
-        // Flush and print
-        let written = tw.into_inner().unwrap();
-        print!("{}", String::from_utf8(written).unwrap());
-        if show_all {
-            println!("\nUse --detailed (-d) flag to see full descriptions.");
-        } else {
-            println!(
-                "\nUse --detailed (-d) flag to see full descriptions, or --all (-a) to show all branches."
-            );
-        }
+        tw.flush()?;
     }
 
     Ok(())
 }
 
 fn process_branch_description(
-    branch_name: &str,
-    description: &str,
-    detailed: bool,
-    branch_descriptions: &mut Vec<BranchDescription>,
-) -> Result<()> {
-    if detailed {
-        // For detailed view, show full descriptions wrapped at 90% terminal width
-        let terminal_width = get_terminal_width();
-        let box_width = terminal_width.saturating_sub(4).max(20); // Leave space for box chars
-        let header_width = box_width.saturating_sub(branch_name.len() + 3).max(0);
+    repo: &Repository,
+    full_branch_name: &str,
+    _is_remote: bool,
+    include_all: bool,
+) -> Option<BranchDescription> {
+    let branch_name = full_branch_name;
 
-        println!("\n┌─ {} {}", branch_name, "─".repeat(header_width));
-
-        let wrapped_lines = wrap_text(description, box_width.saturating_sub(2));
-        for line in wrapped_lines {
-            println!("│ {line}");
+    if let Ok(Some(description)) = read_branch_description_from_git(repo, full_branch_name) {
+        if !description.trim().is_empty() {
+            return Some(BranchDescription {
+                branch: branch_name.to_string(),
+                description: description.trim().to_string(),
+            });
         }
-
-        println!("└{}", "─".repeat(box_width));
-    } else {
-        // Truncate long descriptions for table display
-        let truncated_description = if description.len() > 80 {
-            format!("{}...", &description[..77])
-        } else {
-            description.to_string()
-        };
-
-        branch_descriptions.push(BranchDescription {
-            branch: branch_name.to_string(),
-            description: truncated_description,
-        });
     }
 
-    Ok(())
+    if include_all {
+        Some(BranchDescription {
+            branch: branch_name.to_string(),
+            description: "(no description)".to_string(),
+        })
+    } else {
+        None
+    }
 }
 
 fn get_current_branch(repo: &Repository) -> Result<String> {
     let head = repo.head().context("Failed to get HEAD reference")?;
-
-    if let Some(branch_name) = head.shorthand() {
-        Ok(branch_name.to_string())
-    } else {
-        anyhow::bail!("Could not determine current branch name")
-    }
+    let branch_name = head.shorthand().context("Failed to get branch name")?;
+    Ok(branch_name.to_string())
 }
 
 fn read_current_branch_description() -> Result<String> {
-    let file_path = "BRANCHREADME.md";
-
-    if !Path::new(file_path).exists() {
-        return Ok(String::new());
+    match fs::read_to_string("BRANCHREADME.md") {
+        Ok(content) => Ok(content),
+        Err(_) => Ok(String::new()),
     }
-
-    let content = fs::read_to_string(file_path)
-        .with_context(|| format!("Failed to read description file: {file_path}"))?;
-
-    Ok(content.trim().to_string())
 }
 
 fn write_current_branch_description(description: &str) -> Result<()> {
-    let file_path = "BRANCHREADME.md";
-
-    fs::write(file_path, description)
-        .with_context(|| format!("Failed to write description file: {file_path}"))?;
-
+    fs::write("BRANCHREADME.md", description).context("Failed to write BRANCHREADME.md file")?;
     Ok(())
 }
 
@@ -593,74 +504,58 @@ fn commit_to_branch(
 }
 
 fn validate_branch_exists(repo: &Repository, branch_name: &str) -> Result<()> {
-    let branch_ref_name = format!("refs/heads/{branch_name}");
-
-    if repo.find_reference(&branch_ref_name).is_ok() {
-        Ok(())
-    } else {
-        // Check if it's a remote branch pattern
-        if branch_name.contains('/') {
-            anyhow::bail!(
-                "Branch '{}' not found. Note: Use --branch for local branches only. \
-                To create a description for a remote branch, create a local tracking branch first:\n\
-                git checkout -b {} origin/{}",
-                branch_name,
-                branch_name.split('/').next_back().unwrap_or(branch_name),
-                branch_name
-            );
-        }
-        anyhow::bail!(
-            "Local branch '{}' not found. Available local branches:\n{}",
-            branch_name,
-            get_local_branch_list(repo)?
-        );
+    // Check local branches first
+    let local_ref = format!("refs/heads/{branch_name}");
+    if repo.find_reference(&local_ref).is_ok() {
+        return Ok(());
     }
+
+    // Check remote branches
+    let remote_ref = format!("refs/remotes/origin/{branch_name}");
+    if repo.find_reference(&remote_ref).is_ok() {
+        return Ok(());
+    }
+
+    Err(anyhow::anyhow!(
+        "Branch '{branch_name}' not found. Available branches:\n{}",
+        get_local_branch_list(repo)?
+            .iter()
+            .map(|b| format!("  {b}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    ))
 }
 
-fn get_local_branch_list(repo: &Repository) -> Result<String> {
-    let local_branches = repo.branches(Some(git2::BranchType::Local))?;
-    let mut branch_names = Vec::new();
+fn get_local_branch_list(repo: &Repository) -> Result<Vec<String>> {
+    let mut branches = Vec::new();
+    let branch_iter = repo.branches(Some(git2::BranchType::Local))?;
 
-    for branch_result in local_branches {
-        let (branch, _) = branch_result?;
-        if let Some(branch_name) = branch.name()? {
-            branch_names.push(format!("  - {branch_name}"));
+    for branch in branch_iter {
+        let (branch, _) = branch.context("Failed to get branch")?;
+        if let Some(name) = branch.name().context("Failed to get branch name")? {
+            branches.push(name.to_string());
         }
     }
 
-    if branch_names.is_empty() {
-        Ok("  (no local branches found)".to_string())
-    } else {
-        Ok(branch_names.join("\n"))
-    }
+    Ok(branches)
 }
 
-fn read_branch_description_from_git(repo: &Repository, branch_name: &str) -> Result<String> {
-    // Get the branch reference - handle both local and remote branches
-    let branch_ref_name = if branch_name.starts_with("refs/") {
-        // Already a full reference
-        branch_name.to_string()
-    } else if branch_name.starts_with("origin/")
-        || branch_name.starts_with("upstream/")
-        || (branch_name.contains('/')
-            && repo
-                .find_reference(&format!("refs/remotes/{branch_name}"))
-                .is_ok())
-    {
-        // This is a remote branch like "origin/main"
-        format!("refs/remotes/{branch_name}")
-    } else {
-        // Local branch (including those with slashes like "feature/auth")
-        format!("refs/heads/{branch_name}")
-    };
-
-    let branch_ref = repo
-        .find_reference(&branch_ref_name)
-        .with_context(|| format!("Failed to find branch: {branch_name}"))?;
+fn read_branch_description_from_git(
+    repo: &Repository,
+    branch_name: &str,
+) -> Result<Option<String>> {
+    // Try to find the branch reference
+    let branch_ref =
+        if let Ok(branch_ref) = repo.find_reference(&format!("refs/heads/{branch_name}")) {
+            branch_ref
+        } else if let Ok(branch_ref) = repo.find_reference(&format!("refs/remotes/{branch_name}")) {
+            branch_ref
+        } else {
+            return Ok(None);
+        };
 
     // Get the commit that the branch points to
     let commit_oid = branch_ref.target().context("Failed to get target commit")?;
-
     let commit = repo
         .find_commit(commit_oid)
         .context("Failed to find commit")?;
@@ -668,23 +563,16 @@ fn read_branch_description_from_git(repo: &Repository, branch_name: &str) -> Res
     // Get the tree from the commit
     let tree = commit.tree().context("Failed to get tree from commit")?;
 
-    // Try to find BRANCHREADME.md in the tree
+    // Try to find the BRANCHREADME.md file in the tree
     match tree.get_name("BRANCHREADME.md") {
         Some(entry) => {
-            // Get the blob
             let blob = repo
                 .find_blob(entry.id())
                 .context("Failed to find blob for BRANCHREADME.md")?;
-
-            // Convert blob content to string
-            let content = std::str::from_utf8(blob.content())
+            let content = String::from_utf8(blob.content().to_vec())
                 .context("Failed to convert blob content to UTF-8")?;
-
-            Ok(content.trim().to_string())
+            Ok(Some(content))
         }
-        None => {
-            // File doesn't exist in this branch
-            Ok(String::new())
-        }
+        None => Ok(None),
     }
 }

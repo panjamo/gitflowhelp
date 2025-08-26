@@ -26,18 +26,17 @@ cargo clippy --fix
 ### Testing the tool
 ```bash
 # Basic usage examples
-./target/release/git-branch-desc add "Test description"
+./target/release/git-branch-desc edit "Test description"
+./target/release/git-branch-desc e "Test description"  # Short alias
 ./target/release/git-branch-desc list
-./target/release/git-branch-desc modify "Updated description"
 ```
 
 ## Architecture
 
 ### Core Components
 - **main.rs**: Single-file implementation containing all functionality
-- **CLI Structure**: Uses `clap` for command-line parsing with three main commands:
-  - `add`/`set`: Add or set branch descriptions
-  - `modify`/`edit`: Modify existing descriptions  
+- **CLI Structure**: Uses `clap` for command-line parsing with two main commands:
+  - `edit`/`e`: Edit branch descriptions (unified add/modify functionality)
   - `list`/`ls`: List all branch descriptions
 
 ### Key Dependencies
@@ -54,7 +53,7 @@ cargo clippy --fix
 - **Storage**: Each branch maintains its own `BRANCHREADME.md` file in the branch root
 
 ### Key Functions
-- `add_or_modify_description()`: Main logic for add/modify operations with branch validation
+- `edit_description()`: Main logic for editing descriptions with intelligent add/update behavior
 - `list_descriptions()`: Reads descriptions from all branches using Git objects
 - `commit_to_branch()`: Low-level Git operations for committing to non-current branches
 - `read_branch_description_from_git()`: Reads description files directly from Git trees
@@ -67,3 +66,5 @@ cargo clippy --fix
 - Text wrapping adapts to terminal width (90% of available width)
 - Remote branches are prioritized over local branches with same names in listings
 - Safety warnings and confirmations prevent accidental branch modifications
+- The unified `edit` command intelligently detects existing descriptions and shows them for editing
+- Commit messages automatically reflect whether content was "Added" or "Updated"
