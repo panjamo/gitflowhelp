@@ -55,6 +55,12 @@ git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456"
 
 # AI-summarized GitLab issue (requires Ollama)
 git-branch-desc edit --issue 123 --ai-summarize
+
+# AI-summarized content from clipboard
+git-branch-desc edit --clipboard --ai-summarize
+
+# AI-summarized content from stdin
+echo "Long description..." | git-branch-desc edit --stdin --ai-summarize
 ```
 
 ### `list` (alias: `ls`)
@@ -82,11 +88,11 @@ The `edit` command supports multiple input methods (mutually exclusive):
 | Clipboard | `--clipboard` | Read from system clipboard |
 | Stdin | `--stdin` | Read from standard input |
 | GitLab Issue | `--issue <REF>` | Fetch from GitLab issue |
-| AI Summary | `--ai-summarize` | AI-generated summary of GitLab issue |
+| AI Summary | `--ai-summarize` | AI-generated summary (works with --issue, --stdin, --clipboard) |
 
 ## AI Summarization
 
-The `--ai-summarize` flag works with `--issue` to create concise branch descriptions using AI:
+The `--ai-summarize` flag works with `--issue`, `--stdin`, and `--clipboard` to create concise branch descriptions using AI:
 
 ### Setup
 1. **Install Ollama**: Download from [https://ollama.ai](https://ollama.ai)
@@ -100,6 +106,12 @@ git-branch-desc edit --issue 123 --ai-summarize
 
 # Works with issue URLs too
 git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
+
+# AI-summarize clipboard content
+git-branch-desc edit --clipboard --ai-summarize
+
+# AI-summarize stdin content
+echo "Long verbose description..." | git-branch-desc edit --stdin --ai-summarize
 ```
 
 ### Benefits
@@ -175,16 +187,28 @@ git-branch-desc edit --issue 123 --ai-summarize
 git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
 ```
 
+### AI Summarization Examples
+```bash
+# Summarize any long content from clipboard
+git-branch-desc edit --clipboard --ai-summarize
+
+# Summarize content from a file
+cat long_requirements.txt | git-branch-desc edit --stdin --ai-summarize
+
+# Summarize issue content
+git-branch-desc edit --issue 123 --ai-summarize
+```
+
 ### Advanced Workflows
 ```bash
-# From clipboard with auto-commit
-git-branch-desc edit --clipboard --commit
+# From clipboard with auto-commit and AI summarization
+git-branch-desc edit --clipboard --ai-summarize --commit
 
-# From stdin with force (no prompts)
-echo "Fix critical bug" | git-branch-desc edit --stdin --force
+# From stdin with force and AI summarization (no prompts)
+echo "Fix critical bug with detailed explanation..." | git-branch-desc edit --stdin --ai-summarize --force
 
-# Edit and immediately push
-git-branch-desc edit "New feature" --push
+# Edit and immediately push with AI summary
+git-branch-desc edit --issue 123 --ai-summarize --push
 ```
 
 ## Development

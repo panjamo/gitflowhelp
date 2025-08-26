@@ -40,8 +40,8 @@ enum Commands {
         /// Read description from GitLab issue (number or URL)
         #[arg(long, conflicts_with_all = ["description", "clipboard", "stdin"])]
         issue: Option<String>,
-        /// Use AI to summarize issue content (requires --issue and Ollama running locally)
-        #[arg(long, requires = "issue")]
+        /// Use AI to summarize content (works with --issue, --stdin, --clipboard, and Ollama running locally)
+        #[arg(long)]
         ai_summarize: bool,
         /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
@@ -105,6 +105,14 @@ fn edit_description(
     push: bool,
     force: bool,
 ) -> Result<()> {
+    // Validate AI summarize usage
+    if ai_summarize && description.is_none() && !clipboard && !stdin && issue.is_none() {
+        anyhow::bail!(
+            "The --ai-summarize flag requires an input method. \
+            Use with --issue, --clipboard, or --stdin."
+        );
+    }
+
     let repo = Repository::open(".")
         .context("Failed to open repository. Make sure you're in a Git repository.")?;
 
@@ -154,11 +162,28 @@ fn edit_description(
     let is_new = existing_description.is_empty();
 
     let description = if let Some(desc) = description {
-        desc
+        if ai_summarize {
+            ai_summarize_content(&desc)
+                .context("Failed to summarize content using AI")?
+        } else {
+            desc
+        }
     } else if clipboard {
-        get_clipboard_content()?
+        let content = get_clipboard_content()?;
+        if ai_summarize {
+            ai_summarize_content(&content)
+                .context("Failed to summarize clipboard content using AI")?
+        } else {
+            content
+        }
     } else if stdin {
-        get_stdin_content()?
+        let content = get_stdin_content()?;
+        if ai_summarize {
+            ai_summarize_content(&content)
+                .context("Failed to summarize stdin content using AI")?
+        } else {
+            content
+        }
     } else if let Some(issue_ref) = issue {
         get_issue_content(&issue_ref, ai_summarize)?
     } else {
@@ -946,6 +971,29 @@ mod tests {
             clean_ai_preamble("  Here is the branch description:   Fix critical bug   "),
             "Fix critical bug"
         );
+    }
+
+    #[test]
+    fn test_ai_summarize_validation() {
+        // Test that AI summarize validation works correctly
+        
+        // Should fail when ai_summarize is true but no input method is provided
+        let result = std::panic::catch_unwind(|| {
+            edit_description(
+                None,          // target_branch
+                None,          // description
+                false,         // clipboard
+                false,         // stdin
+                None,          // issue
+                true,          // ai_summarize
+                false,         // commit
+                false,         // push
+                false,         // force
+            )
+        });
+        
+        // The function should fail before reaching repository operations
+        assert!(result.is_err() || result.unwrap().is_err());
     }
 
     #[test]

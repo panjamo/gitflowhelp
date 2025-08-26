@@ -38,6 +38,8 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 # AI-powered summarization
 ./target/release/git-branch-desc edit --issue 123 --ai-summarize     # AI summary of issue
 ./target/release/git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
+./target/release/git-branch-desc edit --clipboard --ai-summarize     # AI summary of clipboard
+./target/release/git-branch-desc edit --stdin --ai-summarize         # AI summary of stdin
 
 ./target/release/git-branch-desc list
 ```
@@ -99,4 +101,6 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - AI summarization requires Ollama running locally with llama3.2:1b model (or compatible)
 - AI integration uses reqwest for HTTP communication with Ollama's API
 - AI prompts are optimized to create concise 2-3 sentence branch descriptions focused on main goals
+- AI functionality works with --issue, --stdin, and --clipboard input methods
+- AI summarization includes validation to ensure it's used with an appropriate input method
 - AI functionality gracefully handles cases where Ollama is not available with helpful error messages
