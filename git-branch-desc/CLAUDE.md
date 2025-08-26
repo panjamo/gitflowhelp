@@ -41,6 +41,11 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 ./target/release/git-branch-desc edit --clipboard --ai-summarize     # AI summary of clipboard
 ./target/release/git-branch-desc edit --stdin --ai-summarize         # AI summary of stdin
 
+# AI summarization with custom timeout
+./target/release/git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 300
+./target/release/git-branch-desc edit --stdin --ai-summarize --ai-timeout 600  # For large content
+git diff HEAD~5 | ./target/release/git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+
 ./target/release/git-branch-desc list
 ```
 
@@ -70,12 +75,12 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - **Storage**: Each branch maintains its own `BRANCHREADME.md` file in the branch root
 
 ### Key Functions
-- `edit_description()`: Main logic for editing descriptions with intelligent add/update behavior
+- `edit_description()`: Main logic for editing descriptions with intelligent add/update behavior and configurable AI timeout
 - `get_clipboard_content()`: Reads description text from system clipboard
 - `get_stdin_content()`: Reads description text from stdin with terminal detection
 - `get_interactive_input()`: Handles interactive description input with existing content display
-- `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe` with optional AI summarization
-- `ai_summarize_content()`: Uses Ollama API to create concise branch descriptions from verbose issue content
+- `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe` with optional AI summarization and timeout
+- `ai_summarize_content()`: Uses Ollama API with configurable timeout to create concise branch descriptions from verbose content
 - `parse_issue_reference()`: Parses GitLab issue numbers and URLs
 - `parse_issue_json()`: Robustly extracts title and description from glab JSON output using serde_json
 - `list_descriptions()`: Reads descriptions from all branches using Git objects
@@ -99,8 +104,12 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - Issue content is formatted as "Title" followed by the issue description (no markdown heading prefix)
 - JSON parsing uses `serde_json` for robust handling of complex GitLab API responses
 - AI summarization requires Ollama running locally with llama3.2:1b model (or compatible)
-- AI integration uses reqwest for HTTP communication with Ollama's API
+- AI integration uses reqwest for HTTP communication with Ollama's API with configurable timeouts
 - AI prompts are optimized to create concise 2-3 sentence branch descriptions focused on main goals
 - AI functionality works with --issue, --stdin, and --clipboard input methods
 - AI summarization includes validation to ensure it's used with an appropriate input method
+- AI timeout is configurable via --ai-timeout flag (default: 120 seconds)
+- AI content length validation truncates very large content (8000+ chars) for optimal processing
+- AI includes specialized prompts for git diffs vs other content types
 - AI functionality gracefully handles cases where Ollama is not available with helpful error messages
+- AI processing shows progress feedback and timeout context in error messages

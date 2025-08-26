@@ -59,8 +59,8 @@ git-branch-desc edit --issue 123 --ai-summarize
 # AI-summarized content from clipboard
 git-branch-desc edit --clipboard --ai-summarize
 
-# AI-summarized content from stdin
-echo "Long description..." | git-branch-desc edit --stdin --ai-summarize
+# AI-summarized content from stdin with custom timeout
+echo "Long description..." | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
 ```
 
 ### `list` (alias: `ls`)
@@ -110,8 +110,11 @@ git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-s
 # AI-summarize clipboard content
 git-branch-desc edit --clipboard --ai-summarize
 
-# AI-summarize stdin content
-echo "Long verbose description..." | git-branch-desc edit --stdin --ai-summarize
+# AI-summarize stdin content with custom timeout
+echo "Long verbose description..." | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+
+# For very large git diffs, use longer timeout
+git diff HEAD~10 | git-branch-desc edit --stdin --ai-summarize --ai-timeout 600
 ```
 
 ### Benefits
@@ -120,6 +123,7 @@ echo "Long verbose description..." | git-branch-desc edit --stdin --ai-summarize
 - **Private**: Everything runs locally, no data sent externally
 - **Smart**: Focuses on main goals rather than implementation details
 - **Clean Output**: Automatically removes AI preamble text for clean, direct descriptions
+- **Configurable**: Adjustable timeout for different content sizes and system performance
 
 The AI creates concise 2-3 sentence descriptions that capture the essence of the issue without getting bogged down in technical details. The output is automatically cleaned to remove common AI preamble patterns like "Here is a concise branch description:" for clean, direct results.
 
@@ -133,6 +137,7 @@ The AI creates concise 2-3 sentence descriptions that capture the essence of the
 | `-f, --force` | Skip confirmation prompts |
 | `-d, --detailed` | Show full descriptions (list command) |
 | `-a, --all` | Include branches without descriptions (list command) |
+| `--ai-timeout <SECONDS>` | Timeout for AI processing in seconds (default: 120) |
 
 ## Key Features
 
@@ -192,11 +197,17 @@ git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-s
 # Summarize any long content from clipboard
 git-branch-desc edit --clipboard --ai-summarize
 
-# Summarize content from a file
-cat long_requirements.txt | git-branch-desc edit --stdin --ai-summarize
+# Summarize content from a file with custom timeout
+cat long_requirements.txt | git-branch-desc edit --stdin --ai-summarize --ai-timeout 180
 
-# Summarize issue content
+# Summarize large git diff with extended timeout
+git diff HEAD~5 | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+
+# Summarize issue content with default timeout
 git-branch-desc edit --issue 123 --ai-summarize
+
+# Quick summarization with shorter timeout
+git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 60
 ```
 
 ### Advanced Workflows
@@ -207,8 +218,11 @@ git-branch-desc edit --clipboard --ai-summarize --commit
 # From stdin with force and AI summarization (no prompts)
 echo "Fix critical bug with detailed explanation..." | git-branch-desc edit --stdin --ai-summarize --force
 
-# Edit and immediately push with AI summary
-git-branch-desc edit --issue 123 --ai-summarize --push
+# Edit and immediately push with AI summary and custom timeout
+git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 180 --push
+
+# Handle very large content with extended timeout
+git diff --cached | git-branch-desc edit --stdin --ai-summarize --ai-timeout 600 --commit
 ```
 
 ## Development
