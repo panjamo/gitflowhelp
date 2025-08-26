@@ -696,7 +696,7 @@ fn ai_summarize_content(content: &str, timeout_seconds: u64) -> Result<String> {
         Ok(response) => {
             if !response.status().is_success() {
                 anyhow::bail!(
-                    "Ollama is running but returned error {}. Try: ollama run llama3.2:1b", 
+                    "Ollama is running but returned error {}. Try: ollama run qwen3:1.7b", 
                     response.status()
                 );
             }
@@ -706,7 +706,7 @@ fn ai_summarize_content(content: &str, timeout_seconds: u64) -> Result<String> {
                 "Cannot connect to Ollama: {}\n\
                 Please ensure Ollama is running:\n\
                 1. Install Ollama from https://ollama.ai\n\
-                2. Run: ollama run llama3.2:1b\n\
+                2. Run: ollama run qwen3:1.7b\n\
                 3. Keep Ollama running and try again", e
             );
         }
@@ -724,13 +724,14 @@ fn ai_summarize_content(content: &str, timeout_seconds: u64) -> Result<String> {
         format!(
             "Create a concise branch description (2-3 sentences max) for this content. \
             Focus on the main task/goal, not implementation details. \
-            Respond with ONLY the branch description, no preamble or explanation:\n\n{}",
+            no <think> </think> tags. \
+            Respond with ONLY the branch description, no preamble or explanation:, no think, no repeat, only the result\n\n{}",
             content_to_process
         )
     };
 
     let request_body = serde_json::json!({
-        "model": "llama3.2:1b",
+        "model": "qwen3:1.7b",
         "prompt": prompt,
         "stream": false,
         "options": {
@@ -767,10 +768,24 @@ fn ai_summarize_content(content: &str, timeout_seconds: u64) -> Result<String> {
     // Clean up common AI preamble patterns
     let summary = clean_ai_preamble(raw_summary);
 
-    Ok(summary.to_string())
+    Ok(summary)
 }
 
-fn clean_ai_preamble(text: &str) -> &str {
+fn clean_ai_preamble(text: &str) -> String {
+    let text = text.trim();
+    
+    // Filter out lines with thinking tags and empty lines
+    let filtered_lines: Vec<&str> = text
+        .lines()
+        .filter(|line| {
+            let trimmed = line.trim();
+            !trimmed.is_empty() && 
+            !trimmed.contains("<think>") && 
+            !trimmed.contains("</think>")
+        })
+        .collect();
+    
+    let text = filtered_lines.join("\n");
     let text = text.trim();
     
     // Common preamble patterns to remove
@@ -786,7 +801,7 @@ fn clean_ai_preamble(text: &str) -> &str {
     
     for preamble in &preambles {
         if let Some(stripped) = text.strip_prefix(preamble) {
-            return stripped.trim().trim_matches('"').trim();
+            return stripped.trim().trim_matches('"').trim().to_string();
         }
     }
     
@@ -796,11 +811,11 @@ fn clean_ai_preamble(text: &str) -> &str {
         if before_colon.to_lowercase().contains("description") || 
            before_colon.to_lowercase().contains("branch") {
             let after_colon = &text[colon_pos + 1..];
-            return after_colon.trim().trim_matches('"').trim();
+            return after_colon.trim().trim_matches('"').trim().to_string();
         }
     }
     
-    text.trim_matches('"').trim()
+    text.trim_matches('"').trim().to_string()
 }
 
 
@@ -1012,6 +1027,22 @@ mod tests {
         assert_eq!(
             clean_ai_preamble("  Here is the branch description:   Fix critical bug   "),
             "Fix critical bug"
+        );
+        
+        // Test filtering thinking tags and empty lines
+        assert_eq!(
+            clean_ai_preamble("<think>Let me think</think>\nFix authentication bug\n\nUpdate pipeline"),
+            "Fix authentication bug\nUpdate pipeline"
+        );
+        
+        assert_eq!(
+            clean_ai_preamble("Some content\n<think>thinking</think>\n\nMore content"),
+            "Some content\nMore content"
+        );
+        
+        assert_eq!(
+            clean_ai_preamble("Line with <think> tag\nGood line\n</think> another bad line"),
+            "Good line"
         );
     }
 
