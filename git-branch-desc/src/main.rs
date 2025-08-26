@@ -4,6 +4,7 @@ use clap::{Parser, Subcommand};
 use git2::Repository;
 use regex::Regex;
 use serde_json::Value;
+use reqwest::blocking::Client;
 use std::collections::HashSet;
 use std::fs;
 use std::io::{self, IsTerminal, Read, Write};
@@ -39,6 +40,9 @@ enum Commands {
         /// Read description from GitLab issue (number or URL)
         #[arg(long, conflicts_with_all = ["description", "clipboard", "stdin"])]
         issue: Option<String>,
+        /// Use AI to summarize issue content (requires --issue and Ollama running locally)
+        #[arg(long, requires = "issue")]
+        ai_summarize: bool,
         /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
         commit: bool,
@@ -71,6 +75,7 @@ fn main() -> Result<()> {
             clipboard,
             stdin,
             issue,
+            ai_summarize,
             commit,
             push,
             force,
@@ -80,6 +85,7 @@ fn main() -> Result<()> {
             clipboard,
             stdin,
             issue,
+            ai_summarize,
             commit,
             push,
             force,
@@ -94,6 +100,7 @@ fn edit_description(
     clipboard: bool,
     stdin: bool,
     issue: Option<String>,
+    ai_summarize: bool,
     commit: bool,
     push: bool,
     force: bool,
@@ -153,7 +160,7 @@ fn edit_description(
     } else if stdin {
         get_stdin_content()?
     } else if let Some(issue_ref) = issue {
-        get_issue_content(&issue_ref)?
+        get_issue_content(&issue_ref, ai_summarize)?
     } else {
         get_interactive_input(&target_branch, &existing_description)?
     };
@@ -600,7 +607,7 @@ fn get_interactive_input(target_branch: &str, existing_description: &str) -> Res
     Ok(input.trim().to_string())
 }
 
-fn get_issue_content(issue_ref: &str) -> Result<String> {
+fn get_issue_content(issue_ref: &str, ai_summarize: bool) -> Result<String> {
     // Parse the issue reference - could be a number or a URL
     let issue_number = parse_issue_reference(issue_ref)?;
 
@@ -618,9 +625,117 @@ fn get_issue_content(issue_ref: &str) -> Result<String> {
     let json_output =
         String::from_utf8(output.stdout).context("Failed to parse glab output as UTF-8")?;
 
-    // Parse the JSON output manually to extract title and description
-    parse_issue_json(&json_output)
+    // Parse the JSON output to extract title and description
+    let raw_content = parse_issue_json(&json_output)?;
+    
+    // Apply AI summarization if requested
+    if ai_summarize {
+        ai_summarize_content(&raw_content)
+            .context("Failed to summarize content using AI")
+    } else {
+        Ok(raw_content)
+    }
 }
+
+fn ai_summarize_content(content: &str) -> Result<String> {
+    // Check if Ollama is running
+    let client = Client::new();
+    
+    // First, try to check if Ollama is running
+    match client.get("http://localhost:11434/api/tags").send() {
+        Ok(_) => {
+            // Ollama is running, proceed with summarization
+        }
+        Err(_) => {
+            anyhow::bail!(
+                "Ollama is not running. Please start Ollama first:\n\
+                1. Install Ollama from https://ollama.ai\n\
+                2. Run: ollama run llama3.2:1b\n\
+                3. Keep Ollama running and try again"
+            );
+        }
+    }
+
+    let prompt = format!(
+        "Create a concise branch description (2-3 sentences max) for this GitLab issue. \
+        Focus on the main task/goal, not implementation details. \
+        Respond with ONLY the branch description, no preamble or explanation:\n\n{}",
+        content
+    );
+
+    let request_body = serde_json::json!({
+        "model": "llama3.2:1b",
+        "prompt": prompt,
+        "stream": false,
+        "options": {
+            "temperature": 0.2,
+            "top_p": 0.8,
+            "num_predict": 100
+        }
+    });
+
+    let response = client
+        .post("http://localhost:11434/api/generate")
+        .json(&request_body)
+        .send()
+        .context("Failed to send request to Ollama")?;
+
+    if !response.status().is_success() {
+        anyhow::bail!("Ollama API returned error: {}", response.status());
+    }
+
+    let response_json: Value = response
+        .json()
+        .context("Failed to parse Ollama response")?;
+
+    let raw_summary = response_json["response"]
+        .as_str()
+        .context("Failed to extract summary from Ollama response")?
+        .trim();
+
+    if raw_summary.is_empty() {
+        anyhow::bail!("Ollama returned empty summary");
+    }
+
+    // Clean up common AI preamble patterns
+    let summary = clean_ai_preamble(raw_summary);
+
+    Ok(summary.to_string())
+}
+
+fn clean_ai_preamble(text: &str) -> &str {
+    let text = text.trim();
+    
+    // Common preamble patterns to remove
+    let preambles = [
+        "Here is a concise branch description for the GitLab issue:",
+        "Here is a concise branch description:",
+        "Here's a concise branch description:",
+        "A concise branch description:",
+        "Branch description:",
+        "Here is the branch description:",
+        "Here's the branch description:",
+    ];
+    
+    for preamble in &preambles {
+        if let Some(stripped) = text.strip_prefix(preamble) {
+            return stripped.trim().trim_matches('"').trim();
+        }
+    }
+    
+    // Also check for patterns that end with colon and newline
+    if let Some(colon_pos) = text.find(':') {
+        let before_colon = &text[..colon_pos];
+        if before_colon.to_lowercase().contains("description") || 
+           before_colon.to_lowercase().contains("branch") {
+            let after_colon = &text[colon_pos + 1..];
+            return after_colon.trim().trim_matches('"').trim();
+        }
+    }
+    
+    text.trim_matches('"').trim()
+}
+
 
 fn parse_issue_reference(issue_ref: &str) -> Result<String> {
     // Check if it's a GitLab issue URL
@@ -788,5 +903,68 @@ mod tests {
         // Test error case - invalid JSON
         let invalid_json = r#"{"title":"Invalid JSON" missing bracket"#;
         assert!(parse_issue_json(invalid_json).is_err());
+    }
+
+    #[test]
+    fn test_clean_ai_preamble() {
+        // Test removing various preamble patterns
+        assert_eq!(
+            clean_ai_preamble("Here is a concise branch description for the GitLab issue: Update Jenkins pipeline"),
+            "Update Jenkins pipeline"
+        );
+        
+        assert_eq!(
+            clean_ai_preamble("Here's a concise branch description: Fix authentication bug"),
+            "Fix authentication bug"
+        );
+        
+        assert_eq!(
+            clean_ai_preamble("Branch description: Implement OAuth2 system"),
+            "Implement OAuth2 system"
+        );
+        
+        // Test with quotes
+        assert_eq!(
+            clean_ai_preamble("Here is a concise branch description: \"Update build pipeline\""),
+            "Update build pipeline"
+        );
+        
+        // Test with colon patterns
+        assert_eq!(
+            clean_ai_preamble("A brief description for this branch: Migrate to GitLab CI"),
+            "Migrate to GitLab CI"
+        );
+        
+        // Test text without preamble (should remain unchanged)
+        assert_eq!(
+            clean_ai_preamble("Update Jenkins pipeline to use GitLab CI/CD"),
+            "Update Jenkins pipeline to use GitLab CI/CD"
+        );
+        
+        // Test text with extra whitespace
+        assert_eq!(
+            clean_ai_preamble("  Here is the branch description:   Fix critical bug   "),
+            "Fix critical bug"
+        );
+    }
+
+    #[test]
+    fn test_ai_summarize_content() {
+        // This test requires Ollama to be running locally
+        // It's more of an integration test
+        let content = "Fix authentication bug\n\nUsers are experiencing login failures due to expired tokens not being properly refreshed. Need to implement automatic token refresh mechanism.";
+        
+        // This test will only pass if Ollama is running
+        match ai_summarize_content(content) {
+            Ok(summary) => {
+                assert!(!summary.is_empty());
+                assert!(summary.len() < content.len()); // Should be shorter
+                println!("AI Summary: {}", summary);
+            }
+            Err(e) => {
+                // Expected if Ollama isn't running
+                println!("AI test skipped (Ollama not available): {}", e);
+            }
+        }
     }
 }

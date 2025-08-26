@@ -35,6 +35,10 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 ./target/release/git-branch-desc edit --issue 123      # From GitLab issue number
 ./target/release/git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456"  # From GitLab issue URL
 
+# AI-powered summarization
+./target/release/git-branch-desc edit --issue 123 --ai-summarize     # AI summary of issue
+./target/release/git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
+
 ./target/release/git-branch-desc list
 ```
 
@@ -55,6 +59,7 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - `arboard`: Clipboard access for reading descriptions from system clipboard
 - `regex`: URL parsing for GitLab issue links
 - `serde_json`: Robust JSON parsing for GitLab issue data
+- `reqwest`: HTTP client for Ollama API communication
 
 ### Git Integration
 - **Current Branch Operations**: Traditional Git workflow (write file → stage → commit)
@@ -67,7 +72,8 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - `get_clipboard_content()`: Reads description text from system clipboard
 - `get_stdin_content()`: Reads description text from stdin with terminal detection
 - `get_interactive_input()`: Handles interactive description input with existing content display
-- `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe`
+- `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe` with optional AI summarization
+- `ai_summarize_content()`: Uses Ollama API to create concise branch descriptions from verbose issue content
 - `parse_issue_reference()`: Parses GitLab issue numbers and URLs
 - `parse_issue_json()`: Robustly extracts title and description from glab JSON output using serde_json
 - `list_descriptions()`: Reads descriptions from all branches using Git objects
@@ -90,3 +96,7 @@ echo "Description" | ./target/release/git-branch-desc edit --stdin  # From stdin
 - GitLab issue support uses configured `glab.exe` and accepts both issue numbers and full GitLab URLs
 - Issue content is formatted as "Title" followed by the issue description (no markdown heading prefix)
 - JSON parsing uses `serde_json` for robust handling of complex GitLab API responses
+- AI summarization requires Ollama running locally with llama3.2:1b model (or compatible)
+- AI integration uses reqwest for HTTP communication with Ollama's API
+- AI prompts are optimized to create concise 2-3 sentence branch descriptions focused on main goals
+- AI functionality gracefully handles cases where Ollama is not available with helpful error messages
