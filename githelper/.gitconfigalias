@@ -110,6 +110,8 @@
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
 
+    cia= "!f() { git add \"$@\"; gemini -y -p 'git commit staged files. Execute git commit command. Start with a striking line. Do not explain your Procedure.'; }; f"
+
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
 
