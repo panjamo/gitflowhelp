@@ -348,3 +348,13 @@ cargo run -- edit --help
 - **CLI with Clap**: Clean command-line interface using `clap` derive macros
 - **Safety Features**: Validation, confirmation prompts, and helpful error messages
 - **AI Integration**: Optional Ollama integration for intelligent summarization
+
+### Hint, user GEMINI for AI
+
+```
+@REM short
+gemini -y -p "sumarize diff between branches support/13.10 and support/13.0 in 2 or 3 sentenses for a branch description. Take commit messages and code diff. Do not explain your Procedure" | sed "/Data collection is disabled/d" | clip
+
+@REM long
+gemini -y -p "sumarize diff between branches support/11.10 and support/11.20. Take commit messages and code diff. Do not explain your Procedure. Markdown Output" | sed "/Data collection is disabled/d" | clip
+```
