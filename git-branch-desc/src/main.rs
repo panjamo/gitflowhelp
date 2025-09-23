@@ -24,6 +24,9 @@ pub enum InputMethod {
     /// Read from GitLab issue
     #[value(name = "issue")]
     Issue,
+    /// Open external editor with prefilled template
+    #[value(name = "editor")]
+    Editor,
 }
 
 impl Default for InputMethod {
@@ -105,6 +108,7 @@ fn main() -> Result<()> {
                 InputMethod::Clipboard => InputSource::Clipboard,
                 InputMethod::Stdin => InputSource::Stdin,
                 InputMethod::Issue => InputSource::Issue(issue_ref.unwrap()),
+                InputMethod::Editor => InputSource::Editor,
             };
             
             manager.edit_description_v2(

@@ -22,6 +22,8 @@ pub enum InputSource {
     Stdin,
     /// Read from GitLab issue reference
     Issue(String),
+    /// Open external editor with prefilled template
+    Editor,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -55,9 +57,9 @@ impl GitBranchDescManager {
         if ai_summarize {
             match &input_source {
                 InputSource::CommandLine(Some(_)) => {
-                    anyhow::bail!("AI summarization cannot be used with direct text input. Use --input=clipboard, --input=stdin, or --input=issue instead.");
+                    anyhow::bail!("AI summarization cannot be used with direct text input. Use --input=clipboard, --input=stdin, --input=editor, or --input=issue instead.");
                 }
-                InputSource::CommandLine(None) | InputSource::Clipboard | InputSource::Stdin | InputSource::Issue(_) => {
+                InputSource::CommandLine(None) | InputSource::Clipboard | InputSource::Stdin | InputSource::Issue(_) | InputSource::Editor => {
                     // Valid combinations
                 }
             }
@@ -126,6 +128,13 @@ impl GitBranchDescManager {
             InputSource::Issue(issue_ref) => {
                 self.get_issue_content(&issue_ref, ai_summarize, ai_timeout)?
             }
+            InputSource::Editor => {
+                let mut content = self.get_editor_content(&target_branch, &existing_description)?;
+                if ai_summarize {
+                    content = self.ai_summarize_content(&content, ai_timeout)?;
+                }
+                content
+            }
         };
 
         // Write the description
@@ -189,6 +198,9 @@ impl GitBranchDescManager {
             force,
         )
     }
+
+
+
 
     pub fn list_descriptions(&self, detailed: bool, all: bool) -> Result<()> {
         let mut descriptions = Vec::new();
@@ -481,6 +493,172 @@ impl GitBranchDescManager {
         }
 
         Ok(content)
+    }
+
+    fn get_editor_content(&self, target_branch: &str, existing_description: &str) -> Result<String> {
+        use std::env;
+        use std::fs;
+        use std::process::Command;
+
+        // Create temporary file
+        let temp_dir = env::temp_dir();
+        let temp_file = temp_dir.join(format!("git-branch-desc-{}.txt", target_branch.replace("/", "-")));
+
+        // Get list output for prefilled content
+        let list_content = self.get_list_content_for_editor()?;
+        
+        // Create prefilled content
+        let mut prefill_content = String::new();
+        if !existing_description.trim().is_empty() {
+            prefill_content.push_str("# Existing description (edit lines starting with # to modify):\n");
+            for line in existing_description.lines() {
+                prefill_content.push_str(&format!("# {}\n", line));
+            }
+            prefill_content.push('\n');
+        }
+        
+        prefill_content.push_str("# Enter your branch description below. Lines starting with # will be included.\n");
+        prefill_content.push_str("# Empty file or no # lines = no description added.\n");
+        prefill_content.push_str("#\n");
+        prefill_content.push_str("# Current branch descriptions:\n");
+        for line in list_content.lines() {
+            prefill_content.push_str(&format!("# {}\n", line));
+        }
+        
+        // Write prefilled content to temp file
+        fs::write(&temp_file, &prefill_content)?;
+
+        // Determine editor command
+        let editor = if cfg!(target_os = "windows") {
+            "notepad.exe".to_string()
+        } else {
+            env::var("EDITOR").unwrap_or_else(|_| "nano".to_string())
+        };
+
+        // Open editor
+        let status = Command::new(editor)
+            .arg(&temp_file)
+            .status()
+            .context("Failed to open editor")?;
+
+        if !status.success() {
+            anyhow::bail!("Editor exited with non-zero status");
+        }
+
+        // Read the edited content
+        let edited_content = fs::read_to_string(&temp_file)
+            .context("Failed to read edited content")?;
+
+        // Clean up temp file
+        let _ = fs::remove_file(&temp_file);
+
+        // Process the content - extract all non-template lines
+        let mut description_lines = Vec::new();
+        let mut has_changes = false;
+        let original_lines: HashSet<&str> = prefill_content.lines().collect();
+        
+        for line in edited_content.lines() {
+            let trimmed_line = line.trim();
+            
+            // Skip empty lines
+            if trimmed_line.is_empty() {
+                continue;
+            }
+            
+            // Skip original template lines (unchanged)
+            if original_lines.contains(line) {
+                continue;
+            }
+            
+            // Process both # prefixed and regular lines
+            if line.starts_with('#') {
+                let content = line.trim_start_matches('#').trim();
+                if !content.is_empty() {
+                    description_lines.push(content.to_string());
+                    has_changes = true;
+                }
+            } else if !trimmed_line.is_empty() {
+                description_lines.push(trimmed_line.to_string());
+                has_changes = true;
+            }
+        }
+
+        if !has_changes {
+            anyhow::bail!("No description changes detected (file was not modified or contains no valid # lines)");
+        }
+
+        Ok(description_lines.join("\n"))
+    }
+
+    fn get_list_content_for_editor(&self) -> Result<String> {
+        let mut output = Vec::new();
+        let mut tw = TabWriter::new(&mut output);
+        
+        let mut descriptions = Vec::new();
+        let local_branches = self.get_local_branch_list()?;
+        let mut processed_branches = HashSet::new();
+
+        // Process remote branches first
+        let remotes = self.repo.remotes()?;
+        for remote_name in remotes.iter() {
+            if let Some(remote_name) = remote_name {
+                let remote_branches = self.repo.branches(Some(git2::BranchType::Remote))?;
+                for branch in remote_branches {
+                    let (branch, _) = branch.context("Failed to get branch")?;
+                    if let Some(name) = branch.name().context("Failed to get branch name")? {
+                        if name.starts_with(&format!("{remote_name}/")) {
+                            let branch_name = name.strip_prefix(&format!("{remote_name}/")).unwrap();
+                            if let Ok(Some(desc)) = self.read_branch_description_from_git(name) {
+                                if !desc.trim().is_empty() {
+                                    let truncated = if desc.len() > 50 {
+                                        format!("{}...", &desc[..47])
+                                    } else {
+                                        desc.clone()
+                                    };
+                                    descriptions.push(BranchDescription {
+                                        branch: format!("{} (remote)", branch_name),
+                                        description: truncated,
+                                    });
+                                    processed_branches.insert(branch_name.to_string());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Process local branches
+        for branch_name in local_branches {
+            if processed_branches.contains(&branch_name) {
+                continue;
+            }
+            if let Ok(Some(desc)) = self.read_branch_description_from_git(&branch_name) {
+                if !desc.trim().is_empty() {
+                    let truncated = if desc.len() > 50 {
+                        format!("{}...", &desc[..47])
+                    } else {
+                        desc.clone()
+                    };
+                    descriptions.push(BranchDescription {
+                        branch: branch_name,
+                        description: truncated,
+                    });
+                }
+            }
+        }
+
+        // Write table headers
+        writeln!(tw, "Branch\tDescription")?;
+        writeln!(tw, "------\t-----------")?;
+
+        // Write descriptions
+        for desc in descriptions {
+            writeln!(tw, "{}\t{}", desc.branch, desc.description)?;
+        }
+
+        tw.flush()?;
+        Ok(String::from_utf8_lossy(&output).to_string())
     }
 
     pub fn ai_summarize_content(&self, content: &str, timeout_seconds: u64) -> Result<String> {

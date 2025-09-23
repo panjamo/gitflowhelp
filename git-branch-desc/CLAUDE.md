@@ -32,6 +32,7 @@ cargo clippy --fix
 # Alternative input methods using --input flag
 ./target/release/git-branch-desc edit --input=clipboard      # From clipboard
 echo "Description" | ./target/release/git-branch-desc edit --input=stdin  # From stdin
+./target/release/git-branch-desc edit --input=editor         # Open external editor (notepad on Windows)
 ./target/release/git-branch-desc edit --input=issue --issue-ref=123      # From GitLab issue number
 ./target/release/git-branch-desc edit --input=issue --issue-ref="https://gitlab.com/owner/repo/-/issues/456"  # From GitLab issue URL
 
@@ -40,10 +41,12 @@ echo "Description" | ./target/release/git-branch-desc edit --input=stdin  # From
 ./target/release/git-branch-desc edit --input=issue --issue-ref="https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
 ./target/release/git-branch-desc edit --input=clipboard --ai-summarize     # AI summary of clipboard
 ./target/release/git-branch-desc edit --input=stdin --ai-summarize         # AI summary of stdin
+./target/release/git-branch-desc edit --input=editor --ai-summarize        # AI summary of editor content
 
 # AI summarization with custom timeout
 ./target/release/git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize --ai-timeout 300
 ./target/release/git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 600  # For large content
+./target/release/git-branch-desc edit --input=editor --ai-summarize --ai-timeout 180  # For editor content
 git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 300
 
 ./target/release/git-branch-desc list
@@ -54,7 +57,7 @@ git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summa
 ### Core Components
 - **main.rs**: Single-file implementation containing all functionality
 - **CLI Structure**: Uses `clap` for command-line parsing with two main commands:
-  - `edit`/`e`: Edit branch descriptions (unified add/modify functionality) with `--input` flag for different input sources
+  - `edit`/`e`: Edit branch descriptions (unified add/modify functionality) with `--input` flag for different input sources (cli, clipboard, stdin, editor, issue)
   - `list`/`ls`: List all branch descriptions
 
 ### Key Dependencies
@@ -80,6 +83,7 @@ git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summa
 - `get_clipboard_content()`: Reads description text from system clipboard
 - `get_stdin_content()`: Reads description text from stdin with terminal detection
 - `get_interactive_input()`: Handles interactive description input with existing content display
+- `get_editor_content()`: Opens external editor (notepad on Windows) with prefilled template and processes user input
 - `get_issue_content()`: Fetches GitLab issue content using configured `glab.exe` with optional AI summarization and timeout
 - `ai_summarize_content()`: Uses Ollama API with configurable timeout to create concise branch descriptions from verbose content
 - `parse_issue_reference()`: Parses GitLab issue numbers and URLs
@@ -98,9 +102,12 @@ git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summa
 - Safety warnings and confirmations prevent accidental branch modifications
 - The unified `edit` command intelligently detects existing descriptions and shows them for editing
 - Commit messages automatically reflect whether content was "Added" or "Updated"
-- **Refactored Input System**: Uses `--input` flag with enum values (`cli`, `clipboard`, `stdin`, `issue`) for cleaner API
+- **Refactored Input System**: Uses `--input` flag with enum values (`cli`, `clipboard`, `stdin`, `editor`, `issue`) for cleaner API
 - Input methods consolidated under single `InputSource` enum for better type safety and extensibility
 - Default input method is `--input=cli` (command line argument or interactive prompt)
+- **Editor Mode**: `--input=editor` opens external editor (notepad on Windows, $EDITOR on Unix) with prefilled template
+- Editor template includes existing description and current branch list for context
+- Editor processes both `#` prefixed lines and regular lines, excluding template content
 - `--issue-ref` parameter required when `--input=issue` is specified for GitLab issue references
 - Backward compatibility maintained through legacy `edit_description()` wrapper function
 - Stdin input includes terminal detection to prevent hanging when no input is available
@@ -110,7 +117,7 @@ git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summa
 - AI summarization requires Ollama running locally with llama3.2:1b model (or compatible)
 - AI integration uses reqwest for HTTP communication with Ollama's API with configurable timeouts
 - AI prompts are optimized to create concise 2-3 sentence branch descriptions focused on main goals
-- AI functionality works with `--input=issue`, `--input=stdin`, and `--input=clipboard` methods
+- AI functionality works with `--input=issue`, `--input=stdin`, `--input=clipboard`, and `--input=editor` methods
 - AI summarization validation prevents usage with direct text input (`--input=cli` with text argument)
 - AI timeout is configurable via --ai-timeout flag (default: 120 seconds)
 - AI content length validation truncates very large content (8000+ chars) for optimal processing
