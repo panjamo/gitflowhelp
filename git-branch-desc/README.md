@@ -15,20 +15,20 @@ cargo install --path .
 ## Quick Start
 
 ```bash
-# Add description to current branch
-git-branch-desc edit "OAuth2 authentication implementation"
+# Add description to current branch (opens editor by default)
+git-branch-desc edit
+
+# Add description with direct text
+git-branch-desc edit --input=cli "OAuth2 authentication implementation"
 
 # Add description from GitLab issue
 git-branch-desc edit --input=issue --issue-ref=123
-
-# Add description using external editor
-git-branch-desc edit --input=editor
 
 # Add AI-summarized description from GitLab issue
 git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # Add description to any branch without checkout
-git-branch-desc edit --branch feature/api "REST API implementation" --commit
+git-branch-desc edit --branch feature/api --input=cli "REST API implementation" --commit
 
 # List all branch descriptions
 git-branch-desc list
@@ -40,11 +40,14 @@ git-branch-desc list
 Edit branch descriptions with multiple input methods:
 
 ```bash
-# Direct text input (default --input=cli)
-git-branch-desc edit "Description text"
+# External editor (default --input=editor)
+git-branch-desc edit
+
+# Direct text input
+git-branch-desc edit --input=cli "Description text"
 
 # Interactive prompt (shows existing content for editing)
-git-branch-desc edit
+git-branch-desc edit --input=cli
 
 # From clipboard
 git-branch-desc edit --input=clipboard
@@ -52,8 +55,8 @@ git-branch-desc edit --input=clipboard
 # From stdin
 echo "Description" | git-branch-desc edit --input=stdin
 
-# From external editor (like git commit)
-git-branch-desc edit --input=editor
+# From external editor (like git commit) - this is now the default
+git-branch-desc edit
 
 # From GitLab issue
 git-branch-desc edit --input=issue --issue-ref=123
@@ -92,10 +95,10 @@ The `edit` command supports multiple input methods via the `--input` flag:
 
 | Method | Flag | Description |
 |--------|------|-------------|
-| CLI | `--input=cli` | Direct text argument or interactive prompt (default) |
+| CLI | `--input=cli` | Direct text argument or interactive prompt |
 | Clipboard | `--input=clipboard` | Read from system clipboard |
 | Stdin | `--input=stdin` | Read from standard input |
-| Editor | `--input=editor` | Open external editor with prefilled template (like git commit) |
+| Editor | `--input=editor` | Open external editor with prefilled template (like git commit) (default) |
 | GitLab Issue | `--input=issue --issue-ref=<REF>` | Fetch from GitLab issue |
 | AI Summary | `--ai-summarize` | AI-generated summary (works with all input methods except direct text) |
 
@@ -144,7 +147,7 @@ The AI creates concise 2-3 sentence descriptions that capture the essence of the
 | Flag | Description |
 |------|-------------|
 | `-b, --branch <NAME>` | Target branch (defaults to current branch) |
-| `--input <METHOD>` | Input source: cli, clipboard, stdin, editor, issue (default: cli) |
+| `--input <METHOD>` | Input source: cli, clipboard, stdin, editor, issue (default: editor) |
 | `--issue-ref <REF>` | GitLab issue reference (required when --input=issue) |
 | `-c, --commit` | Automatically commit the BRANCHREADME.md file |
 | `-p, --push` | Automatically commit and push changes |
@@ -231,11 +234,14 @@ git-branch-desc edit --issue 123
 
 ### Basic Usage
 ```bash
-# Edit current branch description
-git-branch-desc edit "Implement user authentication system"
+# Edit current branch description (opens editor by default)
+git-branch-desc edit
+
+# Edit with direct text input
+git-branch-desc edit --input=cli "Implement user authentication system"
 
 # Edit remote branch without checkout
-git-branch-desc edit --branch origin/feature/auth "Authentication implementation" --commit
+git-branch-desc edit --branch origin/feature/auth --input=cli "Authentication implementation" --commit
 
 # List all descriptions in table format
 git-branch-desc list

@@ -25,9 +25,13 @@ cargo clippy --fix
 
 ### Testing the tool
 ```bash
-# Basic usage examples (default --input=cli)
-./target/release/git-branch-desc edit "Test description"
-./target/release/git-branch-desc e "Test description"  # Short alias
+# Basic usage examples (default --input=editor)
+./target/release/git-branch-desc edit                   # Opens editor by default
+./target/release/git-branch-desc e                      # Short alias, opens editor
+
+# Direct text input (using --input=cli)
+./target/release/git-branch-desc edit --input=cli "Test description"
+./target/release/git-branch-desc e --input=cli "Test description"  # Short alias
 
 # Alternative input methods using --input flag
 ./target/release/git-branch-desc edit --input=clipboard      # From clipboard
@@ -104,7 +108,7 @@ git diff HEAD~5 | ./target/release/git-branch-desc edit --input=stdin --ai-summa
 - Commit messages automatically reflect whether content was "Added" or "Updated"
 - **Refactored Input System**: Uses `--input` flag with enum values (`cli`, `clipboard`, `stdin`, `editor`, `issue`) for cleaner API
 - Input methods consolidated under single `InputSource` enum for better type safety and extensibility
-- Default input method is `--input=cli` (command line argument or interactive prompt)
+- Default input method is `--input=editor` (opens external editor with prefilled template)
 - **Editor Mode**: `--input=editor` opens external editor (notepad on Windows, $EDITOR on Unix) with prefilled template
 - Editor template includes existing description and current branch list for context
 - Editor processes both `#` prefixed lines and regular lines, excluding template content

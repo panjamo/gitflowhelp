@@ -31,7 +31,7 @@ pub enum InputMethod {
 
 impl Default for InputMethod {
     fn default() -> Self {
-        Self::CommandLine
+        Self::Editor
     }
 }
 
@@ -48,7 +48,7 @@ enum Commands {
         description: Option<String>,
         
         /// Input source method
-        #[arg(long, value_enum, default_value = "cli")]
+        #[arg(long, value_enum, default_value = "editor")]
         input: InputMethod,
         
         /// GitLab issue reference (number or URL) - required when input=issue
