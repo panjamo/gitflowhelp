@@ -1,6 +1,6 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
-use git_branch_desc::GitBranchDescManager;
+use clap::{Parser, Subcommand, ValueEnum};
+use git_branch_desc::{GitBranchDescManager, InputSource};
 
 #[derive(Parser)]
 #[command(name = "git-branch-desc")]
@@ -8,6 +8,28 @@ use git_branch_desc::GitBranchDescManager;
 struct Cli {
     #[command(subcommand)]
     command: Commands,
+}
+
+#[derive(Clone, Debug, ValueEnum)]
+pub enum InputMethod {
+    /// Read from command line argument or interactive prompt (default)
+    #[value(name = "cli")]
+    CommandLine,
+    /// Read from system clipboard
+    #[value(name = "clipboard")]
+    Clipboard,
+    /// Read from standard input
+    #[value(name = "stdin")]
+    Stdin,
+    /// Read from GitLab issue
+    #[value(name = "issue")]
+    Issue,
+}
+
+impl Default for InputMethod {
+    fn default() -> Self {
+        Self::CommandLine
+    }
 }
 
 #[derive(Subcommand)]
@@ -18,29 +40,34 @@ enum Commands {
         /// Target branch name (defaults to current branch)
         #[arg(short, long)]
         branch: Option<String>,
-        /// Description text (if not provided, will prompt for input)
+        
+        /// Description text (for cli input method only)
         description: Option<String>,
-        /// Read description from clipboard
-        #[arg(long, conflicts_with_all = ["description", "stdin"])]
-        clipboard: bool,
-        /// Read description from stdin
-        #[arg(long, conflicts_with_all = ["description", "clipboard", "issue"])]
-        stdin: bool,
-        /// Read description from GitLab issue (number or URL)
-        #[arg(long, conflicts_with_all = ["description", "clipboard", "stdin"])]
-        issue: Option<String>,
-        /// Use AI to summarize content (works with --issue, --stdin, --clipboard, and Ollama running locally)
+        
+        /// Input source method
+        #[arg(long, value_enum, default_value = "cli")]
+        input: InputMethod,
+        
+        /// GitLab issue reference (number or URL) - required when input=issue
+        #[arg(long, required_if_eq("input", "issue"))]
+        issue_ref: Option<String>,
+        
+        /// Use AI to summarize content (works with all input methods except direct cli text)
         #[arg(long)]
         ai_summarize: bool,
+        
         /// Timeout in seconds for AI processing (default: 120)
         #[arg(long, default_value = "120")]
         ai_timeout: u64,
+        
         /// Automatically commit the BRANCHREADME.md file after editing
         #[arg(short, long)]
         commit: bool,
+        
         /// Automatically commit and push the BRANCHREADME.md file after editing
         #[arg(short, long)]
         push: bool,
+        
         /// Skip confirmation prompts (force operation)
         #[arg(short, long)]
         force: bool,
@@ -65,26 +92,31 @@ fn main() -> Result<()> {
         Commands::Edit {
             branch,
             description,
-            clipboard,
-            stdin,
-            issue,
+            input,
+            issue_ref,
             ai_summarize,
             ai_timeout,
             commit,
             push,
             force,
-        } => manager.edit_description(
-            branch,
-            description,
-            clipboard,
-            stdin,
-            issue,
-            ai_summarize,
-            ai_timeout,
-            commit,
-            push,
-            force,
-        ),
+        } => {
+            let input_source = match input {
+                InputMethod::CommandLine => InputSource::CommandLine(description),
+                InputMethod::Clipboard => InputSource::Clipboard,
+                InputMethod::Stdin => InputSource::Stdin,
+                InputMethod::Issue => InputSource::Issue(issue_ref.unwrap()),
+            };
+            
+            manager.edit_description_v2(
+                branch,
+                input_source,
+                ai_summarize,
+                ai_timeout,
+                commit,
+                push,
+                force,
+            )
+        }
         Commands::List { detailed, all } => manager.list_descriptions(detailed, all),
     }
 }

@@ -12,6 +12,18 @@ use std::process::Command;
 use tabwriter::TabWriter;
 use terminal_size::{Width, terminal_size};
 
+#[derive(Debug, Clone)]
+pub enum InputSource {
+    /// Direct command line input (text argument or interactive prompt)
+    CommandLine(Option<String>),
+    /// Read from system clipboard
+    Clipboard,
+    /// Read from standard input
+    Stdin,
+    /// Read from GitLab issue reference
+    Issue(String),
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct BranchDescription {
     pub branch: String,
@@ -29,24 +41,26 @@ impl GitBranchDescManager {
         Ok(Self { repo })
     }
 
-    pub fn edit_description(
+    pub fn edit_description_v2(
         &self,
         target_branch: Option<String>,
-        description: Option<String>,
-        clipboard: bool,
-        stdin: bool,
-        issue: Option<String>,
+        input_source: InputSource,
         ai_summarize: bool,
         ai_timeout: u64,
         commit: bool,
         push: bool,
         force: bool,
     ) -> Result<()> {
-        // Validate that AI summarization is used with appropriate input methods
-        if ai_summarize && description.is_some() {
-            anyhow::bail!(
-                "AI summarization can only be used with --issue, --stdin, or --clipboard options, not with direct text input."
-            );
+        // Validate AI summarization usage
+        if ai_summarize {
+            match &input_source {
+                InputSource::CommandLine(Some(_)) => {
+                    anyhow::bail!("AI summarization cannot be used with direct text input. Use --input=clipboard, --input=stdin, or --input=issue instead.");
+                }
+                InputSource::CommandLine(None) | InputSource::Clipboard | InputSource::Stdin | InputSource::Issue(_) => {
+                    // Valid combinations
+                }
+            }
         }
 
         // Determine the target branch
@@ -89,25 +103,29 @@ impl GitBranchDescManager {
             }
         }
 
-        // Get the description content from various sources
-        let description_content = if let Some(desc) = description {
-            desc
-        } else if clipboard {
-            let mut content = self.get_clipboard_content()?;
-            if ai_summarize {
-                content = self.ai_summarize_content(&content, ai_timeout)?;
+        // Get the description content based on input source
+        let description_content = match input_source {
+            InputSource::CommandLine(Some(desc)) => desc,
+            InputSource::CommandLine(None) => {
+                self.get_interactive_input(&target_branch, &existing_description)?
             }
-            content
-        } else if stdin {
-            let mut content = self.get_stdin_content()?;
-            if ai_summarize {
-                content = self.ai_summarize_content(&content, ai_timeout)?;
+            InputSource::Clipboard => {
+                let mut content = self.get_clipboard_content()?;
+                if ai_summarize {
+                    content = self.ai_summarize_content(&content, ai_timeout)?;
+                }
+                content
             }
-            content
-        } else if let Some(issue_ref) = issue {
-            self.get_issue_content(&issue_ref, ai_summarize, ai_timeout)?
-        } else {
-            self.get_interactive_input(&target_branch, &existing_description)?
+            InputSource::Stdin => {
+                let mut content = self.get_stdin_content()?;
+                if ai_summarize {
+                    content = self.ai_summarize_content(&content, ai_timeout)?;
+                }
+                content
+            }
+            InputSource::Issue(issue_ref) => {
+                self.get_issue_content(&issue_ref, ai_summarize, ai_timeout)?
+            }
         };
 
         // Write the description
@@ -132,6 +150,44 @@ impl GitBranchDescManager {
         }
 
         Ok(())
+    }
+
+    pub fn edit_description(
+        &self,
+        target_branch: Option<String>,
+        description: Option<String>,
+        clipboard: bool,
+        stdin: bool,
+        issue: Option<String>,
+        ai_summarize: bool,
+        ai_timeout: u64,
+        commit: bool,
+        push: bool,
+        force: bool,
+    ) -> Result<()> {
+        // Convert old-style parameters to new InputSource enum for backward compatibility
+        let input_source = if let Some(desc) = description {
+            InputSource::CommandLine(Some(desc))
+        } else if clipboard {
+            InputSource::Clipboard
+        } else if stdin {
+            InputSource::Stdin
+        } else if let Some(issue_ref) = issue {
+            InputSource::Issue(issue_ref)
+        } else {
+            InputSource::CommandLine(None)
+        };
+
+        // Delegate to new implementation
+        self.edit_description_v2(
+            target_branch,
+            input_source,
+            ai_summarize,
+            ai_timeout,
+            commit,
+            push,
+            force,
+        )
     }
 
     pub fn list_descriptions(&self, detailed: bool, all: bool) -> Result<()> {

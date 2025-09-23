@@ -19,10 +19,10 @@ cargo install --path .
 git-branch-desc edit "OAuth2 authentication implementation"
 
 # Add description from GitLab issue
-git-branch-desc edit --issue 123
+git-branch-desc edit --input=issue --issue-ref=123
 
 # Add AI-summarized description from GitLab issue
-git-branch-desc edit --issue 123 --ai-summarize
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # Add description to any branch without checkout
 git-branch-desc edit --branch feature/api "REST API implementation" --commit
@@ -37,30 +37,30 @@ git-branch-desc list
 Edit branch descriptions with multiple input methods:
 
 ```bash
-# Direct text input
+# Direct text input (default --input=cli)
 git-branch-desc edit "Description text"
 
 # Interactive prompt (shows existing content for editing)
 git-branch-desc edit
 
 # From clipboard
-git-branch-desc edit --clipboard
+git-branch-desc edit --input=clipboard
 
 # From stdin
-echo "Description" | git-branch-desc edit --stdin
+echo "Description" | git-branch-desc edit --input=stdin
 
 # From GitLab issue
-git-branch-desc edit --issue 123
-git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456"
+git-branch-desc edit --input=issue --issue-ref=123
+git-branch-desc edit --input=issue --issue-ref="https://gitlab.com/owner/repo/-/issues/456"
 
 # AI-summarized GitLab issue (requires Ollama)
-git-branch-desc edit --issue 123 --ai-summarize
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # AI-summarized content from clipboard
-git-branch-desc edit --clipboard --ai-summarize
+git-branch-desc edit --input=clipboard --ai-summarize
 
 # AI-summarized content from stdin with custom timeout
-echo "Long description..." | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+echo "Long description..." | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 300
 ```
 
 ### `list` (alias: `ls`)
@@ -79,20 +79,19 @@ git-branch-desc list --all
 
 ## Input Methods
 
-The `edit` command supports multiple input methods (mutually exclusive):
+The `edit` command supports multiple input methods via the `--input` flag:
 
 | Method | Flag | Description |
 |--------|------|-------------|
-| Direct | `[DESCRIPTION]` | Provide description as argument |
-| Interactive | _(none)_ | Prompt for input (default when no text provided) |
-| Clipboard | `--clipboard` | Read from system clipboard |
-| Stdin | `--stdin` | Read from standard input |
-| GitLab Issue | `--issue <REF>` | Fetch from GitLab issue |
-| AI Summary | `--ai-summarize` | AI-generated summary (works with --issue, --stdin, --clipboard) |
+| CLI | `--input=cli` | Direct text argument or interactive prompt (default) |
+| Clipboard | `--input=clipboard` | Read from system clipboard |
+| Stdin | `--input=stdin` | Read from standard input |
+| GitLab Issue | `--input=issue --issue-ref=<REF>` | Fetch from GitLab issue |
+| AI Summary | `--ai-summarize` | AI-generated summary (works with all input methods except direct text) |
 
 ## AI Summarization
 
-The `--ai-summarize` flag works with `--issue`, `--stdin`, and `--clipboard` to create concise branch descriptions using AI:
+The `--ai-summarize` flag works with `--input=issue`, `--input=stdin`, and `--input=clipboard` to create concise branch descriptions using AI:
 
 ### Setup
 1. **Install Ollama**: Download from [https://ollama.ai](https://ollama.ai)
@@ -102,19 +101,19 @@ The `--ai-summarize` flag works with `--issue`, `--stdin`, and `--clipboard` to 
 ### Usage
 ```bash
 # AI-summarize a GitLab issue
-git-branch-desc edit --issue 123 --ai-summarize
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # Works with issue URLs too
-git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
+git-branch-desc edit --input=issue --issue-ref="https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
 
 # AI-summarize clipboard content
-git-branch-desc edit --clipboard --ai-summarize
+git-branch-desc edit --input=clipboard --ai-summarize
 
 # AI-summarize stdin content with custom timeout
-echo "Long verbose description..." | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+echo "Long verbose description..." | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 300
 
 # For very large git diffs, use longer timeout
-git diff HEAD~10 | git-branch-desc edit --stdin --ai-summarize --ai-timeout 600
+git diff HEAD~10 | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 600
 ```
 
 ### Benefits
@@ -132,6 +131,8 @@ The AI creates concise 2-3 sentence descriptions that capture the essence of the
 | Flag | Description |
 |------|-------------|
 | `-b, --branch <NAME>` | Target branch (defaults to current branch) |
+| `--input <METHOD>` | Input source: cli, clipboard, stdin, issue (default: cli) |
+| `--issue-ref <REF>` | GitLab issue reference (required when --input=issue) |
 | `-c, --commit` | Automatically commit the BRANCHREADME.md file |
 | `-p, --push` | Automatically commit and push changes |
 | `-f, --force` | Skip confirmation prompts |
@@ -183,46 +184,46 @@ git-branch-desc list
 ### GitLab Issue Integration
 ```bash
 # Use issue title and description
-git-branch-desc edit --issue 123
+git-branch-desc edit --input=issue --issue-ref=123
 
 # Get AI-generated summary (requires Ollama)
-git-branch-desc edit --issue 123 --ai-summarize
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # Works with URLs too
-git-branch-desc edit --issue "https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
+git-branch-desc edit --input=issue --issue-ref="https://gitlab.com/owner/repo/-/issues/456" --ai-summarize
 ```
 
 ### AI Summarization Examples
 ```bash
 # Summarize any long content from clipboard
-git-branch-desc edit --clipboard --ai-summarize
+git-branch-desc edit --input=clipboard --ai-summarize
 
 # Summarize content from a file with custom timeout
-cat long_requirements.txt | git-branch-desc edit --stdin --ai-summarize --ai-timeout 180
+cat long_requirements.txt | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 180
 
 # Summarize large git diff with extended timeout
-git diff HEAD~5 | git-branch-desc edit --stdin --ai-summarize --ai-timeout 300
+git diff HEAD~5 | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 300
 
 # Summarize issue content with default timeout
-git-branch-desc edit --issue 123 --ai-summarize
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize
 
 # Quick summarization with shorter timeout
-git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 60
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize --ai-timeout 60
 ```
 
 ### Advanced Workflows
 ```bash
 # From clipboard with auto-commit and AI summarization
-git-branch-desc edit --clipboard --ai-summarize --commit
+git-branch-desc edit --input=clipboard --ai-summarize --commit
 
 # From stdin with force and AI summarization (no prompts)
-echo "Fix critical bug with detailed explanation..." | git-branch-desc edit --stdin --ai-summarize --force
+echo "Fix critical bug with detailed explanation..." | git-branch-desc edit --input=stdin --ai-summarize --force
 
 # Edit and immediately push with AI summary and custom timeout
-git-branch-desc edit --issue 123 --ai-summarize --ai-timeout 180 --push
+git-branch-desc edit --input=issue --issue-ref=123 --ai-summarize --ai-timeout 180 --push
 
 # Handle very large content with extended timeout
-git diff --cached | git-branch-desc edit --stdin --ai-summarize --ai-timeout 600 --commit
+git diff --cached | git-branch-desc edit --input=stdin --ai-summarize --ai-timeout 600 --commit
 ```
 
 ## Testing
