@@ -111,7 +111,8 @@
 
     cia = "!f() { \
         msg=c:/temp/.gitmessage.txt; \
-        git add \"$@\"; git diff --cached | gia -s 'Generate conventional commit message. Do NOT explain your Procedure.' > c:/temp/.gitmessage.txt;\
+        git add \"$@\";\
+        git diff --cached | gia -s 'Generate conventional commit message. Do NOT explain your Procedure.' > c:/temp/.gitmessage.txt &&\
         git ci --edit -F c:/temp/.gitmessage.txt;\
         rm c:/temp/.gitmessage.txt;\
     }; f"
