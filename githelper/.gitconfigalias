@@ -109,8 +109,12 @@
     sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git branch -vv; }; f"
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
-
-    cia= "!f() { git add \"$@\"; gemini -y -p 'git commit staged files. Use conventional commit. Execute git commit command. Start with a striking line. Do not explain your Procedure.'; }; f"
+    cia = "!f() { \
+        msg=c:/temp/.gitmessage.txt; \
+        git add \"$@\"; git diff --cached | gia -s 'Generate conventional commit message. Do NOT explain your Procedure.' > c:/temp/.gitmessage.txt;\
+        git ci --edit -F c:/temp/.gitmessage.txt;\
+        rm c:/temp/.gitmessage.txt;\
+    }; f"
 
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
