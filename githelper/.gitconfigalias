@@ -388,6 +388,7 @@
     d1 = diff --color-words="[^[:space:]]|([[:alnum:]]|UTF_8_GUARD)+" -U0
     d2 = diff --color-words='\\w' -U0
     d3 = diff --word-diff-regex=. -U0
+    dia = "!f() { git diff | gia "$@"; }; f"
 
 
     flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
