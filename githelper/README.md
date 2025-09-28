@@ -1,560 +1,224 @@
-# Git Aliases
-
-This repository provides a collection of useful Git aliases to streamline your workflow. These aliases are designed to simplify common Git operations and provide more informative output.
-
-## Installation
-
-To use these aliases, you need to include them in your global Git configuration file.
-
-1.  **Locate your `.gitconfig` file:**
-    *   On Windows, it's typically located at `C:\Users\<your_username>\.gitconfig`.
-    *   On macOS and Linux, it's usually `~/.gitconfig`.
-
-2.  **Add the following lines to your `.gitconfig` file:**
-
-    ```gitconfig
-    [include]
-        path = <path_to_this_repository>/.gitconfigalias
-    ```
-
-    **Replace `<path_to_this_repository>` with the actual absolute path to the directory containing the `.gitconfigalias` file.**
-
-    For example, if you cloned this repository to `d:/Development/gitflowhelper/githelper/`, the line would be:
-
-    ```gitconfig
-    [include]
-        path = d:/Development/gitflowhelper/githelper/.gitconfigalias
-    ```
-
-3.  **Save the `.gitconfig` file.**
-
-Now, you can use the defined Git aliases in your terminal.
-
-## Aliases
-
-Here's a detailed list of the available Git aliases with their descriptions and parameters:
-
-### Log and History Aliases
-
-*   `ls`
-    *   **Description:** Shows the Git log with entries from all branches, including the stash, ordered by date.
-    *   **Parameters:** None.
-*   `l`
-    *   **Description:** Displays a concise log of the last 5 commits, including a graph representation.
-    *   **Parameters:** None.
-*   `ll`
-    *   **Description:** Displays a more detailed log of the last 15 commits, including a graph representation.
-    *   **Parameters:** None.
-*   `lf`
-    *   **Description:** Shows the last 5 commits with their modified files listed.
-    *   **Parameters:** None.
-*   `lfb`
-    *   **Description:** A beautifully formatted log of the last 5 commits, showing commit hash, author, relative date, subject, and decorations.
-    *   **Parameters:** None.
-*   `lb`
-    *   **Description:** Similar to `lfb`, but without showing file changes.
-    *   **Parameters:** None.
-*   `lbf`
-    *   **Description:** A formatted log of the last 5 commits, showing commit hash, author, relative date, subject, and decorations (without the graph).
-    *   **Parameters:** None.
-*   `ln`
-    *   **Description:** Shows the last 5 commits with a graph, excluding merge commits.
-    *   **Parameters:** None.
-*   `lsha`
-    *   **Description:** Displays only the abbreviated commit hashes for all commits.
-    *   **Parameters:** None.
-*   `lv`
-    *   **Description:** Shows a diff of the last 3 commits (excluding merges) and opens it in VS Code.
-    *   **Parameters:**
-        *   `$1`, `$2`, ...: Commit references or branches to compare (up to 7).
-*   `lbr`
-    *   **Description:** Fetches all remote branches and lists the latest commit for each, sorted by date.
-    *   **Parameters:**
-        *   `$1` (optional): Number of latest remote branches to display.
-*   `lbv`
-    *   **Description:** Combines `git lb` (last 5 commits) with an optional branch filter.
-    *   **Parameters:**
-        *   `$1`: Branch name.
-        *   `$2` (optional): Number of commits to show (default is 2).
-*   `lg`
-    *   **Description:** A comprehensive, colorized, and paginated log with graph, author, and relative date, excluding tags.
-    *   **Parameters:** None.
-*   `lgt`
-    *   **Description:** Similar to `lg`, but specifically focuses on tags.
-    *   **Parameters:** None.
-*   `lgv`
-    *   **Description:** A detailed, colorized log showing branches, oneline format, with graph and decorations, excluding tags.
-    *   **Parameters:** None.
-*   `lgvt`
-    *   **Description:** Similar to `lgv`, but without excluding tags.
-    *   **Parameters:** None.
-*   `lgvv`
-    *   **Description:** An enhanced, colorized log with graph, decorations, author, and relative date for all branches, excluding tags.
-    *   **Parameters:** None.
-*   `lgvvt`
-    *   **Description:** Similar to `lgvv`, but without excluding tags.
-    *   **Parameters:** None.
-*   `ls` (Submodule log)
-    *   **Description:** Shows a log of commits, including submodule changes, for the last 5 commits.
-    *   **Parameters:**
-        *   `$1`, `$2`, ...: Commit references or branches (up to 9).
-*   `lfind`
-    *   **Description:** A flexible log command for finding commits with a custom, colored format.
-    *   **Parameters:**
-        *   `$1`, `$2`, ...: Commit references or branches (up to 9).
-*   `search`
-    *   **Description:** Finds commits where a given string (regex) is present in the diff, showing matching lines. Uses `-w --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchi`
-    *   **Description:** Similar to `search`, but case-insensitive. Uses `-w --regexp-ignore-case --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchv`
-    *   **Description:** Finds commits where a given string (regex) is present in the diff and shows the matching lines and files. Uses `-w -p --name-only --regexp-ignore-case --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchvi`
-    *   **Description:** Similar to `searchv`, but case-sensitive. Uses `-w -p --name-only --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchvv`
-    *   **Description:** Finds commits with a specific string in the diff and filters the output to show the commit hash and the matching diff line. Uses `-w -p --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchvvi`
-    *   **Description:** Similar to `searchvv`, but case-insensitive. Uses `-w --regexp-ignore-case -p --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchvvv`
-    *   **Description:** Finds commits where a given string (regex) is present in the diff and shows the diff. Uses `-w -p --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `searchvvvi`
-    *   **Description:** Similar to `searchvvv`, but case-insensitive. Uses `-w -p --regexp-ignore-case --text -G`.
-    *   **Parameters:**
-        *   `$1`: The string (regex) to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-
-### Branch and Commit Aliases
-
-*   `cloner`
-    *   **Description:** Clones a repository recursively, including submodules.
-    *   **Parameters:** `<repository_url>`
-*   `sub`
-    *   **Description:** Executes a command for each submodule.
-    *   **Parameters:** `<command>` (e.g., `git sub update`)
-*   `co`
-    *   **Description:** Checks out a branch or commit, recursively including submodules.
-    *   **Parameters:** `<branch_or_commit>`
-*   `ci`
-    *   **Description:** Commits staged changes.
-    *   **Parameters:** `-m "<commit_message>"`
-*   `ciam`
-    *   **Description:** Commits staged changes with a message, adding all modified and deleted files.
-    *   **Parameters:** `-m "<commit_message>"`
-*   `st`
-    *   **Description:** Shows the status of the repository, including untracked files, and highlights branches not connected to remote origin and branches with ahead/behind commits.
-    *   **Parameters:** None.
-*   `sta`
-    *   **Description:** Similar to `st`, but also lists untracked files.
-    *   **Parameters:** None.
-*   `staged`
-    *   **Description:** Shows a list of staged files.
-    *   **Parameters:** None.
-*   `br`
-    *   **Description:** Lists all local branches, sorted by committer date in descending order.
-    *   **Parameters:** None.
-*   `brs`
-    *   **Description:** Lists a specified number of the latest local branches, sorted by committer date.
-    *   **Parameters:**
-        *   `$1` (optional): Number of branches to display (defaults to 5).
-        *   `$@`: Additional arguments to pass to `git branch`.
-*   `hide`
-    *   **Description:** Marks files as "assume unchanged" to temporarily ignore them.
-    *   **Parameters:** `<file1> <file2> ...`
-*   `unhide`
-    *   **Description:** Removes the "assume unchanged" flag from files.
-    *   **Parameters:** `<file1> <file2> ...`
-*   `hidechanged`
-    *   **Description:** Marks modified files as "assume unchanged".
-    *   **Parameters:** None.
-*   `hidden`
-    *   **Description:** Lists all files marked as "assume unchanged".
-    *   **Parameters:** None.
-*   `cohidden`
-    *   **Description:** Checks out all files marked as "assume unchanged" (effectively reverting them).
-    *   **Parameters:** None.
-*   `unhideall`
-    *   **Description:** Unmarks all files marked as "assume unchanged".
-    *   **Parameters:** None.
-*   `hideModified`
-    *   **Description:** Marks files that have been modified and are not staged as "assume unchanged".
-    *   **Parameters:** None.
-*   `addp`
-    *   **Description:** Interactively stages parts of modified files.
-    *   **Parameters:** None.
-*   `stagediff`
-    *   **Description:** Stages all modified files and then shows the status.
-    *   **Parameters:** None.
-*   `reset0diff`
-    *   **Description:** Stages all modified files, unstages them, and then shows the status.
-    *   **Parameters:** None.
-*   `stdiff`
-    *   **Description:** Shows a list of modified files that would be staged by `git diff -G"."`.
-    *   **Parameters:** None.
-*   `unstage`
-    *   **Description:** Unstages files from the index.
-    *   **Parameters:** `<file1> <file2> ...`
-*   `resetfdx`
-    *   **Description:** Resets the working directory, cleans untracked files (including ignored ones), and shows the status. Excludes `.url` and `.cmd` files.
-    *   **Parameters:** None.
-*   `resetfd`
-    *   **Description:** Resets the working directory, cleans untracked files, and shows the status.
-    *   **Parameters:** None.
-*   `b`
-    *   **Description:** Lists local and remote branches, sorted by author date.
-    *   **Parameters:** None.
-*   `deleteAllTrackedFiles`
-    *   **Description:** Deletes all tracked files in the repository. **Use with extreme caution!**
-    *   **Parameters:** None.
-*   `findDangelingCommits`
-    *   **Description:** Finds and lists unreachable or dangling commits.
-    *   **Parameters:** None.
-*   `graph`
-    *   **Description:** Opens TortoiseGit's revision graph in a minimized window.
-    *   **Parameters:** None.
-*   `bbehind`
-    *   **Description:** Lists local branches that are behind their remote counterparts.
-    *   **Parameters:** None.
-*   `bahead`
-    *   **Description:** Lists local branches that are ahead of their remote counterparts.
-    *   **Parameters:** None.
-*   `ffAll`
-    *   **Description:** Fetches all changes, attempts to fast-forward all branches, and then checks out the original branch.
-    *   **Parameters:** None.
-*   `ffAllForce`
-    *   **Description:** Fetches all changes, attempts to fast-forward all branches with force, stashing changes if the repository is not clean.
-    *   **Parameters:** None.
-*   `trackAll`
-    *   **Description:** Configures all remote branches to be tracked locally.
-    *   **Parameters:** None.
-*   `sync`
-    *   **Description:** Pulls changes, tracks all remote branches, force fast-forwards all branches, and shows the verbose branch status.
-    *   **Parameters:** None.
-*   `fix`
-    *   **Description:** Interactively stages changes and creates a `fixup!` commit for the latest commit matching the pattern.
-    *   **Parameters:** `$1`, `$2`, ...: Optional files to add.
-*   `cia`
-    *   **Description:** Adds all staged changes, generates a conventional commit message with emojis, and commits.
-    *   **Parameters:** `$@`: Files to add.
-*   `udiff`
-    *   **Description:** Shows the differences between the current branch and its upstream counterpart.
-    *   **Parameters:** None.
-*   `list`
-    *   **Description:** Lists all Git configurations, including scope and origin.
-    *   **Parameters:** None.
-*   `delgonebr`
-    *   **Description:** Deletes local branches that have been removed from their remote counterparts.
-    *   **Parameters:** None.
-*   `pushfwl`
-    *   **Description:** Pushes the current branch to its upstream, using `force-with-lease`.
-    *   **Parameters:** None.
-*   `branchdiff`
-    *   **Description:** Shows the differences between two branches in terms of commits.
-    *   **Parameters:**
-        *   `$1`: The first branch.
-        *   `$2`: The second branch.
-*   `fixup`
-    *   **Description:** Creates a `fixup!` commit for the latest commit.
-    *   **Parameters:** None.
-*   `mp`
-    *   **Description:** Alias for `git st` (deprecated).
-    *   **Parameters:** None.
-*   `remergefile`
-    *   **Description:** Checks out a file with conflict resolution set to `diff3`.
-    *   **Parameters:** `<file>`
-*   `sc`
-    *   **Description:** Shows the commit diff for a given commit using `kdiff3`.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `scc`
-    *   **Description:** Shows the commit diff using the default diff tool.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `scc1`, `scc2`, `scc3`
-    *   **Description:** Shows the commit diff using different word-diff regex patterns.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `vc`
-    *   **Description:** Opens the diff of a commit in VS Code.
-    *   **Parameters:**
-        *   `$1`: The commit hash or reference.
-        *   `$2`, `$3`, ...: Additional Git diff parameters.
-*   `vc2`
-    *   **Description:** Similar to `vc`, but uses a different diff output file.
-    *   **Parameters:**
-        *   `$1`: The commit hash or reference.
-        *   `$2`, `$3`, ...: Additional Git diff parameters.
-*   `vdmrinit`
-    *   **Description:** Initializes a merge branch for `git vdmr`. Prompts for the merge branch name.
-    *   **Parameters:** None.
-*   `vdmr`
-    *   **Description:** Diffs the current branch against a configured merge branch and opens it in VS Code.
-    *   **Parameters:** `$1`, `$2`, ...: Additional Git diff parameters.
-*   `vd`
-    *   **Description:** Opens a diff in VS Code.
-    *   **Parameters:** `$1`, `$2`, ...: Commit references or branches to compare.
-*   `vd2`
-    *   **Description:** Similar to `vd`, but uses a different diff output file.
-    *   **Parameters:** `$1`, `$2`, ...: Commit references or branches to compare.
-*   `dt`
-    *   **Description:** Uses the default configured difftool.
-    *   **Parameters:** None.
-*   `dtd`
-    *   **Description:** Uses the default configured difftool with directory diff mode.
-    *   **Parameters:** None.
-*   `dtc`
-    *   **Description:** Uses VS Code as the difftool.
-    *   **Parameters:** None.
-*   `dtcd`
-    *   **Description:** Uses VS Code as the difftool with directory diff mode.
-    *   **Parameters:** None.
-*   `dtg`
-    *   **Description:** Generates a GitLab compare URL for two commit hashes and copies it to the clipboard.
-    *   **Parameters:**
-        *   `$1`: The first commit hash.
-        *   `$2` (optional): The second commit hash. If not provided, HEAD is used for the second hash.
-*   `rl`
-    *   **Description:** Shows the Git reflog.
-    *   **Parameters:** None.
-*   `subget`
-    *   **Description:** Updates and initializes submodules.
-    *   **Parameters:** None.
-*   `deleteUnreachable`
-    *   **Description:** Cleans up unreachable objects, prunes the repository aggressively, and garbage collects.
-    *   **Parameters:** None.
-*   `uniqueCommits`
-    *   **Description:** Lists commits that are present in all branches but not in the history leading up to HEAD (excluding build server commits).
-    *   **Parameters:** None.
-*   `alias`
-    *   **Description:** Lists all Git aliases, optionally filtered by a keyword.
-    *   **Parameters:** `<keyword>` (optional)
-*   `flowhelp`
-    *   **Description:** Opens the Gitflow AVH wiki in a browser.
-    *   **Parameters:** None.
-*   `diffcommit`
-    *   **Description:** Shows the diff of a commit using `kdiff3`.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `mrd`
-    *   **Description:** Diffs the current branch against another branch (or its merge base) and opens the diff in VS Code.
-    *   **Parameters:**
-        *   `$1`: The branch to compare against.
-        *   `$2` (optional): The merge base branch.
-        *   `$3`, `$4`, ...: Additional Git diff parameters.
-*   `mergedevelop`
-    *   **Description:** Merges a specified branch into the current branch, then into develop, and then fast-forwards the specified branch into develop.
-    *   **Parameters:** `$1`: The branch to merge.
-*   `mergepushdevelop`
-    *   **Description:** Merges and pushes the develop branch and the specified branch.
-    *   **Parameters:** `$1`: The branch to merge.
-*   `md`
-    *   **Description:** Merges a specified default branch into the current branch and then into develop, prompting for confirmation.
-    *   **Parameters:** `$1` (optional): The default branch name.
-*   `mpd`
-    *   **Description:** Merges and pushes a specified default branch into the current branch and then into develop, prompting for confirmation.
-    *   **Parameters:** `$1` (optional): The default branch name.
-*   `ut`
-    *   **Description:** Resolves merge conflicts by accepting "theirs" and staging the file.
-    *   **Parameters:** `<file>`
-*   `uo`
-    *   **Description:** Resolves merge conflicts by accepting "ours" and staging the file.
-    *   **Parameters:** `<file>`
-*   `contains`
-    *   **Description:** Shows commits, branches, and tags that contain a given commit.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `find`
-    *   **Description:** Finds commits that match a given pattern, optionally using case-insensitivity and other Git log parameters.
-    *   **Parameters:**
-        *   `$1`: The pattern to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `findv`
-    *   **Description:** Similar to `find`, but also shows the diff and file names.
-    *   **Parameters:**
-        *   `$1`: The pattern to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `findvv`
-    *   **Description:** Similar to `find`, but also shows the full diff.
-    *   **Parameters:**
-        *   `$1`: The pattern to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `findc`
-    *   **Description:** Finds commits matching a pattern and then lists all branches, tags, and commits containing those found commits.
-    *   **Parameters:**
-        *   `$1`: The pattern to search for.
-        *   `$2`, `$3`, ...: Additional Git log parameters.
-*   `unreleasedCommits`
-    *   **Description:** Shows commits since the latest tag.
-    *   **Parameters:** None.
-*   `releases`
-    *   **Description:** Lists all tags containing the prefix "Thi".
-    *   **Parameters:** None.
-*   `showUnreachableCommits`
-    *   **Description:** Shows unreachable commits with a stat summary.
-    *   **Parameters:** None.
-*   `applyCommitToWorkingDirectory`
-    *   **Description:** Applies the diff of a specific commit to the working directory.
-    *   **Parameters:** `$1`: Commit hash or reference.
-*   `isClean`
-    *   **Description:** Checks if the repository is clean (no uncommitted changes). Aborts if not clean.
-    *   **Parameters:** None.
-*   `deleteBranchBoth`
-    *   **Description:** Deletes a branch locally and from the remote origin.
-    *   **Parameters:**
-        *   `$1`: The branch name.
-        *   `$2`: The remote name (usually `origin`).
-*   `dbb`
-    *   **Description:** Alias for `git deleteBranchBoth`.
-    *   **Parameters:**
-        *   `$1`: The branch name.
-        *   `$2`: The remote name (usually `origin`).
-
-### Feature Branch Workflow Aliases
-
-*   `openfeat`
-    *   **Description:** Creates a new feature branch with the prefix `feature/` and sets it to upstream.
-    *   **Parameters:** `$1`: The name of the feature.
-*   `closefeat`
-    *   **Description:** Rebases the current branch onto a specified parent branch, prompting for confirmation.
-    *   **Parameters:** `$1`: The parent branch name.
-*   `finishclosefeat`
-    *   **Description:** Merges a temporary rebase branch and cleans up.
-    *   **Parameters:** `$1`: The target branch.
-*   `finishfeat`
-    *   **Description:** Deletes a feature branch from both local and remote.
-    *   **Parameters:** `$1`: The feature branch name.
-
-### Other Aliases
-
-*   `lc`
-    *   **Description:** Shows the log of changes since the last commit (ORIG_HEAD) without merges.
-    *   **Parameters:** None.
-*   `lp`
-    *   **Description:** Shows the log with patch and stat information.
-    *   **Parameters:** None.
-*   `mt`
-    *   **Description:** Starts the Git mergetool.
-    *   **Parameters:** None.
-*   `serve`
-    *   **Description:** Starts a Git daemon for serving the repository.
-    *   **Parameters:** None.
-*   `stm`
-    *   **Description:** Shows the status of the repository, excluding untracked files.
-    *   **Parameters:** None.
-*   `stfu`
-    *   **Description:** Alias for `git stm`.
-    *   **Parameters:** None.
-*   `gg`
-    *   **Description:** Fetches all tags, prunes remote branches, and shows the status.
-    *   **Parameters:** None.
-*   `prunebr`
-    *   **Description:** Fetches and prunes remote branches, then deletes local branches that no longer exist remotely.
-    *   **Parameters:** None.
-*   `generatesAliases`
-    *   **Description:** Generates Git aliases from the current `alias` configuration.
-    *   **Parameters:** None.
-*   `templateFunction`
-    *   **Description:** A placeholder for a template function (currently just runs `git l`).
-    *   **Parameters:** None.
-*   `parent`
-    *   **Description:** Shows the parent commit of the current branch.
-    *   **Parameters:** None.
-*   `storeDevCorrespondingSupportBranch`
-    *   **Description:** Configures the `devbranch.name` and `build` symbolic ref to point to the corresponding support branch.
-    *   **Parameters:** None.
-*   `build-symbolic-ref`
-    *   **Description:** Displays the content of the `.git/build` symbolic ref.
-    *   **Parameters:** None.
-*   `exclude`
-    *   **Description:** Adds specified patterns to the `.git/info/exclude` file, ensuring uniqueness.
-    *   **Parameters:** `<pattern1> <pattern2> ...`
-*   `excludeUnknown`
-    *   **Description:** Adds untracked files (excluding standard ones) to `.git/info/exclude`.
-    *   **Parameters:** `$1`: Optional path to search within.
-*   `excluded`
-    *   **Description:** Displays the contents of `.git/info/exclude` and then shows the repository status.
-    *   **Parameters:** None.
-*   `includeall`
-    *   **Description:** Removes the `.git/info/exclude` file.
-    *   **Parameters:** None.
-*   `root`
-    *   **Description:** Shows the root directory of the Git repository.
-    *   **Parameters:** None.
-*   `brdesc`
-    *   **Description:** Executes the `git-branch-desc.exe` command (assumes it's in your PATH).
-    *   **Parameters:** `$@`: Arguments to pass to `git-branch-desc.exe`.
-*   `brdesclist`
-    *   **Description:** Lists the contents of `BRANCHREADME.md` from all branches.
-    *   **Parameters:** None.
-*   `ignore`
-    *   **Description:** Adds specified patterns to the `.gitignore` file.
-    *   **Parameters:** `<pattern1> <pattern2> ...`
-*   `ignoreUnknown`
-    *   **Description:** Adds untracked files (excluding standard ones) to `.gitignore`.
-    *   **Parameters:** `$1`: Optional path to search within.
-*   `theirs`
-    *   **Description:** Checks out the "theirs" version of specified files and stages them.
-    *   **Parameters:** `<file1> <file2> ...`
-*   `ours`
-    *   **Description:** Checks out the "ours" version of specified files and stages them.
-    *   **Parameters:** `<file1> <file2> ...`
-*   `curl`
-    *   **Description:** Gets the URL of the current commit on GitLab and copies it to the clipboard.
-    *   **Parameters:** `$1` (optional): Commit hash. If not provided, HEAD is used.
-*   `gl`
-    *   **Description:** Gets a GitLab URL for a file or topic and copies it to the clipboard.
-    *   **Parameters:**
-        *   `$1` (optional): The topic (e.g., `blob/main/README.md`, `network`). If not provided, `blob/$branch/README.md` is used.
-*   `jk`
-    *   **Description:** Gets a Jenkins search URL for the repository and copies it to the clipboard.
-    *   **Parameters:** None.
-*   `nx`
-    *   **Description:** Gets a Jenkins search URL (different format) for the repository and copies it to the clipboard.
-    *   **Parameters:** None.
-*   `d`
-    *   **Description:** Shows word-level differences with a unified context of 0.
-    *   **Parameters:** `<file1> <file2>`
-*   `d1`
-    *   **Description:** Shows word-level differences with a custom regex and a unified context of 0.
-    *   **Parameters:** `<file1> <file2>`
-*   `d2`
-    *   **Description:** Shows word-level differences using `\w` regex and a unified context of 0.
-    *   **Parameters:** `<file1> <file2>`
-*   `d3`
-    *   **Description:** Shows character-level differences with a unified context of 0.
-    *   **Parameters:** `<file1> <file2>`
-*   `flowhelp`
-    *   **Description:** Opens the Gitflow AVH wiki in a browser.
-    *   **Parameters:** None.
-*   `aco`
-    *   **Description:** Adds a file and commits it with a message.
-    *   **Parameters:**
-        *   `$1`: The file to add.
-        *   `$2`: The commit message.
-*   `snap`
-    *   **Description:** Commits all changes with the message "snap!".
-    *   **Parameters:** None.
-*   `xbit`
-    *   **Description:** Shows files with executable permissions.
-    *   **Parameters:** `$1`: Optional file path.
-*   `setxbit`
-    *   **Description:** Sets executable permissions on specified files.
-    *   **Parameters:** `<file1> <file2> ...`
+Of course. Here is a `README.md` file that documents the provided Git aliases, organized into logical groups and presented in a table format.
 
 ---
 
-Feel free to contribute more aliases or suggest improvements!
+# Git Alias Helper (`.gitconfigalias`)
+
+This document provides a reference for the custom Git aliases defined in the `.gitconfigalias` file. The aliases are grouped by functionality to make them easier to find and understand.
+
+## How to Use
+
+To use these aliases, include this file in your main Git configuration (`C:\Users\<user>\.gitconfig` or `~/.gitconfig`):
+
+```ini
+[include]
+    path = /path/to/your/.gitconfigalias
+```
+
+---
+
+### Logging & History
+
+These commands provide enhanced and formatted views of your repository's history.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `l` | | Shows a compact, one-line graph log of the last 5 commits. |
+| `ll` | | Shows a compact, one-line graph log of the last 15 commits. |
+| `lf` | | Like `git l`, but also shows the names of files changed in each commit. |
+| `lfb` | | Shows a beautifully formatted graph log of the last 5 commits (excluding merges) with file names. |
+| `lb` | | Shows a beautifully formatted graph log of the last 5 commits, excluding merges. |
+| `lbf` | | Shows a beautifully formatted log of the last 5 commits, including merges. |
+| `ln` | | Shows a compact, one-line graph log of the last 5 non-merge commits. |
+| `lsha` | | Lists only the short SHA hashes of commits. |
+| `lv` | `[<path/ref>...]` | Shows a verbose log with patches for the last 3 commits and opens the output in VS Code. |
+| `lbr` | `[<count>]` | Fetches and displays the most recent commit for each remote branch, sorted by date. |
+| `lg` / `lgt` | | Shows an interactive (via `less`) graph of all branches, simplifying by decoration. |
+| `lgv` | | Shows a simplified one-line graph of all branches, excluding tags. |
+| `lgvt` | | Shows a simplified one-line graph of all branches, including tags. |
+| `lgvv` / `lgvvt` | | Shows a more verbose, decorated graph of all branches (with/without tags). |
+| `ls` | `[<path/ref>...]` | Shows a log of the last 5 commits with submodule changes displayed inline. |
+| `lc` | | Shows a log with stats for commits made since the `ORIG_HEAD` (e.g., after a merge or rebase). |
+| `lp` | | Shows a log with the full patch and stats for each commit. |
+| `rl` | `[<git-reflog-options>]` | Alias for `git reflog`. |
+| `unreleasedCommits` | | Shows all commits made since the last annotated tag. |
+| `uniqueCommits` | | Finds commits that are unique to the current branch history. |
+| `showUnreachableCommits` | | Displays unreachable commit objects found by `fsck`. |
+| `contains` | `<commit-sha>` | Finds which branches and tags contain the specified commit. |
+
+### Searching History
+
+Commands for finding specific changes or commits in the repository's history.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `lfind` | `[<git-log-options>]` | Base command for other search aliases, providing a formatted log output. |
+| `search` | `<regex> [<path>...]` | Finds commits where the given regex is present in the diff (case-sensitive). |
+| `searchi` | `<regex> [<path>...]` | Case-insensitive version of `search`. |
+| `searchv` | `<regex> [<path>...]` | Case-insensitive search that shows matching commits and the names of files changed. |
+| `searchvi` | `<regex> [<path>...]` | Case-sensitive version of `searchv`. |
+| `searchvv` | `<regex> [<path>...]` | Case-sensitive search that shows matching lines from the diff. |
+| `searchvvi` | `<regex> [<path>...]` | Case-insensitive version of `searchvv`. |
+| `searchvvv` | `<regex> [<path>...]` | Finds commits with matching text in the diff and shows the full diff (case-sensitive). |
+| `searchvvvi` | `<regex> [<path>...]` | Case-insensitive version of `searchvvv`. |
+| `find` | `<regex> [<path>...]` | Finds commits where the commit message matches the regex (case-insensitive). |
+| `findv` | `<regex> [<path>...]` | Like `find`, but also shows file names. |
+| `findvv` | `<regex> [<path>...]` | Like `find`, but also shows the full patch. |
+| `findc` | `<regex> [<path>...]` | Finds commits by message and then shows which branches contain them. |
+
+### Status & Staging
+
+Commands for inspecting the working directory, staging changes, and managing state.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `st` | | Comprehensive status: shows branch tracking, ahead/behind info, and short status. |
+| `sta` | | Like `st`, but also explicitly lists untracked files. |
+| `stm` / `stfu` | | Shows status without listing untracked files. |
+| `staged` | | Lists the names of files that are currently staged (in the index). |
+| `unstage` | `[<file>...]` | Unstages files from the index, moving them back to unstaged changes. |
+| `addp` | | Interactively stage parts of files, ignoring whitespace differences. |
+| `stagediff` | | Stages all tracked files that have modifications. |
+| `stdiff` | | Shows the names of tracked files that have modifications. |
+
+### Committing
+
+Aliases to streamline the commit process.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `ci` | `[<git-commit-options>]` | Alias for `commit`. |
+| `ciam` | `[<git-commit-options>]` | Alias for `commit -am` (add and commit tracked files). |
+| `snap` | | Commits all tracked, modified files with the message "snap!". |
+| `fix` | `[<file>...]` | Interactively stages parts of files and commits them as a fixup to the most recent non-fixup commit. |
+| `fixup` | | Creates a `fixup!` commit for the current `HEAD`. |
+| `cia` | `[<file>...]` | Uses an external tool (`gia`) to generate a conventional commit message, then opens it in an editor. |
+| `aco` | `<file> "<message>"` | Adds a single file and commits it with the provided message. |
+
+### Branching & Merging
+
+Commands for managing branches and merge operations.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `br` | `[<git-branch-options>]` | Lists local branches, sorted by most recent commit date. |
+| `brs` | `[<count>] [<options>]` | Lists the N most recently committed-to local branches (defaults to 5). |
+| `co` | `[<git-checkout-options>]` | Alias for `checkout --recurse-submodules`. |
+| `mt` | | Alias for `mergetool`. |
+| `branchdiff` | `<branch1> <branch2>` | Shows commits that are in one branch but not the other, for both branches. |
+| `parent` | | Shows the parent branch of the current branch in the commit graph. |
+| `delgonebr` | | Deletes local branches whose remote tracking branch has been removed. |
+| `deleteBranchBoth` / `dbb` | `[-f] <branch>` | Deletes a branch locally and on the `origin` remote. |
+| `prunebr` | | Fetches and prunes remotes, then deletes local gone branches. |
+| `ut` / `theirs` | `<file>` | During a merge conflict, accepts the "theirs" version of a file and stages it. |
+| `uo` / `ours` | `<file>` | During a merge conflict, accepts the "ours" version of a file and stages it. |
+| `remergefile` | `<file>` | During a conflict, re-runs the checkout for a file to show conflict markers again. |
+
+### Diffing & Viewing Changes
+
+Commands to compare commits, branches, and files.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `udiff` | `[<path>...]` | Shows the diff between the current branch and its upstream tracking branch. |
+| `sc` | `<commit-sha>` | Shows a directory diff of a commit against its parent using the configured difftool. |
+| `scc` / `scc1` / `scc2` / `scc3` | `<commit-sha>` | Shows a colored word/char diff of a commit against its parent in the console. |
+| `vc` / `vc2` | `<commit-sha> [<path>...]` | Diffs a commit against its parent and opens it in VS Code. |
+| `vd` / `vd2` | `<commit1> <commit2> [...]`| Diffs two commits/branches and opens the result in VS Code. |
+| `vdmr` | `[<path>...]` | Visual diff against the merge-base of the currently configured "merge branch". |
+| `vdmrinit` | | Prompts to set the "merge branch" used by `vdmr`. |
+| `dt` / `dtd` | `[<options>]` | Alias for `difftool` and `difftool -d`. |
+| `dtc` / `dtcd`| `[<options>]` | Runs `difftool` explicitly using VS Code as the tool. |
+| `diffcommit` | `<commit-sha>` | Shows a directory diff of a commit against its parent using `kdiff3`. |
+| `mrd` | `<branch1> [<branch2>]` | Diffs a branch against the merge-base of another branch (defaults to HEAD). |
+| `d` / `d1` / `d2` / `d3` | `[<options>]`| Various forms of word/character-based diffs directly in the terminal. |
+
+### Remote & Synchronization
+
+Commands for interacting with remote repositories.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `cloner` | `<repo-url>` | Alias for `clone --recursive`. |
+| `gg` | | Fetches pruned tags and then runs `git st`. |
+| `trackAll` | | Sets up local branches to track all existing remote branches from `origin`. |
+| `bbehind` | | Lists local branches that are behind their remote counterparts. |
+| `bahead` | | Lists local branches that are ahead of their remote counterparts. |
+| `ffAll` | | Fast-forwards all local branches that are behind their remotes. Aborts if not clean. |
+| `ffAllForce`| | Stashes changes, runs `ffAll`, and then pops the stash. |
+| `sync` | | Pulls, tracks all remotes, fast-forwards all branches, and shows status. |
+| `pushfwl` | `[<options>]`| Alias for `push --force-with-lease`. |
+| `mp` | | Deprecated alias, redirects to `git st`. |
+
+### Custom Workflows
+
+Multi-step processes for common development tasks.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| **Feature Flow** | | |
+| `openfeat` | `<name>` | Creates and pushes a new `feature/<name>` branch. |
+| `closefeat` | `<parent-branch>` | Interactively rebases the current feature branch onto the specified parent branch. |
+| `finishclosefeat` | `<parent-branch>` | Merges the temporary rebased branch into the parent and cleans up. Used after `closefeat`. |
+| `finishfeat` | `<name>` | Deletes the `feature/<name>` branch locally and remotely. |
+| **Merge Develop** | | |
+| `mergedevelop` | `[<branch>]` | Merges the specified branch (or configured `devbranch.name`) with `develop` and vice-versa. |
+| `mergepushdevelop` | `[<branch>]` | Runs `mergedevelop` and then pushes both branches to origin. |
+| `md` | `[<branch>]` | Interactive wrapper for `mergedevelop`. Asks for confirmation. |
+| `mpd` | `[<branch>]` | Interactive wrapper for `mergepushdevelop`. Asks for confirmation. |
+
+### File & Working Directory Management
+
+Commands for managing files, including untracked, ignored, and hidden files.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `hide` | `<file>...` | Marks file(s) as "assume-unchanged", hiding them from `git status`. |
+| `unhide` | `<file>...` | Unmarks file(s) as "assume-unchanged". |
+| `hidechanged` | | Hides all currently modified (but unstaged) files. |
+| `hidden` | | Lists all files currently marked as "assume-unchanged". |
+| `cohidden` | | Force checks out the repository version of all hidden (assume-unchanged) files. |
+| `unhideall` | | Un-hides all files currently marked as "assume-unchanged". |
+| `hideModified` | | Hides all currently modified files. |
+| `resetfdx` | | Hard resets, then aggressively cleans the directory, excluding certain patterns. |
+| `resetfd` | | Hard resets and cleans the directory (`clean -fd`). |
+| `deleteAllTrackedFiles`| | **DANGEROUS**: Deletes all files tracked by Git from the working directory. |
+| `root` | | Prints the root directory of the repository. |
+| `ignore` | `<pattern>...` | Appends pattern(s) to the root `.gitignore` file. |
+| `ignoreUnknown`| | Appends all current untracked files to the root `.gitignore`. |
+| `exclude` | `<pattern>...` | Appends pattern(s) to `.git/info/exclude` to be ignored locally. |
+| `excludeUnknown` | | Appends all current untracked files to `.git/info/exclude`. |
+| `excluded` | | Shows the contents of the local exclude file and runs `git st`. |
+| `includeall` | | Clears the local exclude file (`.git/info/exclude`). |
+| `setxbit` | `[<path>]` | Sets the executable bit for the specified file(s). |
+
+### Submodules & External Tools
+
+Commands for submodules and interacting with external programs.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `sub` | `<git-command>` | Runs the specified Git command in each submodule. |
+| `subget` | | Initializes and recursively updates all submodules. |
+| `graph` | | Opens the TortoiseGit revision graph GUI. |
+| `dtg` | `<commit1> [<commit2>]` | Opens a GitLab "compare" URL for the given commits in a browser. |
+| `curl` | `[<commit-sha>]` | Opens the GitLab commit URL for the specified commit (or HEAD) in a browser. |
+| `gl` | `[<topic>]` | Opens a GitLab URL for the current repo/branch. Defaults to `README.md`. Can be `network`, etc. |
+| `jk` | | Opens the Jenkins search page for the current repository name. |
+| `nx` | | Opens the Nexus search page for artifacts related to the current repository. |
+| `flowhelp` | | Opens the `gitflow-avh` wiki in a browser. |
+| `brdesc` | `[<options>]` | Runs the external `git-branch-desc.exe` tool. |
+| `brdesclist`| | Lists the contents of `BRANCHREADME.md` from all local and remote branches. |
+
+### Repository Maintenance & Meta
+
+Commands for repository cleanup and introspection.
+
+| Alias | Parameters | Description |
+| :--- | :--- | :--- |
+| `list` | | Lists all Git configuration settings, showing their origin and scope. |
+| `alias` | `[<search-term>]` | Lists all defined aliases, optionally filtered by a search term. |
+| `isClean` | | Checks if the working directory is clean. Exits with an error if it is not. |
+| `findDangelingCommits` | | Finds and logs information about unreachable (dangling) commits. |
+| `deleteUnreachable` | | **DANGEROUS**: Expires reflogs and garbage collects all unreachable objects. |
+| `applyCommitToWorkingDirectory`| `<commit-sha>`| Applies the changes from a specific commit as a patch to the current working directory. |
