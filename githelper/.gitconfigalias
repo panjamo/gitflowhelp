@@ -112,9 +112,9 @@
     cia = "!f() { \
         msg=$(git rev-parse --show-toplevel)'/.git/.gitmessage.txt'; \
         git add \"$@\";\
-        git diff --cached | gia 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure.' > '$msg' &&\
-        git ci --edit -F '$msg';\
-        rm '$msg';\
+        git diff --cached | gia 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure.' > \"$msg\" &&\
+        git ci --edit -F \"$msg\";\
+        rm \"$msg\";\
     }; f"
 
     # show diffeneces between branch and origin/branch
