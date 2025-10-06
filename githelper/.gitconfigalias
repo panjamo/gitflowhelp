@@ -196,7 +196,7 @@
 
     alias = ! git config --get-regexp alias | grep -i
 
-    flowhelp = ! explorer https://github.com/petervanderdoes/gitflow-avh/wiki
+    flowhelp = ! git open-browser https://github.com/petervanderdoes/gitflow-avh/wiki
 
     diffcommit = ! git difftool -d --tool=kdiff3 \"$1^\"
 
@@ -363,7 +363,7 @@
         export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/commit\\/'$sha'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        explorer $url; \
+        git open-browser $url; \
     }; f"
 
     # git@gitlab.com:Jochen.Schieberlein/connectto_tst_dev_stg.git --> https://gitlab.com/Jochen.Schieberlein/connectto_tst_dev_stg/-/tree/master?ref_type=heads
@@ -375,7 +375,7 @@
         export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/'$topic'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        explorer $url; \
+        git open-browser $url; \
     }; f"
 
     jk = "!f() { \
@@ -401,7 +401,7 @@
     dia = "!f() { git diff | gia "$@"; }; f"
 
 
-    flowhelp = "!f() { explorer https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
+    flowhelp = "!f() { git open-browser https://github.com/petervanderdoes/gitflow-avh/wiki; }; f"
 
     aco = "!f() { git add "$1"; git ci -m "$2"; }; f"
 
