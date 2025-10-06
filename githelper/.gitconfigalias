@@ -6,6 +6,16 @@
 #
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
+    open-browser = "!f() { \
+        if [[ \"$OSTYPE\" == \"linux-gnu\" || \"$OSTYPE\" == \"darwin21\" ]]; then \
+            open \"$@\"; \
+        elif [[ \"$OSTYPE\" == \"cygwin\" || \"$OSTYPE\" == \"msys\" || \"$OSTYPE\" == \"win32\" ]]; then \
+            start \"\" \"$@\"; \
+        else \
+            echo \"Unsupported OS: $OSTYPE\"; \
+            exit 1; \
+        fi \
+    }; f"
     ls = git log --date-order --all $(git reflog show --format="%h" stash)
     l  = log --graph --oneline -n 5
     ll  = log --graph --oneline -n 15
