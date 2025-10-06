@@ -1,4 +1,3 @@
-
 # add follwing line(s) in C:\Users\<user>\.gitconfig
 #
 # [include]
@@ -7,7 +6,7 @@
 # Help see: https://www.atlassian.com/blog/git/advanced-git-aliases
 [alias]
     open-browser = "!f() { \
-        if [[ \"$OSTYPE\" == \"linux-gnu\" || \"$OSTYPE\" == \"darwin21\" ]]; then \
+        if [[ \"$OSTYPE\" == \"linux-gnu\" || \"$OSTYPE\" == \"darwin\"* ]]; then \
             open \"$@\"; \
         elif [[ \"$OSTYPE\" == \"cygwin\" || \"$OSTYPE\" == \"msys\" || \"$OSTYPE\" == \"win32\" ]]; then \
             start \"\" \"$@\"; \
@@ -183,7 +182,13 @@
     dtg = "!f() { \
         if [ \"$2\" = \"\" ]; then sha2=$(git rev-parse --short HEAD); sha1=$(git rev-parse --short $1); else sha2=$(git rev-parse --short $2); sha1=$(git rev-parse --short $1); fi && \
         export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/compare\\/'$sha1...$sha2?w=1'/g') && \
-        echo $url | clip; \
+        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
+            echo $url | pbcopy; \
+        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
+            echo $url | clip; \
+        else \
+            echo $url | pbcopy; \
+        fi; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
     }; f"
@@ -205,7 +210,7 @@
             then git vd `git merge-base head $1` head $2 $3; \
             else git vd `git merge-base $2 $1 ` $2 $3 $4; \
         fi; }; f"
-    
+
     mergedevelop = ! \
         git isClean && \
         git fetch --all && \
@@ -360,9 +365,15 @@
     # get [C]urrent commit [URL]
     curl = "!f() { \
         if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi; \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/commit\\/'$sha'/g') && \
-        echo $url | clip; \
-        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
+        export url=$(git config --get remote.origin.url | sed -E 's#^git@([^:]+):(.+)\\.git$#https://\\1/\\2/commit/'$sha'#; s#^https://([^/]+)/(.+)\\.git$#https://\\1/\\2/commit/'$sha'#') && \
+        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
+            echo $url | pbcopy; \
+        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
+            echo $url | clip; \
+        else \
+            echo $url | pbcopy; \
+        fi; \
+        printf \"GitLab URL \\033[32m%s\\033[0m copied to clipboard.\\n\" \"$url\"; \
         git open-browser $url; \
     }; f"
 
@@ -372,22 +383,40 @@
         branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\\//\\\\\\//g'); \
         if [ \"$1\" = \"\" ]; then topic=\"blob\\/$branch\\/README.md\"; else topic=$1; fi; \
         if [ \"$topic\" = \"network\" ]; then topic=\"$topic\\/$branch\"; fi; \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/'$topic'/g') && \
-        echo $url | clip; \
+        export url=$(git config --get remote.origin.url | sed -E 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/'$topic'/g') && \
+        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
+            echo $url | pbcopy; \
+        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
+            echo $url | clip; \
+        else \
+            echo $url | pbcopy; \
+        fi; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         git open-browser $url; \
     }; f"
 
     jk = "!f() { \
         export url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g') && \
-        echo $url | clip; \
+        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
+            echo $url | pbcopy; \
+        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
+            echo $url | clip; \
+        else \
+            echo $url | pbcopy; \
+        fi; \
         echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
     }; f"
     # https://ctd-sv01.thinprint.de:440/#browse/search=keyword%3Dtpdbg
     nx = "!f() { \
         export url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1*/g') && \
-        echo $url | clip; \
+        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
+            echo $url | pbcopy; \
+        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
+            echo $url | clip; \
+        else \
+            echo $url | pbcopy; \
+        fi; \
         echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         start $url; \
     }; f"
