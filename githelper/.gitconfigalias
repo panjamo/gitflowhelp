@@ -122,7 +122,7 @@
     cia = "!f() { \
         msg=$(git rev-parse --show-toplevel)'/.git/.gitmessage.txt'; \
         git add \"$@\";\
-        git diff --cached | gia 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure.' > \"$msg\" &&\
+        git diff --cached -U5 | gia 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure.' > \"$msg\" &&\
         git ci --edit -F \"$msg\";\
         rm \"$msg\";\
     }; f"
@@ -360,7 +360,7 @@
     # get [C]urrent commit [URL]
     curl = "!f() { \
         if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi; \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/commit\\/'$sha'/g') && \
+        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\|github.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/commit\\/'$sha'/g') && \
         echo $url | clip; \
         echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
         git open-browser $url; \
