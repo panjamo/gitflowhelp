@@ -130,6 +130,11 @@
     # show diffeneces between branch and origin/branch
     udiff = diff @{u}
 
+    r = "!f() { \
+        git \"$@\";\
+        git submodule foreach --recursive "git \"$@\""; \
+    }; f"
+
     list = config --list --show-scope --show-origin
     delgonebr = ! git branch -vv | grep 'origin/.*: gone]' | awk '{print $1}' | xargs -I{} git branch -d {} -f
     pushfwl = push --force-with-lease
