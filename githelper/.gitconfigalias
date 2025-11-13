@@ -137,6 +137,7 @@
 
     list = config --list --show-scope --show-origin
     delgonebr = ! git branch -vv | grep 'origin/.*: gone]' | awk '{print $1}' | xargs -I{} git branch -d {} -f
+    dgb = delgonebr
     pushfwl = push --force-with-lease
 
     # comment only: "git rev-list support/12.0 --not develop --oneline" shows all commits in support/12.0 and not in develop
