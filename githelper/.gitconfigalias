@@ -122,7 +122,7 @@
     cia = "!f() { \
         msg=$(git rev-parse --show-toplevel)'/.git/.gitmessage.txt'; \
         git add \"$@\";\
-        git diff --cached -U5 | gia -a 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure. If present use the audio file for the subject line. (translate audio file to english first)' > \"$msg\" &&\
+        git diff --cached -U5 | gia -a 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure. If present use the audio file for the subject line. (translate audio file to english first). Use git diff (stdin) for subject line and additional information.' > \"$msg\" &&\
         git ci --edit -F \"$msg\";\
         rm \"$msg\";\
     }; f"
