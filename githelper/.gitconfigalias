@@ -49,6 +49,19 @@
     # search in git diffs, put -G Parameter after "git log" command https://stackoverflow.com/questions/1337320/how-to-grep-git-commit-diffs-or-contents-for-a-certain-word
     # find commits where given string (regex) is in diff
 
+    cosupport = "!f() { \
+    	git fetch --all --prune --tags; \
+        branch=$(git for-each-ref --sort=-committerdate --format='%(refname:short)' refs/heads/ | grep '^support/' | head -n 1); \
+        if [ -z \"$branch\" ]; then \
+            echo \"No support/ branches found\"; \
+            exit 1; \
+        fi; \
+        echo \"Checking out latest support branch: $branch\"; \
+        git checkout \"$branch\" \"$@\"; \
+        git delgonebr; \
+    }; f"
+    
+    
     # --color=always
     lfind = log --oneline --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 
@@ -116,7 +129,8 @@
     # track all remote branches
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
-    sync = "!f() { git pull --tags --prune ; git trackAll ; git ffallforce; git branch -vv; }; f"
+    sync = "!f() { git pull --tags --prune; git trackAll ; git ffallforce; git branch -vv; }; f"
+    syncp = "!f() { git pull --tags --prune ; git delgonebr; git trackAll ; git ffallforce; git branch -vv; }; f"
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
     cia = "!f() { \
@@ -282,7 +296,7 @@
 
     isClean = ! "git diff --stat --exit-code || ( echo -e \"\\e[31mRepository is NOT clean, use \\e[5mgit stash\\e[0m\\e[31m before, command aborted.\\e[0m\" && false )"
 
-    deleteBranchBoth = "!f() { git push --delete $2 origin $1; git branch --delete $2 $1; }; f"
+    deleteBranchBoth = "!f() { git push --delete --force origin $1; git branch --delete --force $1; }; f"
     dbb = deleteBranchBoth
 
     # FEAT FEAT FEAT
