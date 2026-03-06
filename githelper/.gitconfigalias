@@ -57,7 +57,7 @@
             exit 1; \
         fi; \
         echo \"Checking out latest support branch: $branch\"; \
-        git checkout \"$branch\" \"$@\"; \
+        git checkout --recurse-submodules \"$branch\" \"$@\"; \
         git delgonebr; \
     }; f"
     
