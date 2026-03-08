@@ -105,17 +105,17 @@
     graph = ! start /MIN 'C:\\Program Files\\TortoiseGit\\bin\\TortoiseGitProc.exe'  /command:revisiongraph
 
     # checkout and pull all branches
-    bbehind = "! git branch -v | grep -P 'behind \\d+]' | sed 's/^\\* //' | awk '{ print $1 }'"
-    bahead = "! git branch -v | grep -P '\\[ahead \\d+' | sed 's/^\\* //' | awk '{ print $1 }'"
+    bbehind = "! git branch -v | grep -E 'behind [0-9]+]' | sed 's/^\\* //' | awk '{ print $1 }'"
+    bahead = "! git branch -v | grep -E '\\[ahead [0-9]+' | sed 's/^\\* //' | awk '{ print $1 }'"
     ffAll = "! currentbranch=`git rev-parse --abbrev-ref HEAD` && git isclean && git fetch --all && git bbehind | grep  -oh '[^ ]*$' | xargs -I % sh -c \"git checkout --force '%' && git merge --ff-only\" && git co $currentbranch --force"
 
     ffAllForce = "! \
-        if [ `git diff --stat --exit-code | wc -l` = 0 ]; then git ffAll; else git stash; git ffall; git stash pop; fi"
+            if [ `git diff --stat --exit-code | wc -l` = 0 ]; then git ffAll; else git stash; git ffAll; git stash pop; fi"
 
     # track all remote branches
     trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
 
-    sync = "!f() { git pull --prune ; git trackAll ; git ffallforce; git branch -vv; }; f"
+    sync = "!f() { git pull --prune ; git trackAll ; git ffAllForce; git branch -vv; }; f"
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
     cia = "!f() { \
