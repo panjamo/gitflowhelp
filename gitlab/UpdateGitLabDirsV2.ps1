@@ -50,6 +50,13 @@ Function createFolders ($gitlabhost, $company, $headers, $getprojectURLPart) {
 @echo off
 if exist ".git" (
     echo Already cloned
+    echo $fileNameClone>> .git\info\exclude
+    echo $fileNameDelete>> .git\info\exclude
+    echo $filenameUrl>> .git\info\exclude
+    echo $filenameIssue>> .git\info\exclude
+    echo $filenameBug>> .git\info\exclude
+    echo git-graph.dot>> .git\info\exclude
+    echo git-graph.svg>> .git\info\exclude
     exit /b
 )
 git clone --recursive $($project.ssh_url_to_repo) clone_tmp
@@ -68,6 +75,8 @@ echo $filenameUrl>> .git\info\exclude
 echo $filenameIssue>> .git\info\exclude
 echo $filenameBug>> .git\info\exclude
 echo diff.diff>> .git\info\exclude
+echo git-graph.dot>> .git\info\exclude
+echo git-graph.svg>> .git\info\exclude
 "@
                 $repoExcludeFilename = $cwd + $project.path_with_namespace + '\.git\info\exclude'
                 if (Test-Path $repoExcludeFilename) {

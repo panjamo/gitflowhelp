@@ -46,6 +46,7 @@ Commands for viewing commit history in various formats.
 | `lp` | | Shows the log with full patch diffs and stats. |
 | `rl` | | Displays the reflog. |
 | `unreleasedCommits` | | Lists all commits made since the last annotated tag. |
+| `uniqueCommits` | | Lists all commits reachable from any ref that are not reachable from HEAD (excludes Buildserver commits). |
 
 ## Searching
 
@@ -59,6 +60,8 @@ Commands for finding commits by content in diffs or commit messages.
 | `searchvi` | `<regex>` | Case-insensitive version of `searchv`. |
 | `searchvv` | `<regex> [path...]` | Like `searchv`, but filters the diff to only show matching lines. |
 | `searchvvi` | `<regex> [path...]` | Case-insensitive version of `searchvv`. |
+| `searchvvv` | `<regex>` | Like `searchv`, but shows full diffs (no grep filter). |
+| `searchvvvi` | `<regex>` | Case-insensitive version of `searchvvv`. |
 | `contains` | `<commit>` | Shows all branches and tags that contain the given commit. |
 | `find` | `<pattern> [path...]` | Finds commits by commit message content (case-insensitive). |
 | `findv` | `<pattern> [path...]` | Like `find`, but also shows diffs with file names. |
@@ -75,9 +78,12 @@ Commands for comparing changes and viewing content.
 | `d1`, `d2`, `d3` | | `diff` using different word/character regex algorithms. |
 | `udiff` | | Shows differences between the current branch and its upstream branch (`@{u}`). |
 | `sc` | `<commit>` | Shows a commit's changes using the configured `difftool`. |
+| `diffcommit` | `<commit>` | Shows a commit's changes using kdiff3. |
 | `scc`, `scc1`,... | `<commit>` | Shows a commit's changes in the console using various word-diff algorithms. |
-| `vc` | `<commit> [file...]` | Views a commit's changes in VS Code. |
-| `vd` | `<ref1> <ref2> [path...]` | Views the diff between two refs in VS Code. |
+| `vc` | `<commit> [file...]` | Views a commit's changes in VS Code (output to `diff.diff`). |
+| `vc2` | `<commit> [file...]` | Like `vc`, but outputs to `diff2.diff` (for side-by-side comparison). |
+| `vd` | `<ref1> <ref2> [path...]` | Views the diff between two refs in VS Code (output to `diff.diff`). |
+| `vd2` | `<ref1> <ref2> [path...]` | Like `vd`, but outputs to `diff2.diff` (for side-by-side comparison). |
 | `vdmrinit` | | Interactively prompts to set the default branch for `vdmr`. |
 | `vdmr` | `[path...]` | Views the diff between `HEAD` and the configured merge branch in VS Code. |
 | `mrd` | `<branch1> [branch2]` | Views the diff from the merge-base between branches. |
@@ -97,7 +103,9 @@ Commands for managing branches.
 | `br` | | Lists local branches, sorted by most recent commit date. |
 | `brs` | `[-n] [options]` | Lists the top N (default 5) most recent local branches. |
 | `delgonebr` | | Deletes local branches whose remote counterparts are gone. |
+| `dgb` | | Alias for `delgonebr`. |
 | `prunebr` | | Fetches (pruning), then deletes local branches for gone remotes. |
+| `cosupport` | | Fetches all remotes, checks out the most recently committed `support/` branch, and deletes gone local branches. |
 | `dbb` | `<branch> [-f]` | Deletes a branch locally and on the `origin` remote. |
 | `deleteBranchBoth` | `<branch> [-f]` | Alias for `dbb`. |
 | `trackAll` | | Creates local tracking branches for all remote branches. |
@@ -122,6 +130,9 @@ Commands for managing the state of your files.
 | `unstage` | `<file...>` | Unstages file(s) from the index. |
 | `addp` | | Interactively stages parts of files, ignoring whitespace changes. |
 | `stdiff` | | Shows the names of all modified (but not staged) files. |
+| `stagediff` | | Stages only files with actual content changes (ignores whitespace-only changes). |
+| `reset0diff` | | Stages content-changed files, checks out unchanged files, and unstages all (net: discards whitespace-only changes). |
+| `b` | | Lists all local and remote branches sorted by author date. |
 | `resetfd` | | Hard resets and cleans the working directory (`-fd`). |
 | `resetfdx` | | Hard resets and cleans the working directory, including ignored files (`-fdx`). |
 | `isClean` | | A script that fails if the repository has uncommitted changes. |
@@ -150,6 +161,8 @@ Commands for interacting with remote repositories.
 | `ffAll` | | Fetches and fast-forwards all local branches that are behind their remotes. |
 | `ffAllForce` | | Stashes changes if needed, runs `ffAll`, then pops the stash. |
 | `sync` | | Pulls, tracks remote branches, and runs `ffAllForce`. A comprehensive sync. |
+| `syncp` | | Like `sync`, but also deletes gone local branches after syncing. |
+| `r` | `<git-command>` | Runs the given Git command in the current repo and recursively in all submodules. |
 | `serve` | | Serves the repository over the `git://` protocol. |
 | `cloner` | | `clone --recursive`. |
 | `mp` | | Deprecated alias, now runs `git st`. |
@@ -175,6 +188,8 @@ Commands for a specific workflow of merging between `develop` and a dev/support 
 | `mergepushdevelop`| `<dev-branch>` | Runs `mergedevelop` and then pushes both branches to origin. |
 | `md` | `[dev-branch]` | Interactive wrapper for `mergedevelop` using a configured default branch. |
 | `mpd` | `[dev-branch]` | Interactive wrapper for `mergepushdevelop` using a configured default branch. |
+| `storeDevCorrespondingSupportBranch` | | Stores the most recent support branch as the configured `devbranch.name` and creates a `build` symbolic ref pointing to it. |
+| `build-symbolic-ref` | | Prints the branch name stored in the `.git/build` symbolic ref. |
 
 ## Hide / Ignore / Exclude
 
@@ -229,6 +244,7 @@ Commands for cleaning up and managing the repository.
 | `deleteUnreachable` | | Expires the reflog and garbage collects unreachable objects. |
 | `applyCommitToWorkingDirectory` | `<commit>` | Applies the changes from a commit as a patch to the working directory. |
 | `deleteAllTrackedFiles` | | Deletes all files tracked by Git from the working directory. |
+| `releases` | | Lists all tags matching `Thi*` and shows which branches/tags contain each. |
 
 ## File Permissions
 
