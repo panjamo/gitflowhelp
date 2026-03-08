@@ -59,8 +59,8 @@
         git checkout --recurse-submodules \"$branch\" \"$@\"; \
         git delgonebr; \
     }; f"
-    
-    
+
+
     # --color=always
     lfind = log --oneline --abbrev-commit --decorate --date=relative --format=format:\"%C(bold blue)%h%C(reset) - %C(dim white)%an%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(bold red)%d%C(reset)\"
 
@@ -397,22 +397,13 @@
         git open-browser $url; \
     }; f"
 
-    # git@gitlab.com:Jochen.Schieberlein/connectto_tst_dev_stg.git --> https://gitlab.com/Jochen.Schieberlein/connectto_tst_dev_stg/-/tree/master?ref_type=heads
-    # https://ctd-sv01.thinprint.de/thinprint-engine/tpprintdm.git
     gl = "!f() { \
-        branch=$(git rev-parse --abbrev-ref HEAD | sed 's/\\//\\\\\\//g'); \
-        if [ \"$1\" = \"\" ]; then topic=\"blob\\/$branch\\/README.md\"; else topic=$1; fi; \
-        if [ \"$topic\" = \"network\" ]; then topic=\"$topic\\/$branch\"; fi; \
-        export url=$(git config --get remote.origin.url | sed -E 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/'$topic'/g') && \
-        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
-            echo $url | pbcopy; \
-        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
-            echo $url | clip; \
+        remote_url=$(git config --get remote.origin.url); \
+        if echo \"$remote_url\" | grep -q 'github.com'; then \
+            gh repo view -w; \
         else \
-            echo $url | pbcopy; \
+            glab repo view -w; \
         fi; \
-        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        git open-browser $url; \
     }; f"
 
     jk = "!f() { \
