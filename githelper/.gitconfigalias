@@ -200,17 +200,13 @@
     dtc = difftool --tool=code
     dtcd = dtc -d
     dtg = "!f() { \
-        if [ \"$2\" = \"\" ]; then sha2=$(git rev-parse --short HEAD); sha1=$(git rev-parse --short $1); else sha2=$(git rev-parse --short $2); sha1=$(git rev-parse --short $1); fi && \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\(ctd-sv01.thinprint.de\\|gitlab.com\\).\\(.*\\)\\.git/https:\\/\\/\\1\\/\\2\\/-\\/compare\\/'$sha1...$sha2?w=1'/g') && \
-        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
-            echo $url | pbcopy; \
-        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
-            echo $url | clip; \
+        remote_url=$(git config --get remote.origin.url); \
+        if [ \"$2\" = \"\" ]; then head=HEAD; base=$1; else head=$2; base=$1; fi; \
+        if echo \"$remote_url\" | grep -q 'github.com'; then \
+            gh compare $base $head; \
         else \
-            echo $url | pbcopy; \
-        fi; \
-        echo -e \"GitLab URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        start $url; \
+            glab repo compare $base $head; \
+        fi \
     }; f"
 
     rl = reflog
@@ -384,17 +380,13 @@
 
     # get [C]urrent commit [URL]
     curl = "!f() { \
-        if [ \"$1\" = \"\" ]; then sha=$(git rev-parse --short HEAD); else sha=$1; fi; \
-        export url=$(git config --get remote.origin.url | sed -E 's#^git@([^:]+):(.+)\\.git$#https://\\1/\\2/commit/'$sha'#; s#^https://([^/]+)/(.+)\\.git$#https://\\1/\\2/commit/'$sha'#') && \
-        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
-            echo $url | pbcopy; \
-        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
-            echo $url | clip; \
+        remote_url=$(git config --get remote.origin.url); \
+        if [ \"$1\" = \"\" ]; then commit=HEAD; else commit=$1; fi; \
+        if echo \"$remote_url\" | grep -q 'github.com'; then \
+            gh browse $commit; \
         else \
-            echo $url | pbcopy; \
-        fi; \
-        printf \"GitLab URL \\033[32m%s\\033[0m copied to clipboard.\\n\" \"$url\"; \
-        git open-browser $url; \
+            glab browse $commit; \
+        fi \
     }; f"
 
     gl = "!f() { \
@@ -407,29 +399,13 @@
     }; f"
 
     jk = "!f() { \
-        export url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g') && \
-        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
-            echo $url | pbcopy; \
-        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
-            echo $url | clip; \
-        else \
-            echo $url | pbcopy; \
-        fi; \
-        echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        start $url; \
+        url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g'); \
+        git open-browser $url; \
     }; f"
     # https://ctd-sv01.thinprint.de:440/#browse/search=keyword%3Dtpdbg
     nx = "!f() { \
-        export url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1*/g') && \
-        if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "darwin"* ]]; then \
-            echo $url | pbcopy; \
-        elif [[ "$OSTYPE" == "cygwin" || "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then \
-            echo $url | clip; \
-        else \
-            echo $url | pbcopy; \
-        fi; \
-        echo -e \"Jenkins Search URL \\e[32m$url\\e[0m copied to clipboard.\"; \
-        start $url; \
+        url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1*/g'); \
+        git open-browser $url; \
     }; f"
 
 
