@@ -381,11 +381,19 @@
     # get [C]urrent commit [URL]
     curl = "!f() { \
         remote_url=$(git config --get remote.origin.url); \
-        if [ \"$1\" = \"\" ]; then commit=HEAD; else commit=$1; fi; \
-        if echo \"$remote_url\" | grep -q 'github.com'; then \
-            gh browse $commit; \
+        if [ \"$1\" = \"\" ]; then \
+            branch=$(git symbolic-ref --short HEAD); \
+            if echo \"$remote_url\" | grep -q 'github.com'; then \
+                gh browse --branch $branch; \
+            else \
+                glab browse --branch $branch; \
+            fi; \
         else \
-            glab browse $commit; \
+            if echo \"$remote_url\" | grep -q 'github.com'; then \
+                gh browse --commit $1; \
+            else \
+                glab browse --commit $1; \
+            fi; \
         fi \
     }; f"
 
