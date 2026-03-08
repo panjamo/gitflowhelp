@@ -398,10 +398,6 @@
         fi; \
     }; f"
 
-    jk = "!f() { \
-        url=$(git config --get remote.origin.url | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:441\\/search\\/?q=\\1/g'); \
-        git open-browser $url; \
-    }; f"
     # https://ctd-sv01.thinprint.de:440/#browse/search=keyword%3Dtpdbg
     nx = "!f() { \
         url=$(git config --get remote.origin.url | tr [:upper:] [:lower:] | sed 's/^.*\\/\\([^/]*\\)\\.git$/https:\\/\\/ctd-sv01.thinprint.de:440\\/#browse\\/search=keyword%3D\\1*/g'); \
