@@ -389,10 +389,11 @@
                 url=$(echo \"$remote_url\" | sed 's|git@\\([^:]*\\):|https://\\1/|;s|\\.git$||')/-/tree/$branch; git open-browser \"$url\"; \
             fi; \
         else \
+            commit=$(git rev-parse $1); \
             if echo \"$remote_url\" | grep -q 'github.com'; then \
-                gh browse --commit $1; \
+                gh browse --commit=$commit; \
             else \
-                url=$(echo \"$remote_url\" | sed 's|git@\\([^:]*\\):|https://\\1/|;s|\\.git$||')/-/commit/$1; git open-browser \"$url\"; \
+                url=$(echo \"$remote_url\" | sed 's|git@\\([^:]*\\):|https://\\1/|;s|\\.git$||')/-/commit/$commit; git open-browser \"$url\"; \
             fi; \
         fi \
     }; f"
