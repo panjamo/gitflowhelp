@@ -126,10 +126,10 @@
             if [ `git diff --stat --exit-code | wc -l` = 0 ]; then git ffAll; else git stash; git ffAll; git stash pop; fi"
 
     # track all remote branches
-    trackAll = "! git branch -r | awk '{print $1}' | awk '{split($0,a,\"origin/\"); print a[2]}' | xargs -I branchName git branch --track branchName origin/branchName  2> /dev/null"
+    trackAll = "! git branch -r | awk '{print $1}' | grep -v 'HEAD' | while read remote_branch; do remote=$(echo $remote_branch | cut -d'/' -f1); branch=$(echo $remote_branch | cut -d'/' -f2-); git branch --track $branch $remote/$branch 2>/dev/null; done"
 
-    sync = "!f() { git pull --tags --prune ; git trackAll ; git ffAllForce; git branch -vv; }; f"
-    syncp = "!f() { git pull --tags --prune ; git delgonebr; git trackAll ; git ffallforce; git branch -vv; }; f"
+    sync = "!f() { git fetch --all --tags --prune ; git trackAll ; git ffAllForce; git branch -vv; }; f"
+    syncp = "!f() { git fetch --all --tags --prune ; git delgonebr; git trackAll ; git ffallforce; git branch -vv; }; f"
     fix = "!f() { git add -p $1 $2 $3 $4 $5 $6 $7 $8 $9; git ci --fixup $(git log --no-merges --grep='^fixup! ' --format='%H' -1 --invert-grep); }; f"
 
     cia = "!f() { \
