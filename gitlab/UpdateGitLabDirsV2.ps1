@@ -219,8 +219,7 @@ if ($missingIssueUrlFolders.Count -gt 0) {
     Write-Host "`nFound $($missingIssueUrlFolders.Count) folder(s) missing __NEW_ISSUE.url"
     $response = Read-Host "Do you want to open these folders in Zed editor? (y/n)"
     if ($response -eq 'y' -or $response -eq 'Y') {
-        $zedCommand = "zed.exe " + ($missingIssueUrlFolders -join " ")
         Write-Host "Opening folders in Zed..." -ForegroundColor Green
-        Invoke-Expression $zedCommand
+        Start-Process "zed.exe" -ArgumentList $missingIssueUrlFolders
     }
 }
