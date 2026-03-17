@@ -174,7 +174,7 @@ Get-ChildItem -Path (Get-Location).Path -Filter *.lnk | ForEach-Object {
 
 $repos = @()
 $repos += (createFolders "https://ctd-sv01.thinprint.de" "" @{'PRIVATE-TOKEN' = $env:CTDVS01 } "/api/v4")| Sort-Object -Unique
-$repos += (createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLAB_TOKEN } "/api/v4/groups/cortado-group") | Sort-Object -Unique
+$repos += (createFolders "https://gitlab.com" "" @{'PRIVATE-TOKEN' = $env:GITLABCOM } "/api/v4/groups/cortado-group") | Sort-Object -Unique
 $repos | Export-Clixml -Path "repos.xml"
 '"' + ($repos -join '", "') + '"' | Out-File -FilePath "repos.txt"
 
@@ -204,11 +204,23 @@ $uniqueRepos | ForEach-Object {
 $uniqueParents = $parents | Sort-Object -Unique
 $uniqueParents.Count
 
+$missingIssueUrlFolders = @()
 $uniqueParents | % {
     $subfolders = Get-ChildItem -Path $_ -Directory
     $subfolders | % {
         if (-not (Test-Path "$_\__NEW_ISSUE.url") -and (Get-ChildItem -Path $_ -File)) {
             Write-Host "Missing __NEW_ISSUE.url in $_"
+            $missingIssueUrlFolders += $_.FullName
         }
+    }
+}
+
+if ($missingIssueUrlFolders.Count -gt 0) {
+    Write-Host "`nFound $($missingIssueUrlFolders.Count) folder(s) missing __NEW_ISSUE.url"
+    $response = Read-Host "Do you want to open these folders in Zed editor? (y/n)"
+    if ($response -eq 'y' -or $response -eq 'Y') {
+        $zedCommand = "zed.exe " + ($missingIssueUrlFolders -join " ")
+        Write-Host "Opening folders in Zed..." -ForegroundColor Green
+        Invoke-Expression $zedCommand
     }
 }
