@@ -27,7 +27,7 @@
     lv = "!f() { git log --no-merges --oneline -p -3 -U1 $1 $2 $3 $4 $5 $6 $7 > diff.diff && 'C:/Users/josch/AppData/Local/Programs/Microsoft VS Code/bin/code.cmd' diff.diff; }; f"
     lbr = "!f() { git fetch && git branch -r | grep -v HEAD | while read b; do git log --color --format=\"%ci _%C(magenta)%cr %C(bold cyan)$b%Creset %s %C(bold blue)<%an>%Creset\" $b | head -n 1; done | sort -r | cut -d_ -f2- | sed 's;origin/;;g' | head $1; }; f"
 
-
+    fresh = "!f() { git cosupport; git syncp; }; f"
 
     lbv = "!f() { echo $1; git lb $1 -2 $2 ; echo; echo; }; f"
     # git lbr [brach filter] [-10]
@@ -135,7 +135,7 @@
     cia = "!f() { \
         msg=$(git rev-parse --show-toplevel)'/.git/.gitmessage.txt'; \
         git add \"$@\";\
-        git diff --cached -U5 | gia -a 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure. If present add the information of audio file to  the subject line. (translate audio file to english first). Use git diff (stdin) for subject line and additional information.' > \"$msg\" &&\
+        git diff --cached -U5 | gia 'Generate conventional commit message. Use Emojis in subject (Gitmoji). Do NOT explain your Procedure. Use git diff (stdin) for subject line and additional information.' > \"$msg\" &&\
         git ci --edit -F \"$msg\";\
         rm \"$msg\";\
     }; f"
